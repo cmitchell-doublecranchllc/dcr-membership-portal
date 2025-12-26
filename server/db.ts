@@ -9,7 +9,9 @@ import {
   contractAssignments, InsertContractAssignment,
   announcements, InsertAnnouncement,
   messages, InsertMessage,
-  appointments, InsertAppointment
+  appointments, InsertAppointment,
+  events, InsertEvent,
+  eventRsvps, InsertEventRsvp
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
@@ -380,4 +382,106 @@ export async function upsertAppointment(appointment: InsertAppointment) {
       syncedAt: new Date(),
     }
   });
+}
+
+// ============ Event Functions ============
+
+export async function createEvent(event: InsertEvent) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(events).values(event);
+  return result;
+}
+
+export async function getPublishedEvents() {
+  const db = await getDb();
+  if (!db) return [];
+  return await db.select().from(events).where(eq(events.isPublished, true)).orderBy(events.startTime);
+}
+
+export async function getUpcomingEvents() {
+  const db = await getDb();
+  if (!db) return [];
+  const now = Date.now();
+  return await db.select().from(events)
+    .where(and(
+      eq(events.isPublished, true),
+      gte(events.startTime, now)
+    ))
+    .orderBy(events.startTime);
+}
+
+export async function getEventById(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(events).where(eq(events.id, id)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function updateEvent(id: number, updates: Partial<InsertEvent>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(events).set(updates).where(eq(events.id, id));
+}
+
+export async function getAllEvents() {
+  const db = await getDb();
+  if (!db) return [];
+  return await db.select().from(events).orderBy(desc(events.startTime));
+}
+
+// ============ Event RSVP Functions ============
+
+export async function createRsvp(rsvp: InsertEventRsvp) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(eventRsvps).values(rsvp);
+  return result;
+}
+
+export async function getRsvpByEventAndMember(eventId: number, memberId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(eventRsvps)
+    .where(and(
+      eq(eventRsvps.eventId, eventId),
+      eq(eventRsvps.memberId, memberId)
+    ))
+    .limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function getRsvpsByEventId(eventId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return await db.select().from(eventRsvps).where(eq(eventRsvps.eventId, eventId));
+}
+
+export async function getRsvpsByMemberId(memberId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return await db.select().from(eventRsvps).where(eq(eventRsvps.memberId, memberId)).orderBy(desc(eventRsvps.rsvpedAt));
+}
+
+export async function updateRsvp(id: number, updates: Partial<InsertEventRsvp>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(eventRsvps).set(updates).where(eq(eventRsvps.id, id));
+}
+
+export async function deleteRsvp(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.delete(eventRsvps).where(eq(eventRsvps.id, id));
+}
+
+export async function getEventAttendeeCount(eventId: number) {
+  const db = await getDb();
+  if (!db) return 0;
+  const result = await db.select().from(eventRsvps)
+    .where(and(
+      eq(eventRsvps.eventId, eventId),
+      eq(eventRsvps.status, "attending")
+    ));
+  return result.reduce((sum, rsvp) => sum + 1 + (rsvp.guestCount || 0), 0);
 }

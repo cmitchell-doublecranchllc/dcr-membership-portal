@@ -352,6 +352,195 @@ export const appRouter = router({
     }),
   }),
 
+  events: router({
+    // Get upcoming published events
+    getUpcomingEvents: protectedProcedure.query(async () => {
+      return await db.getUpcomingEvents();
+    }),
+
+    // Get all published events
+    getPublishedEvents: protectedProcedure.query(async () => {
+      return await db.getPublishedEvents();
+    }),
+
+    // Get event details
+    getEvent: protectedProcedure
+      .input(z.object({ eventId: z.number() }))
+      .query(async ({ input }) => {
+        return await db.getEventById(input.eventId);
+      }),
+
+    // Get my RSVPs
+    getMyRsvps: protectedProcedure.query(async ({ ctx }) => {
+      const member = await db.getMemberByUserId(ctx.user.id);
+      if (!member) return [];
+      return await db.getRsvpsByMemberId(member.id);
+    }),
+
+    // Get RSVP status for an event
+    getMyRsvpForEvent: protectedProcedure
+      .input(z.object({ eventId: z.number() }))
+      .query(async ({ ctx, input }) => {
+        const member = await db.getMemberByUserId(ctx.user.id);
+        if (!member) return null;
+        return await db.getRsvpByEventAndMember(input.eventId, member.id);
+      }),
+
+    // Create or update RSVP
+    rsvpToEvent: protectedProcedure
+      .input(z.object({
+        eventId: z.number(),
+        status: z.enum(["attending", "not_attending", "maybe"]),
+        guestCount: z.number().default(0),
+        notes: z.string().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const member = await db.getMemberByUserId(ctx.user.id);
+        if (!member) {
+          throw new TRPCError({ code: 'NOT_FOUND', message: 'Member profile not found' });
+        }
+
+        const event = await db.getEventById(input.eventId);
+        if (!event) {
+          throw new TRPCError({ code: 'NOT_FOUND', message: 'Event not found' });
+        }
+
+        // Check if RSVP already exists
+        const existingRsvp = await db.getRsvpByEventAndMember(input.eventId, member.id);
+
+        if (existingRsvp) {
+          // Update existing RSVP
+          await db.updateRsvp(existingRsvp.id, {
+            status: input.status,
+            guestCount: input.guestCount,
+            notes: input.notes,
+          });
+          return { success: true, rsvpId: existingRsvp.id };
+        } else {
+          // Check capacity if attending
+          if (input.status === "attending" && event.capacity) {
+            const currentCount = await db.getEventAttendeeCount(input.eventId);
+            const requestedSpots = 1 + input.guestCount;
+            
+            if (currentCount + requestedSpots > event.capacity) {
+              // Add to waitlist
+              const result = await db.createRsvp({
+                eventId: input.eventId,
+                memberId: member.id,
+                userId: ctx.user.id,
+                status: "waitlist",
+                guestCount: input.guestCount,
+                notes: input.notes,
+                rsvpedAt: Date.now(),
+              });
+              return { success: true, rsvpId: Number(result[0].insertId), waitlisted: true };
+            }
+          }
+
+          // Create new RSVP
+          const result = await db.createRsvp({
+            eventId: input.eventId,
+            memberId: member.id,
+            userId: ctx.user.id,
+            status: input.status,
+            guestCount: input.guestCount,
+            notes: input.notes,
+            rsvpedAt: Date.now(),
+          });
+          return { success: true, rsvpId: Number(result[0].insertId) };
+        }
+      }),
+
+    // Cancel RSVP
+    cancelRsvp: protectedProcedure
+      .input(z.object({ eventId: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        const member = await db.getMemberByUserId(ctx.user.id);
+        if (!member) {
+          throw new TRPCError({ code: 'NOT_FOUND', message: 'Member profile not found' });
+        }
+
+        const rsvp = await db.getRsvpByEventAndMember(input.eventId, member.id);
+        if (!rsvp) {
+          throw new TRPCError({ code: 'NOT_FOUND', message: 'RSVP not found' });
+        }
+
+        await db.deleteRsvp(rsvp.id);
+        return { success: true };
+      }),
+
+    // Get event attendee count
+    getEventAttendeeCount: protectedProcedure
+      .input(z.object({ eventId: z.number() }))
+      .query(async ({ input }) => {
+        return await db.getEventAttendeeCount(input.eventId);
+      }),
+
+    // Admin: Create event
+    createEvent: adminProcedure
+      .input(z.object({
+        title: z.string(),
+        description: z.string().optional(),
+        eventType: z.enum(["competition", "show", "clinic", "social", "other"]),
+        location: z.string().optional(),
+        startTime: z.number(),
+        endTime: z.number(),
+        capacity: z.number().optional(),
+        requiresRsvp: z.boolean().default(true),
+        publish: z.boolean().default(false),
+        imageUrl: z.string().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const result = await db.createEvent({
+          title: input.title,
+          description: input.description,
+          eventType: input.eventType,
+          location: input.location,
+          startTime: input.startTime,
+          endTime: input.endTime,
+          capacity: input.capacity,
+          requiresRsvp: input.requiresRsvp,
+          isPublished: input.publish,
+          createdBy: ctx.user.id,
+          imageUrl: input.imageUrl,
+        });
+        return { success: true, eventId: Number(result[0].insertId) };
+      }),
+
+    // Admin: Update event
+    updateEvent: adminProcedure
+      .input(z.object({
+        eventId: z.number(),
+        title: z.string().optional(),
+        description: z.string().optional(),
+        eventType: z.enum(["competition", "show", "clinic", "social", "other"]).optional(),
+        location: z.string().optional(),
+        startTime: z.number().optional(),
+        endTime: z.number().optional(),
+        capacity: z.number().optional(),
+        requiresRsvp: z.boolean().optional(),
+        isPublished: z.boolean().optional(),
+        imageUrl: z.string().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const { eventId, ...updates } = input;
+        await db.updateEvent(eventId, updates);
+        return { success: true };
+      }),
+
+    // Admin: Get all events
+    getAllEvents: adminProcedure.query(async () => {
+      return await db.getAllEvents();
+    }),
+
+    // Admin: Get event RSVPs
+    getEventRsvps: adminProcedure
+      .input(z.object({ eventId: z.number() }))
+      .query(async ({ input }) => {
+        return await db.getRsvpsByEventId(input.eventId);
+      }),
+  }),
+
   appointments: router({
     // Get my upcoming appointments
     getMyAppointments: protectedProcedure.query(async ({ ctx }) => {

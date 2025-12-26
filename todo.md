@@ -49,6 +49,18 @@
 - [x] Create project checkpoint
 
 ## Phase 8: Deployment
-- [ ] Final review and testing
-- [ ] Create deployment checkpoint
-- [ ] Deliver to user with documentation
+- [x] Final review and testing
+- [x] Create deployment checkpoint
+- [x] Deliver to user with documentation
+
+## Events & Competitions Feature
+- [x] Add events and RSVPs tables to database schema
+- [x] Create event management API endpoints
+- [x] Build RSVP functionality with capacity limits
+- [x] Create events listing page for members
+- [x] Create event details page with RSVP button
+- [x] Build admin event management interface
+- [x] Add event type categories (competition, show, clinic, social)
+- [x] Display member's RSVP status on dashboard
+- [x] Test events and RSVP functionality
+- [x] Create checkpoint with events feature

@@ -165,3 +165,45 @@ export type InsertMessage = typeof messages.$inferInsert;
 
 export type Appointment = typeof appointments.$inferSelect;
 export type InsertAppointment = typeof appointments.$inferInsert;
+
+/**
+ * Events and competitions
+ */
+export const events = mysqlTable("events", {
+  id: int("id").autoincrement().primaryKey(),
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description"),
+  eventType: mysqlEnum("eventType", ["competition", "show", "clinic", "social", "other"]).default("other").notNull(),
+  location: varchar("location", { length: 255 }),
+  startTime: bigint("startTime", { mode: "number" }).notNull(), // Unix timestamp in milliseconds
+  endTime: bigint("endTime", { mode: "number" }).notNull(), // Unix timestamp in milliseconds
+  capacity: int("capacity"), // Max attendees, null = unlimited
+  requiresRsvp: boolean("requiresRsvp").default(true).notNull(),
+  isPublished: boolean("isPublished").default(false).notNull(),
+  createdBy: int("createdBy").notNull(),
+  imageUrl: text("imageUrl"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+/**
+ * Event RSVPs
+ */
+export const eventRsvps = mysqlTable("eventRsvps", {
+  id: int("id").autoincrement().primaryKey(),
+  eventId: int("eventId").notNull(),
+  memberId: int("memberId").notNull(),
+  userId: int("userId").notNull(),
+  status: mysqlEnum("status", ["attending", "not_attending", "maybe", "waitlist"]).default("attending").notNull(),
+  guestCount: int("guestCount").default(0).notNull(), // Number of additional guests
+  notes: text("notes"),
+  rsvpedAt: bigint("rsvpedAt", { mode: "number" }).notNull(), // Unix timestamp in milliseconds
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Event = typeof events.$inferSelect;
+export type InsertEvent = typeof events.$inferInsert;
+
+export type EventRsvp = typeof eventRsvps.$inferSelect;
+export type InsertEventRsvp = typeof eventRsvps.$inferInsert;

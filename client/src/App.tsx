@@ -12,6 +12,9 @@ import AdminContracts from "./pages/AdminContracts";
 import Schedule from "./pages/Schedule";
 import Messages from "./pages/Messages";
 import Announcements from "./pages/Announcements";
+import Events from "./pages/Events";
+import EventDetails from "./pages/EventDetails";
+import AdminEvents from "./pages/AdminEvents";
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
@@ -25,6 +28,9 @@ function Router() {
       <Route path="/schedule" component={Schedule} />
       <Route path="/messages" component={Messages} />
       <Route path="/announcements" component={Announcements} />
+      <Route path="/events" component={Events} />
+      <Route path="/events/:id" component={EventDetails} />
+      <Route path="/admin/events" component={AdminEvents} />
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />

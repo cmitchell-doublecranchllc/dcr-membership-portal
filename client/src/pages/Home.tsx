@@ -273,11 +273,21 @@ export default function Home() {
           </Link>
 
           <Link href="/messages">
-            <Card className="hover:border-primary transition-colors cursor-pointer h-full">
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer">
               <CardHeader>
-                <MessageSquare className="h-8 w-8 text-primary mb-2" />
+                <MessageSquare className="h-10 w-10 text-primary mb-2" />
                 <CardTitle>Messages</CardTitle>
                 <CardDescription>Contact staff</CardDescription>
+              </CardHeader>
+            </Card>
+          </Link>
+
+          <Link href="/events">
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+              <CardHeader>
+                <Calendar className="h-10 w-10 text-primary mb-2" />
+                <CardTitle>Events</CardTitle>
+                <CardDescription>Competitions & activities</CardDescription>
               </CardHeader>
             </Card>
           </Link>
