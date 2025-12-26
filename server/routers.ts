@@ -5,6 +5,8 @@ import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import { z } from "zod";
 import * as db from "./db";
 import { TRPCError } from "@trpc/server";
+import { sendEmail, getEventRsvpConfirmationEmail } from "./_core/email";
+import { format } from "date-fns";
 
 // Admin-only procedure
 const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
@@ -433,7 +435,26 @@ export const appRouter = router({
                 notes: input.notes,
                 rsvpedAt: Date.now(),
               });
-              return { success: true, rsvpId: Number(result[0].insertId), waitlisted: true };
+              // Send waitlist email
+          if (ctx.user.email) {
+            const eventDate = format(new Date(event.startTime), 'EEEE, MMMM d, yyyy');
+            const eventTime = format(new Date(event.startTime), 'h:mm a');
+            const emailData = getEventRsvpConfirmationEmail({
+              memberName: ctx.user.name || 'Member',
+              eventTitle: event.title,
+              eventDate,
+              eventTime,
+              eventLocation: event.location || undefined,
+              guestCount: input.guestCount || 0,
+              status: 'waitlist',
+            });
+            sendEmail({
+              to: ctx.user.email,
+              subject: emailData.subject,
+              html: emailData.html,
+            }).catch(err => console.error('[RSVP] Failed to send email:', err));
+          }
+          return { success: true, rsvpId: Number(result[0].insertId), waitlisted: true };
             }
           }
 
@@ -447,6 +468,25 @@ export const appRouter = router({
             notes: input.notes,
             rsvpedAt: Date.now(),
           });
+          // Send confirmation email
+          if (ctx.user.email && input.status === 'attending') {
+            const eventDate = format(new Date(event.startTime), 'EEEE, MMMM d, yyyy');
+            const eventTime = format(new Date(event.startTime), 'h:mm a');
+            const emailData = getEventRsvpConfirmationEmail({
+              memberName: ctx.user.name || 'Member',
+              eventTitle: event.title,
+              eventDate,
+              eventTime,
+              eventLocation: event.location || undefined,
+              guestCount: input.guestCount || 0,
+              status: input.status,
+            });
+            sendEmail({
+              to: ctx.user.email,
+              subject: emailData.subject,
+              html: emailData.html,
+            }).catch(err => console.error('[RSVP] Failed to send email:', err));
+          }
           return { success: true, rsvpId: Number(result[0].insertId) };
         }
       }),

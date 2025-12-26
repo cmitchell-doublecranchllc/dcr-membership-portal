@@ -64,3 +64,13 @@
 - [x] Display member's RSVP status on dashboard
 - [x] Test events and RSVP functionality
 - [x] Create checkpoint with events feature
+
+## Gmail Email Notifications for Events
+- [x] Request Gmail API credentials from user
+- [x] Create email template system for event notifications
+- [x] Send RSVP confirmation email when member registers
+- [x] Send reminder email 24 hours before event
+- [x] Send waitlist notification emails
+- [x] Add email notification preferences to member profile
+- [x] Test email sending functionality
+- [x] Create checkpoint with email notifications
