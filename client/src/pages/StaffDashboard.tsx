@@ -71,6 +71,9 @@ export default function StaffDashboard() {
               <Link href="/admin/contracts">
                 <Button variant="default">Manage Contracts</Button>
               </Link>
+              <Link href="/admin/recurring-events">
+                <Button variant="outline">Recurring Events</Button>
+              </Link>
               <Link href="/">
                 <Button variant="outline">Back to Home</Button>
               </Link>

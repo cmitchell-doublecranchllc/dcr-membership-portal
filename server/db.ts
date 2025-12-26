@@ -11,7 +11,8 @@ import {
   messages, InsertMessage,
   appointments, InsertAppointment,
   events, InsertEvent,
-  eventRsvps, InsertEventRsvp
+  eventRsvps, InsertEventRsvp,
+  recurringEventSeries, InsertRecurringEventSeries
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
@@ -484,4 +485,79 @@ export async function getEventAttendeeCount(eventId: number) {
       eq(eventRsvps.status, "attending")
     ));
   return result.reduce((sum, rsvp) => sum + 1 + (rsvp.guestCount || 0), 0);
+}
+
+// ============ Recurring Event Series Functions ============
+
+export async function createRecurringSeries(series: InsertRecurringEventSeries) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  return await db.insert(recurringEventSeries).values(series);
+}
+
+export async function getRecurringSeriesById(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(recurringEventSeries).where(eq(recurringEventSeries.id, id)).limit(1);
+  return result[0];
+}
+
+export async function getAllRecurringSeries() {
+  const db = await getDb();
+  if (!db) return [];
+  return await db.select().from(recurringEventSeries).where(eq(recurringEventSeries.isActive, true));
+}
+
+export async function updateRecurringSeries(id: number, updates: Partial<InsertRecurringEventSeries>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  return await db.update(recurringEventSeries).set(updates).where(eq(recurringEventSeries.id, id));
+}
+
+export async function getEventBySeriesAndTime(seriesId: number, startTime: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(events)
+    .where(and(
+      eq(events.recurringSeriesId, seriesId),
+      eq(events.startTime, startTime)
+    ))
+    .limit(1);
+  return result[0];
+}
+
+export async function deleteFutureEventsBySeries(seriesId: number, fromTime: number) {
+  const db = await getDb();
+  if (!db) return 0;
+  const result = await db.delete(events)
+    .where(and(
+      eq(events.recurringSeriesId, seriesId),
+      gte(events.startTime, fromTime)
+    ));
+  return result[0].affectedRows || 0;
+}
+
+export async function deleteFutureNonExceptionEvents(seriesId: number, fromTime: number) {
+  const db = await getDb();
+  if (!db) return 0;
+  const result = await db.delete(events)
+    .where(and(
+      eq(events.recurringSeriesId, seriesId),
+      gte(events.startTime, fromTime),
+      eq(events.recurrenceException, false)
+    ));
+  return result[0].affectedRows || 0;
+}
+
+export async function deleteEvent(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  return await db.delete(events).where(eq(events.id, id));
+}
+
+export async function deleteEventsBySeries(seriesId: number) {
+  const db = await getDb();
+  if (!db) return 0;
+  const result = await db.delete(events).where(eq(events.recurringSeriesId, seriesId));
+  return result[0].affectedRows || 0;
 }

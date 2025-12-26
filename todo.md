@@ -74,3 +74,13 @@
 - [x] Add email notification preferences to member profile
 - [x] Test email sending functionality
 - [x] Create checkpoint with email notifications
+
+## Recurring Events Feature
+- [x] Add recurring event fields to database schema
+- [x] Create recurring event series table
+- [x] Implement event generation logic for daily/weekly/monthly patterns
+- [x] Add UI for creating recurring events
+- [x] Support editing single occurrence vs entire series
+- [x] Support deleting single occurrence vs entire series
+- [x] Test recurring event creation and management
+- [x] Create checkpoint with recurring events feature

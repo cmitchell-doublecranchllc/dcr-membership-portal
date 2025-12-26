@@ -7,6 +7,7 @@ import * as db from "./db";
 import { TRPCError } from "@trpc/server";
 import { sendEmail, getEventRsvpConfirmationEmail } from "./_core/email";
 import { format } from "date-fns";
+import * as recurringEvents from "./recurringEvents";
 
 // Admin-only procedure
 const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
@@ -578,6 +579,107 @@ export const appRouter = router({
       .input(z.object({ eventId: z.number() }))
       .query(async ({ input }) => {
         return await db.getRsvpsByEventId(input.eventId);
+      }),
+  }),
+
+  recurringEvents: router({
+    // Admin: Get all recurring series
+    getAllSeries: adminProcedure.query(async () => {
+      return await db.getAllRecurringSeries();
+    }),
+
+    // Admin: Get series by ID
+    getSeries: adminProcedure
+      .input(z.object({ seriesId: z.number() }))
+      .query(async ({ input }) => {
+        return await db.getRecurringSeriesById(input.seriesId);
+      }),
+
+    // Admin: Create recurring series and generate events
+    createSeries: adminProcedure
+      .input(z.object({
+        title: z.string(),
+        description: z.string().optional(),
+        eventType: z.enum(["competition", "show", "clinic", "social", "other"]),
+        location: z.string().optional(),
+        capacity: z.number().optional(),
+        requiresRsvp: z.boolean().default(true),
+        recurrencePattern: z.enum(["daily", "weekly", "biweekly", "monthly"]),
+        daysOfWeek: z.string().optional(), // "1,3,5" for Mon,Wed,Fri
+        startTimeOfDay: z.string(), // "09:00:00"
+        durationMinutes: z.number(),
+        seriesStartDate: z.number(), // Unix timestamp
+        seriesEndDate: z.number().optional(),
+        maxOccurrences: z.number().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const result = await db.createRecurringSeries({
+          ...input,
+          createdBy: ctx.user.id,
+          isActive: true,
+        });
+        const seriesId = Number(result[0].insertId);
+
+        // Generate event occurrences
+        const generated = await recurringEvents.generateRecurringEvents(seriesId);
+
+        return { success: true, seriesId, eventsGenerated: generated };
+      }),
+
+    // Admin: Update entire series
+    updateSeries: adminProcedure
+      .input(z.object({
+        seriesId: z.number(),
+        title: z.string().optional(),
+        description: z.string().optional(),
+        eventType: z.enum(["competition", "show", "clinic", "social", "other"]).optional(),
+        location: z.string().optional(),
+        capacity: z.number().optional(),
+        requiresRsvp: z.boolean().optional(),
+        recurrencePattern: z.enum(["daily", "weekly", "biweekly", "monthly"]).optional(),
+        daysOfWeek: z.string().optional(),
+        startTimeOfDay: z.string().optional(),
+        durationMinutes: z.number().optional(),
+        seriesEndDate: z.number().optional(),
+        maxOccurrences: z.number().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const { seriesId, ...updates } = input;
+        const generated = await recurringEvents.updateEntireSeries(seriesId, updates);
+        return { success: true, eventsRegenerated: generated };
+      }),
+
+    // Admin: Delete entire series
+    deleteSeries: adminProcedure
+      .input(z.object({ seriesId: z.number() }))
+      .mutation(async ({ input }) => {
+        await recurringEvents.deleteEntireSeries(input.seriesId);
+        return { success: true };
+      }),
+
+    // Admin: Delete single occurrence
+    deleteOccurrence: adminProcedure
+      .input(z.object({ eventId: z.number() }))
+      .mutation(async ({ input }) => {
+        await recurringEvents.deleteSingleOccurrence(input.eventId);
+        return { success: true };
+      }),
+
+    // Admin: Update single occurrence (marks as exception)
+    updateOccurrence: adminProcedure
+      .input(z.object({
+        eventId: z.number(),
+        title: z.string().optional(),
+        description: z.string().optional(),
+        location: z.string().optional(),
+        startTime: z.number().optional(),
+        endTime: z.number().optional(),
+        capacity: z.number().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const { eventId, ...updates } = input;
+        await recurringEvents.updateSingleOccurrence(eventId, updates);
+        return { success: true };
       }),
   }),
 

@@ -169,6 +169,37 @@ export type InsertAppointment = typeof appointments.$inferInsert;
 /**
  * Events and competitions
  */
+/**
+ * Recurring event series - defines the pattern for recurring events
+ */
+export const recurringEventSeries = mysqlTable("recurring_event_series", {
+  id: int("id").autoincrement().primaryKey(),
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description"),
+  eventType: mysqlEnum("eventType", ["competition", "show", "clinic", "social", "other"]).default("other").notNull(),
+  location: varchar("location", { length: 255 }),
+  capacity: int("capacity"),
+  requiresRsvp: boolean("requiresRsvp").default(false).notNull(),
+  
+  // Recurrence pattern
+  recurrencePattern: mysqlEnum("recurrencePattern", ["daily", "weekly", "biweekly", "monthly"]).notNull(),
+  daysOfWeek: varchar("daysOfWeek", { length: 50 }), // Comma-separated: "1,3,5" for Mon,Wed,Fri
+  
+  // Time for each occurrence
+  startTimeOfDay: varchar("startTimeOfDay", { length: 8 }).notNull(), // "09:00:00"
+  durationMinutes: int("durationMinutes").notNull(), // Duration in minutes
+  
+  // Series bounds
+  seriesStartDate: bigint("seriesStartDate", { mode: "number" }).notNull(), // First occurrence date
+  seriesEndDate: bigint("seriesEndDate", { mode: "number" }), // Last occurrence date (null = ongoing)
+  maxOccurrences: int("maxOccurrences"), // Alternative to end date
+  
+  createdBy: int("createdBy").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  isActive: boolean("isActive").default(true).notNull(), // Can deactivate series
+});
+
 export const events = mysqlTable("events", {
   id: int("id").autoincrement().primaryKey(),
   title: varchar("title", { length: 255 }).notNull(),
@@ -178,6 +209,10 @@ export const events = mysqlTable("events", {
   startTime: bigint("startTime", { mode: "number" }).notNull(), // Unix timestamp in milliseconds
   endTime: bigint("endTime", { mode: "number" }).notNull(), // Unix timestamp in milliseconds
   capacity: int("capacity"), // Max attendees, null = unlimited
+  
+  // Recurring event linkage
+  recurringSeriesId: int("recurringSeriesId"), // Links to recurring_event_series if part of series
+  recurrenceException: boolean("recurrenceException").default(false).notNull(), // true if this occurrence was modified
   requiresRsvp: boolean("requiresRsvp").default(true).notNull(),
   isPublished: boolean("isPublished").default(false).notNull(),
   createdBy: int("createdBy").notNull(),
@@ -201,6 +236,9 @@ export const eventRsvps = mysqlTable("eventRsvps", {
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
+
+export type RecurringEventSeries = typeof recurringEventSeries.$inferSelect;
+export type InsertRecurringEventSeries = typeof recurringEventSeries.$inferInsert;
 
 export type Event = typeof events.$inferSelect;
 export type InsertEvent = typeof events.$inferInsert;

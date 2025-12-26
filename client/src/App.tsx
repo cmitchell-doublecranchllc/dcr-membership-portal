@@ -15,6 +15,7 @@ import Announcements from "./pages/Announcements";
 import Events from "./pages/Events";
 import EventDetails from "./pages/EventDetails";
 import AdminEvents from "./pages/AdminEvents";
+import AdminRecurringEvents from "./pages/AdminRecurringEvents";
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
@@ -31,6 +32,7 @@ function Router() {
       <Route path="/events" component={Events} />
       <Route path="/events/:id" component={EventDetails} />
       <Route path="/admin/events" component={AdminEvents} />
+      <Route path="/admin/recurring-events" component={AdminRecurringEvents} />
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />
