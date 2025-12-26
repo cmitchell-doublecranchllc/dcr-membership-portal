@@ -1,28 +1,396 @@
 import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
-import { publicProcedure, router } from "./_core/trpc";
+import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
+import { z } from "zod";
+import * as db from "./db";
+import { TRPCError } from "@trpc/server";
+
+// Admin-only procedure
+const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
+  if (ctx.user.role !== 'admin' && ctx.user.role !== 'staff') {
+    throw new TRPCError({ code: 'FORBIDDEN', message: 'Admin or staff access required' });
+  }
+  return next({ ctx });
+});
 
 export const appRouter = router({
-    // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
   system: systemRouter,
+  
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {
       const cookieOptions = getSessionCookieOptions(ctx.req);
       ctx.res.clearCookie(COOKIE_NAME, { ...cookieOptions, maxAge: -1 });
-      return {
-        success: true,
-      } as const;
+      return { success: true } as const;
     }),
   }),
 
-  // TODO: add feature routers here, e.g.
-  // todo: router({
-  //   list: protectedProcedure.query(({ ctx }) =>
-  //     db.getUserTodos(ctx.user.id)
-  //   ),
-  // }),
+  members: router({
+    // Get current member profile
+    getMyProfile: protectedProcedure.query(async ({ ctx }) => {
+      const member = await db.getMemberByUserId(ctx.user.id);
+      return member;
+    }),
+
+    // Create or update member profile
+    upsertProfile: protectedProcedure
+      .input(z.object({
+        membershipTier: z.enum(["bronze", "silver", "gold"]).optional(),
+        phone: z.string().optional(),
+        emergencyContact: z.string().optional(),
+        acuityClientId: z.string().optional(),
+        dateOfBirth: z.number().optional(), // Unix timestamp
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const existingMember = await db.getMemberByUserId(ctx.user.id);
+        
+        if (existingMember) {
+          await db.updateMember(existingMember.id, {
+            ...input,
+            dateOfBirth: input.dateOfBirth ? new Date(input.dateOfBirth) : undefined,
+          });
+          return { success: true, memberId: existingMember.id };
+        } else {
+          const result = await db.createMember({
+            userId: ctx.user.id,
+            membershipTier: input.membershipTier || "bronze",
+            phone: input.phone,
+            emergencyContact: input.emergencyContact,
+            acuityClientId: input.acuityClientId,
+            dateOfBirth: input.dateOfBirth ? new Date(input.dateOfBirth) : undefined,
+            isChild: false,
+          });
+          return { success: true, memberId: Number(result[0].insertId) };
+        }
+      }),
+
+    // Get children for parent
+    getMyChildren: protectedProcedure.query(async ({ ctx }) => {
+      const member = await db.getMemberByUserId(ctx.user.id);
+      if (!member) return [];
+      return await db.getChildrenByParentId(member.id);
+    }),
+
+    // Add a child
+    addChild: protectedProcedure
+      .input(z.object({
+        name: z.string(),
+        dateOfBirth: z.number().optional(),
+        emergencyContact: z.string().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const parentMember = await db.getMemberByUserId(ctx.user.id);
+        if (!parentMember) {
+          throw new TRPCError({ code: 'NOT_FOUND', message: 'Parent member profile not found' });
+        }
+
+        // Create a placeholder user for the child
+        const childUser = await db.getUserById(0); // This is a placeholder, we'll need to handle child accounts differently
+        
+        const result = await db.createMember({
+          userId: ctx.user.id, // Link to parent's user ID for now
+          parentId: parentMember.id,
+          isChild: true,
+          dateOfBirth: input.dateOfBirth ? new Date(input.dateOfBirth) : undefined,
+          emergencyContact: input.emergencyContact,
+          membershipTier: parentMember.membershipTier, // Inherit parent's tier
+        });
+
+        return { success: true, childId: Number(result[0].insertId) };
+      }),
+
+    // Admin: Get all members
+    getAllMembers: adminProcedure.query(async () => {
+      return await db.getAllMembers();
+    }),
+
+    // Admin: Update member tier
+    updateMemberTier: adminProcedure
+      .input(z.object({
+        memberId: z.number(),
+        tier: z.enum(["bronze", "silver", "gold"]),
+      }))
+      .mutation(async ({ input }) => {
+        await db.updateMember(input.memberId, { membershipTier: input.tier });
+        return { success: true };
+      }),
+  }),
+
+  checkIns: router({
+    // Member checks in
+    checkIn: protectedProcedure
+      .input(z.object({
+        memberId: z.number().optional(), // If parent is checking in a child
+        notes: z.string().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const member = await db.getMemberByUserId(ctx.user.id);
+        if (!member) {
+          throw new TRPCError({ code: 'NOT_FOUND', message: 'Member profile not found' });
+        }
+
+        const targetMemberId = input.memberId || member.id;
+        
+        // Verify parent can check in this child
+        if (input.memberId) {
+          const child = await db.getMemberById(input.memberId);
+          if (!child || child.parentId !== member.id) {
+            throw new TRPCError({ code: 'FORBIDDEN', message: 'Cannot check in this member' });
+          }
+        }
+
+        await db.createCheckIn({
+          memberId: targetMemberId,
+          checkedInBy: ctx.user.id,
+          checkInTime: Date.now(),
+          notes: input.notes,
+        });
+
+        return { success: true, checkInTime: Date.now() };
+      }),
+
+    // Get my check-in history
+    getMyCheckIns: protectedProcedure.query(async ({ ctx }) => {
+      const member = await db.getMemberByUserId(ctx.user.id);
+      if (!member) return [];
+      return await db.getCheckInsByMemberId(member.id);
+    }),
+
+    // Admin: Get today's check-ins
+    getTodayCheckIns: adminProcedure.query(async () => {
+      return await db.getTodayCheckIns();
+    }),
+
+    // Admin: Get recent check-ins
+    getRecentCheckIns: adminProcedure
+      .input(z.object({ limit: z.number().default(50) }))
+      .query(async ({ input }) => {
+        return await db.getRecentCheckIns(input.limit);
+      }),
+  }),
+
+  contracts: router({
+    // Get my assigned contracts
+    getMyAssignments: protectedProcedure.query(async ({ ctx }) => {
+      const member = await db.getMemberByUserId(ctx.user.id);
+      if (!member) return [];
+      return await db.getAssignmentsByMemberId(member.id);
+    }),
+
+    // Get unsigned contracts
+    getUnsignedContracts: protectedProcedure.query(async ({ ctx }) => {
+      const member = await db.getMemberByUserId(ctx.user.id);
+      if (!member) return [];
+      return await db.getUnsignedAssignmentsByMemberId(member.id);
+    }),
+
+    // Get contract details
+    getContract: protectedProcedure
+      .input(z.object({ contractId: z.number() }))
+      .query(async ({ input }) => {
+        return await db.getContractById(input.contractId);
+      }),
+
+    // Sign a contract
+    signContract: protectedProcedure
+      .input(z.object({
+        contractId: z.number(),
+        assignmentId: z.number(),
+        signatureData: z.string(), // Base64 encoded signature
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const member = await db.getMemberByUserId(ctx.user.id);
+        if (!member) {
+          throw new TRPCError({ code: 'NOT_FOUND', message: 'Member profile not found' });
+        }
+
+        // Create signature record
+        await db.createSignature({
+          contractId: input.contractId,
+          memberId: member.id,
+          signedBy: ctx.user.id,
+          signatureData: input.signatureData,
+          signedAt: Date.now(),
+          ipAddress: ctx.req.ip,
+        });
+
+        // Update assignment as signed
+        await db.updateAssignment(input.assignmentId, { isSigned: true });
+
+        return { success: true };
+      }),
+
+    // Get my signed contracts
+    getMySignatures: protectedProcedure.query(async ({ ctx }) => {
+      const member = await db.getMemberByUserId(ctx.user.id);
+      if (!member) return [];
+      return await db.getSignaturesByMemberId(member.id);
+    }),
+
+    // Admin: Create contract
+    createContract: adminProcedure
+      .input(z.object({
+        title: z.string(),
+        description: z.string().optional(),
+        googleDocId: z.string().optional(),
+        googleDocUrl: z.string().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const result = await db.createContract({
+          title: input.title,
+          description: input.description,
+          googleDocId: input.googleDocId,
+          googleDocUrl: input.googleDocUrl,
+          isActive: true,
+          requiresSignature: true,
+        });
+        return { success: true, contractId: Number(result[0].insertId) };
+      }),
+
+    // Admin: Assign contract to member
+    assignContract: adminProcedure
+      .input(z.object({
+        contractId: z.number(),
+        memberId: z.number(),
+        dueDate: z.number().optional(), // Unix timestamp
+      }))
+      .mutation(async ({ ctx, input }) => {
+        await db.assignContract({
+          contractId: input.contractId,
+          memberId: input.memberId,
+          assignedBy: ctx.user.id,
+          dueDate: input.dueDate ? new Date(input.dueDate) : undefined,
+          isSigned: false,
+          reminderSent: false,
+        });
+        return { success: true };
+      }),
+
+    // Admin: Get all contracts
+    getAllContracts: adminProcedure.query(async () => {
+      return await db.getActiveContracts();
+    }),
+  }),
+
+  announcements: router({
+    // Get published announcements
+    getAnnouncements: protectedProcedure.query(async () => {
+      return await db.getPublishedAnnouncements();
+    }),
+
+    // Admin: Create announcement
+    createAnnouncement: adminProcedure
+      .input(z.object({
+        title: z.string(),
+        content: z.string(),
+        targetTiers: z.array(z.enum(["bronze", "silver", "gold"])).optional(),
+        publish: z.boolean().default(false),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const result = await db.createAnnouncement({
+          title: input.title,
+          content: input.content,
+          authorId: ctx.user.id,
+          targetTiers: input.targetTiers ? JSON.stringify(input.targetTiers) : null,
+          isPublished: input.publish,
+          publishedAt: input.publish ? new Date() : undefined,
+        });
+        return { success: true, announcementId: Number(result[0].insertId) };
+      }),
+
+    // Admin: Publish announcement
+    publishAnnouncement: adminProcedure
+      .input(z.object({ announcementId: z.number() }))
+      .mutation(async ({ input }) => {
+        await db.updateAnnouncement(input.announcementId, {
+          isPublished: true,
+          publishedAt: new Date(),
+        });
+        return { success: true };
+      }),
+  }),
+
+  messages: router({
+    // Get my messages
+    getMyMessages: protectedProcedure.query(async ({ ctx }) => {
+      return await db.getMessagesByUserId(ctx.user.id);
+    }),
+
+    // Send a message
+    sendMessage: protectedProcedure
+      .input(z.object({
+        recipientId: z.number(),
+        subject: z.string().optional(),
+        content: z.string(),
+        parentMessageId: z.number().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        await db.createMessage({
+          senderId: ctx.user.id,
+          recipientId: input.recipientId,
+          subject: input.subject,
+          content: input.content,
+          parentMessageId: input.parentMessageId,
+          sentAt: Date.now(),
+          isRead: false,
+        });
+        return { success: true };
+      }),
+
+    // Mark message as read
+    markAsRead: protectedProcedure
+      .input(z.object({ messageId: z.number() }))
+      .mutation(async ({ input }) => {
+        await db.markMessageAsRead(input.messageId);
+        return { success: true };
+      }),
+
+    // Get unread count
+    getUnreadCount: protectedProcedure.query(async ({ ctx }) => {
+      return await db.getUnreadMessageCount(ctx.user.id);
+    }),
+  }),
+
+  appointments: router({
+    // Get my upcoming appointments
+    getMyAppointments: protectedProcedure.query(async ({ ctx }) => {
+      const member = await db.getMemberByUserId(ctx.user.id);
+      if (!member) return [];
+      return await db.getUpcomingAppointments(member.id);
+    }),
+
+    // Get all my appointments (including past)
+    getAllMyAppointments: protectedProcedure.query(async ({ ctx }) => {
+      const member = await db.getMemberByUserId(ctx.user.id);
+      if (!member) return [];
+      return await db.getAppointmentsByMemberId(member.id);
+    }),
+
+    // Admin: Create appointment
+    createAppointment: adminProcedure
+      .input(z.object({
+        memberId: z.number(),
+        appointmentType: z.string(),
+        startTime: z.number(), // Unix timestamp in ms
+        endTime: z.number(), // Unix timestamp in ms
+        status: z.string().optional(),
+        notes: z.string().optional(),
+        acuityAppointmentId: z.string().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        await db.createAppointment({
+          memberId: input.memberId,
+          acuityAppointmentId: input.acuityAppointmentId || `manual-${Date.now()}`,
+          appointmentType: input.appointmentType,
+          startTime: input.startTime,
+          endTime: input.endTime,
+          status: input.status || "scheduled",
+          notes: input.notes,
+        });
+        return { success: true };
+      }),
+  }),
 });
 
 export type AppRouter = typeof appRouter;

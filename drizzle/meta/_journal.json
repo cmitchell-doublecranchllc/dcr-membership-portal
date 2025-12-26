@@ -1,5 +1,20 @@
 {
   "version": "7",
   "dialect": "mysql",
-  "entries": []
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1766780768946,
+      "tag": "0000_light_harry_osborn",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1766780905237,
+      "tag": "0001_typical_lethal_legion",
+      "breakpoints": true
+    }
+  ]
 }
