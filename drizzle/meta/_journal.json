@@ -26,64 +26,8 @@
     {
       "idx": 3,
       "version": "5",
-      "when": 1766790422229,
-      "tag": "0003_stiff_ezekiel",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "5",
-      "when": 1766796116144,
-      "tag": "0004_fuzzy_violations",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "5",
-      "when": 1766800084453,
-      "tag": "0005_gigantic_rogue",
-      "breakpoints": true
-    },
-    {
-      "idx": 6,
-      "version": "5",
-      "when": 1766800123512,
-      "tag": "0006_cool_supernaut",
-      "breakpoints": true
-    },
-    {
-      "idx": 7,
-      "version": "5",
-      "when": 1766802075531,
-      "tag": "0007_free_joystick",
-      "breakpoints": true
-    },
-    {
-      "idx": 8,
-      "version": "5",
-      "when": 1766802483809,
-      "tag": "0008_graceful_sheva_callister",
-      "breakpoints": true
-    },
-    {
-      "idx": 9,
-      "version": "5",
-      "when": 1766805849194,
-      "tag": "0009_worried_wilson_fisk",
-      "breakpoints": true
-    },
-    {
-      "idx": 10,
-      "version": "5",
-      "when": 1766806095600,
-      "tag": "0010_peaceful_sumo",
-      "breakpoints": true
-    },
-    {
-      "idx": 11,
-      "version": "5",
-      "when": 1766808546660,
-      "tag": "0011_thin_tag",
+      "when": 1766810974524,
+      "tag": "0003_flowery_stick",
       "breakpoints": true
     }
   ]

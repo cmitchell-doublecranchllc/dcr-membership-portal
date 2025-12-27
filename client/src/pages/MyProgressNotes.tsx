@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { trpc } from "@/lib/trpc";
 import { FileText } from "lucide-react";
+import { Link } from "wouter";
 import PageHeader from "@/components/PageHeader";
 
 export default function MyProgressNotes() {

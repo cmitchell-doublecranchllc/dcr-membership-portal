@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { toast } from "sonner";
 import { format } from "date-fns";
-import { Calendar, Clock, MapPin, AlertTriangle, RefreshCw, CheckCircle, XCircle } from "lucide-react";
+import { Calendar, Clock, MapPin, AlertTriangle, RefreshCw, CheckCircle, XCircle, User } from "lucide-react";
 import { Link } from "wouter";
 import PageHeader from "@/components/PageHeader";
 

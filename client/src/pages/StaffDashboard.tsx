@@ -11,7 +11,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { trpc } from "@/lib/trpc";
-import { Users, Calendar, CheckCircle, RefreshCw } from "lucide-react";
+import { Users, Calendar, CheckCircle, CheckCircle2, Clock, RefreshCw } from "lucide-react";
 import { Link } from "wouter";
 import PageHeader from "@/components/PageHeader";
 
@@ -85,6 +85,9 @@ export default function StaffDashboard() {
               </Link>
               <Link href="/staff/students">
                 <Button variant="default">Student Profiles</Button>
+              </Link>
+              <Link href="/staff/pending-members">
+                <Button variant="default" className="bg-yellow-600 hover:bg-yellow-700">Pending Members</Button>
               </Link>
             </div>
           }

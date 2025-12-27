@@ -276,12 +276,12 @@
 ## Admin Approval System for New Members
 - [x] Add accountStatus field to users table (pending/approved/rejected)
 - [x] Update database schema with account status
-- [ ] Update registration flow to create pending accounts
-- [ ] Create pending message page for unapproved users
-- [ ] Add pending registrations view in admin dashboard
-- [ ] Add approve/reject API endpoints
-- [ ] Add notification when new user registers
-- [ ] Test approval workflow
+- [x] Update registration flow to create pending accounts
+- [x] Create pending message page for unapproved users
+- [x] Add pending registrations view in admin dashboard
+- [x] Add approve/reject API endpoints with email notifications
+- [x] Add Pending Members button to Staff Dashboard
+- [x] Test approval workflow
 
 ## Consistent Logo and Navigation
 - [x] Update all pages to use PageHeader component

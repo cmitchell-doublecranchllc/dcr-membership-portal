@@ -1169,6 +1169,99 @@ export const appRouter = router({
         return { success: true };
       }),
   }),
+
+  // Admin approval system
+  admin: router({
+    // Get all pending users
+    getPendingUsers: adminProcedure.query(async () => {
+      const pendingUsers = await db.getPendingUsers();
+      return pendingUsers;
+    }),
+
+    // Approve a user
+    approveUser: adminProcedure
+      .input(z.object({
+        userId: z.number(),
+      }))
+      .mutation(async ({ input }) => {
+        const user = await db.getUserById(input.userId);
+        if (!user) {
+          throw new TRPCError({ code: 'NOT_FOUND', message: 'User not found' });
+        }
+
+        // Update user status to approved
+        await db.updateUserAccountStatus(input.userId, 'approved');
+
+        // Send approval email
+        if (user.email) {
+          await sendEmail({
+            to: user.email,
+            subject: 'Welcome to Double C Ranch Pony Club!',
+            html: `
+              <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                <h2 style="color: #7f1d1d;">Welcome to Double C Ranch Pony Club!</h2>
+                <p>Hi ${user.name},</p>
+                <p>Great news! Your membership application has been approved. You now have full access to the member portal.</p>
+                <p><strong>What you can do now:</strong></p>
+                <ul>
+                  <li>View and reschedule your riding lessons</li>
+                  <li>Sign up for events and competitions</li>
+                  <li>View your progress notes from instructors</li>
+                  <li>Sign and manage contracts</li>
+                  <li>Message staff members</li>
+                </ul>
+                <p><a href="${process.env.VITE_OAUTH_PORTAL_URL || 'https://memberdoubleranchllc.com'}" style="background-color: #7f1d1d; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block; margin: 16px 0;">Access Member Portal</a></p>
+                <p>If you have any questions, feel free to reach out to us.</p>
+                <p>Happy riding!<br/>The Double C Ranch Team</p>
+              </div>
+            `,
+          });
+        }
+
+        return { success: true };
+      }),
+
+    // Reject a user
+    rejectUser: adminProcedure
+      .input(z.object({
+        userId: z.number(),
+        reason: z.string().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const user = await db.getUserById(input.userId);
+        if (!user) {
+          throw new TRPCError({ code: 'NOT_FOUND', message: 'User not found' });
+        }
+
+        // Update user status to rejected
+        await db.updateUserAccountStatus(input.userId, 'rejected');
+
+        // Send rejection email
+        if (user.email) {
+          await sendEmail({
+            to: user.email,
+            subject: 'Double C Ranch Pony Club Membership Application',
+            html: `
+              <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                <h2 style="color: #7f1d1d;">Membership Application Update</h2>
+                <p>Hi ${user.name},</p>
+                <p>Thank you for your interest in Double C Ranch Pony Club. Unfortunately, we are unable to approve your membership application at this time.</p>
+                ${input.reason ? `<p><strong>Reason:</strong> ${input.reason}</p>` : ''}
+                <p>If you have any questions or would like to discuss this decision, please feel free to contact us:</p>
+                <ul>
+                  <li>Email: c.mitchell@doubleranchllc.com</li>
+                  <li>Phone: Contact us through the website</li>
+                </ul>
+                <p>Thank you for your understanding.</p>
+                <p>Best regards,<br/>The Double C Ranch Team</p>
+              </div>
+            `,
+          });
+        }
+
+        return { success: true };
+      }),
+  }),
 });
 
 export type AppRouter = typeof appRouter;
