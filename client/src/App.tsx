@@ -22,6 +22,7 @@ import StaffAttendance from "./pages/StaffAttendance";
 import StaffProgressNotes from "./pages/StaffProgressNotes";
 import MyProgressNotes from "./pages/MyProgressNotes";
 import InstructorStudents from "./pages/InstructorStudents";
+import PendingApproval from "./pages/PendingApproval";
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
@@ -45,6 +46,7 @@ function Router() {
       <Route path="/staff/students" component={InstructorStudents} />
       <Route path="/my-lessons" component={MyLessons} />
       <Route path="/my-progress" component={MyProgressNotes} />
+      <Route path="/pending-approval" component={PendingApproval} />
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />

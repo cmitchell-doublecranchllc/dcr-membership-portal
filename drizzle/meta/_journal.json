@@ -78,6 +78,13 @@
       "when": 1766806095600,
       "tag": "0010_peaceful_sumo",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "5",
+      "when": 1766808546660,
+      "tag": "0011_thin_tag",
+      "breakpoints": true
     }
   ]
 }

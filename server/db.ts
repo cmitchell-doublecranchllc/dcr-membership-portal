@@ -78,6 +78,15 @@ export async function upsertUser(user: InsertUser): Promise<void> {
       updateSet.role = 'admin';
     }
 
+    // Set account status: owner is auto-approved, others start as pending
+    if (user.openId === ENV.ownerOpenId) {
+      values.accountStatus = 'approved';
+      updateSet.accountStatus = 'approved';
+    } else if (user.accountStatus === undefined) {
+      // Only set pending on first insert, don't override on update
+      values.accountStatus = 'pending';
+    }
+
     if (!values.lastSignedIn) {
       values.lastSignedIn = new Date();
     }
@@ -1056,4 +1065,26 @@ export async function getDetailedAttendanceRecords(startDate?: Date, endDate?: D
   );
   
   return recordsWithDetails;
+}
+
+// ============ Account Status Functions ============
+
+export async function getPendingUsers() {
+  const db = await getDb();
+  if (!db) return [];
+  const result = await db
+    .select()
+    .from(users)
+    .where(eq(users.accountStatus, 'pending'))
+    .orderBy(users.createdAt);
+  return result;
+}
+
+export async function updateUserAccountStatus(userId: number, status: 'approved' | 'rejected') {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db
+    .update(users)
+    .set({ accountStatus: status })
+    .where(eq(users.id, userId));
 }

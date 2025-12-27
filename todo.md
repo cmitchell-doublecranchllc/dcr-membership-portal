@@ -272,3 +272,13 @@
 - [x] Fix edit mutation to send slotId correctly
 - [x] Fix instructorName null handling in edit mutation
 - [ ] Test editing lesson slots
+
+## Admin Approval System for New Members
+- [x] Add accountStatus field to users table (pending/approved/rejected)
+- [x] Update database schema with account status
+- [ ] Update registration flow to create pending accounts
+- [ ] Create pending message page for unapproved users
+- [ ] Add pending registrations view in admin dashboard
+- [ ] Add approve/reject API endpoints
+- [ ] Add notification when new user registers
+- [ ] Test approval workflow
