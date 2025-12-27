@@ -66,8 +66,9 @@ export default function Home() {
         {/* Hero Section */}
         <div className="container py-16 md:py-24">
           <div className="max-w-3xl mx-auto text-center">
+            <img src="/logo.png" alt="Double C Ranch Logo" className="h-32 mx-auto mb-8" />
             <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-              Pony Club Riding Center
+              Double C Ranch
             </h1>
             <p className="text-xl md:text-2xl text-muted-foreground mb-8">
               Welcome to your membership portal
@@ -157,10 +158,12 @@ export default function Home() {
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between flex-wrap gap-4">
-            <div>
-              <h1 className="text-3xl md:text-4xl font-bold mb-2">
-                Welcome back, {user?.name || 'Rider'}!
-              </h1>
+            <div className="flex items-center gap-4">
+              <img src="/logo.png" alt="Double C Ranch" className="h-16" />
+              <div>
+                <h1 className="text-3xl md:text-4xl font-bold mb-2">
+                  Welcome back, {user?.name || 'Rider'}!
+                </h1>
               {member && (
                 <div className="flex items-center gap-2">
                   <Badge className={getTierColor(member.membershipTier)}>
@@ -168,6 +171,7 @@ export default function Home() {
                   </Badge>
                 </div>
               )}
+              </div>
             </div>
             <div className="flex gap-2">
               {(user?.role === 'admin' || user?.role === 'staff') && (
