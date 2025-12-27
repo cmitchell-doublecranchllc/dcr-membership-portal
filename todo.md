@@ -254,3 +254,16 @@
 - [x] Add click handler to lesson slot cards
 - [x] Add detail dialog showing bookings and slot info
 - [x] Test clicking on lesson slots to view details
+
+## Fix Lesson Slot Date Timezone Bug
+- [x] Fix date/time conversion in lesson slot creation form
+- [x] Ensure selected date matches saved date
+- [ ] Test creating slots for different dates
+
+## Add Lesson Slot Edit Feature
+- [x] Add updateSlot API endpoint to server (already exists)
+- [x] Add updateSlot function to db.ts (already exists)
+- [x] Add Edit and Duplicate buttons to lesson slot cards
+- [x] Create edit dialog with pre-filled form
+- [x] Add duplicate functionality to copy slot with all details
+- [ ] Test editing and duplicating lesson slots
