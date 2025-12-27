@@ -35,7 +35,7 @@ export const appRouter = router({
     // Get current member profile
     getMyProfile: protectedProcedure.query(async ({ ctx }) => {
       const member = await db.getMemberByUserId(ctx.user.id);
-      return member;
+      return member || null;
     }),
 
     // Create or update member profile

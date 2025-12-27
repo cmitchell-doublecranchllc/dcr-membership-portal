@@ -243,3 +243,8 @@
 - [ ] Add attendance trend charts and visualizations
 - [ ] Implement CSV export functionality
 - [ ] Test attendance reports and export
+
+## Fix getMyProfile Query Error
+- [x] Update getMyProfile to return null instead of undefined for admin users without member profiles
+- [x] Update Home page to handle null member profile gracefully
+- [x] Test with admin user without member profile
