@@ -288,3 +288,20 @@
 - [x] Ensure logo appears on every page
 - [x] Make back button placement consistent (left side, same styling)
 - [x] Test all pages for consistent branding
+
+## Fix CheckCircle2 Error
+- [ ] Fix CheckCircle2 import error in StaffDashboard
+- [ ] Verify all lucide-react icon imports are correct
+- [ ] Test Staff Dashboard page
+
+## Member Signup Form
+- [x] Database schema updated with all required fields (emergency contact, medical, consent)
+- [x] Obtained complete liability waiver text from Google Doc
+- [ ] Install react-signature-canvas package for digital signatures
+- [ ] Create multi-step signup page (4 steps: Student Info, Contact Info, Riding Info, Waiver)
+- [ ] Add signup API endpoint in routers.ts
+- [ ] Add route for /signup page in App.tsx
+- [ ] Add "Sign Up" button to homepage
+- [ ] Send confirmation email after signup
+- [ ] Send owner notification when new user registers
+- [ ] Test complete signup and approval flow

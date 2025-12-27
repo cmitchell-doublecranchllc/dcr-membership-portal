@@ -26,10 +26,20 @@ export const members = mysqlTable("members", {
   membershipTier: mysqlEnum("membershipTier", ["bronze", "silver", "gold"]).default("bronze").notNull(),
   acuityClientId: varchar("acuityClientId", { length: 128 }),
   phone: varchar("phone", { length: 32 }),
-  emergencyContact: text("emergencyContact"),
+  emergencyContactName: varchar("emergencyContactName", { length: 255 }),
+  emergencyContactPhone: varchar("emergencyContactPhone", { length: 32 }),
+  emergencyContactRelationship: varchar("emergencyContactRelationship", { length: 128 }),
   parentId: int("parentId"), // Reference to parent member if this is a child
   isChild: boolean("isChild").default(false).notNull(),
   dateOfBirth: timestamp("dateOfBirth"),
+  allergies: text("allergies"),
+  medications: text("medications"),
+  // Consent and legal
+  photoConsent: boolean("photoConsent").default(false).notNull(),
+  smsConsent: boolean("smsConsent").default(false).notNull(),
+  liabilityWaiverSigned: boolean("liabilityWaiverSigned").default(false).notNull(),
+  liabilityWaiverSignedAt: timestamp("liabilityWaiverSignedAt"),
+  liabilityWaiverSignatureData: text("liabilityWaiverSignatureData"),
   // Pony Club Certifications
   horseManagementLevel: mysqlEnum("horseManagementLevel", [
     "d1",
