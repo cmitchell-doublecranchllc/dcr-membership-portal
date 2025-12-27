@@ -112,14 +112,14 @@ export default function StaffLessons() {
     const endTime = startTime + (60 * 60 * 1000);
 
     updateSlot.mutate({
-      id: selectedSlot.id,
+      slotId: selectedSlot.id,
       startTime,
       endTime,
       lessonType,
       maxStudents,
-      instructorName: instructorName || null,
-      location: location || null,
-      notes: notes || null,
+      instructorName: instructorName || undefined,
+      location: location || undefined,
+      notes: notes || undefined,
     });
   };
 

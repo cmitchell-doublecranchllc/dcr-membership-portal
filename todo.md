@@ -267,3 +267,8 @@
 - [x] Create edit dialog with pre-filled form
 - [x] Add duplicate functionality to copy slot with all details
 - [ ] Test editing and duplicating lesson slots
+
+## Fix Edit Lesson Slot Bug
+- [x] Fix edit mutation to send slotId correctly
+- [x] Fix instructorName null handling in edit mutation
+- [ ] Test editing lesson slots
