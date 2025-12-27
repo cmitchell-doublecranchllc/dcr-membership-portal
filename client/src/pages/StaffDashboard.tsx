@@ -11,8 +11,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { trpc } from "@/lib/trpc";
-import { CheckCircle2, Clock, Users, RefreshCw } from "lucide-react";
+import { Users, Calendar, CheckCircle, RefreshCw } from "lucide-react";
 import { Link } from "wouter";
+import PageHeader from "@/components/PageHeader";
 
 export default function StaffDashboard() {
   const { user, isAuthenticated } = useAuth();
@@ -56,14 +57,13 @@ export default function StaffDashboard() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20">
       <div className="container py-8">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between flex-wrap gap-4">
-            <div>
-              <h1 className="text-3xl md:text-4xl font-bold mb-2">Staff Dashboard</h1>
-              <p className="text-muted-foreground">Real-time check-in status and member management</p>
-            </div>
-            <div className="flex gap-2">
+        <PageHeader 
+          title="Staff Dashboard"
+          description="Real-time check-in status and member management"
+          backLink="/"
+          backLabel="Back to Home"
+          action={
+            <div className="flex gap-2 flex-wrap">
               <Button variant="outline" onClick={() => refetchCheckIns()}>
                 <RefreshCw className="mr-2 h-4 w-4" />
                 Refresh
@@ -86,12 +86,9 @@ export default function StaffDashboard() {
               <Link href="/staff/students">
                 <Button variant="default">Student Profiles</Button>
               </Link>
-              <Link href="/">
-                <Button variant="outline">Back to Home</Button>
-              </Link>
             </div>
-          </div>
-        </div>
+          }
+        />
 
         {/* Stats Cards */}
         <div className="grid md:grid-cols-3 gap-6 mb-8">

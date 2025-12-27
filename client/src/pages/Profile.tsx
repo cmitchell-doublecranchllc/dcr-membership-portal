@@ -6,10 +6,10 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { trpc } from "@/lib/trpc";
-import { ArrowLeft, Save, User, Upload, Camera } from "lucide-react";
+import { Save, User, Upload, Camera } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
-import { Link } from "wouter";
+import PageHeader from "@/components/PageHeader";
 
 export default function Profile() {
   const { user, isAuthenticated } = useAuth();
@@ -127,21 +127,14 @@ export default function Profile() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20">
       <div className="container py-8 max-w-3xl">
-        {/* Header */}
-        <div className="mb-8">
-          <Link href="/">
-            <Button variant="ghost" className="mb-4">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Home
-            </Button>
-          </Link>
-          <h1 className="text-3xl md:text-4xl font-bold">My Profile</h1>
-          <p className="text-muted-foreground mt-2">
-            {(user?.role === 'admin' || user?.role === 'staff') && !member
-              ? 'Manage your account information'
-              : 'Manage your membership information'}
-          </p>
-        </div>
+        <PageHeader 
+          title="My Profile"
+          description={(user?.role === 'admin' || user?.role === 'staff') && !member
+            ? 'Manage your account information'
+            : 'Manage your membership information'}
+          backLink="/"
+          backLabel="Back to Home"
+        />
 
         {/* Profile Photo Section */}
         <Card className="mb-6">

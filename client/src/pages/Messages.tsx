@@ -7,10 +7,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { trpc } from "@/lib/trpc";
-import { ArrowLeft, MessageSquare, Send, Mail, MailOpen } from "lucide-react";
+import { MessageSquare, Send, Mail, MailOpen } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Link } from "wouter";
+import PageHeader from "@/components/PageHeader";
 
 export default function Messages() {
   const { user, isAuthenticated } = useAuth();
@@ -87,26 +87,12 @@ export default function Messages() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20">
       <div className="container py-8 max-w-5xl">
-        {/* Header */}
-        <div className="mb-8">
-          <Link href="/">
-            <Button variant="ghost" className="mb-4">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Home
-            </Button>
-          </Link>
-          <div className="flex items-center justify-between flex-wrap gap-4">
-            <div>
-              <h1 className="text-3xl md:text-4xl font-bold mb-2">Messages</h1>
-              <p className="text-muted-foreground">
-                Communicate with staff and view announcements
-              </p>
-              {unreadCount !== undefined && unreadCount > 0 && (
-                <Badge variant="destructive" className="mt-2">
-                  {unreadCount} unread
-                </Badge>
-              )}
-            </div>
+        <PageHeader 
+          title="Messages"
+          description="Communicate with staff and view announcements"
+          backLink="/"
+          backLabel="Back to Home"
+          action={
             <Dialog open={isComposeDialogOpen} onOpenChange={setIsComposeDialogOpen}>
               <DialogTrigger asChild>
                 <Button>
@@ -166,8 +152,8 @@ export default function Messages() {
                 </div>
               </DialogContent>
             </Dialog>
-          </div>
-        </div>
+          }
+        />
 
         {/* Unread Messages */}
         {unreadMessages.length > 0 && (

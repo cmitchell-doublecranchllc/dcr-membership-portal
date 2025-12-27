@@ -4,10 +4,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { trpc } from "@/lib/trpc";
-import { ArrowLeft, FileText, CheckCircle, PenTool } from "lucide-react";
+import { FileText, CheckCircle, PenTool } from "lucide-react";
 import { useState, useRef } from "react";
 import { toast } from "sonner";
-import { Link } from "wouter";
+import PageHeader from "@/components/PageHeader";
 import SignatureCanvas from "react-signature-canvas";
 import { storagePut } from "../../../server/storage";
 
@@ -99,17 +99,12 @@ export default function Contracts() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20">
       <div className="container py-8 max-w-5xl">
-        {/* Header */}
-        <div className="mb-8">
-          <Link href="/">
-            <Button variant="ghost" className="mb-4">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Home
-            </Button>
-          </Link>
-          <h1 className="text-3xl md:text-4xl font-bold mb-2">Contracts & Documents</h1>
-          <p className="text-muted-foreground">View and sign required contracts</p>
-        </div>
+        <PageHeader 
+          title="Contracts & Documents"
+          description="View and sign required contracts"
+          backLink="/"
+          backLabel="Back to Home"
+        />
 
         {/* Unsigned Contracts */}
         {unsignedAssignments.length > 0 && (

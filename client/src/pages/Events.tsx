@@ -3,8 +3,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { trpc } from "@/lib/trpc";
-import { ArrowLeft, Calendar, MapPin, Users, Clock, Trophy, Star, GraduationCap, PartyPopper } from "lucide-react";
+import { Calendar, MapPin, Users, Clock, Trophy, Star, GraduationCap, PartyPopper } from "lucide-react";
 import { Link, useLocation } from "wouter";
+import PageHeader from "@/components/PageHeader";
 
 export default function Events() {
   const { user, isAuthenticated } = useAuth();
@@ -36,28 +37,19 @@ export default function Events() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20">
       <div className="container py-8 max-w-6xl">
-        {/* Header */}
-        <div className="mb-8">
-          <Link href="/">
-            <Button variant="ghost" className="mb-4">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Home
-            </Button>
-          </Link>
-          <div className="flex items-center justify-between flex-wrap gap-4">
-            <div>
-              <h1 className="text-3xl md:text-4xl font-bold mb-2">Events & Competitions</h1>
-              <p className="text-muted-foreground">
-                Upcoming shows, clinics, and club activities
-              </p>
-            </div>
-            {(user?.role === 'admin' || user?.role === 'staff') && (
+        <PageHeader 
+          title="Events & Competitions"
+          description="Upcoming shows, clinics, and club activities"
+          backLink="/"
+          backLabel="Back to Home"
+          action={
+            (user?.role === 'admin' || user?.role === 'staff') ? (
               <Link href="/admin/events">
                 <Button>Manage Events</Button>
               </Link>
-            )}
-          </div>
-        </div>
+            ) : undefined
+          }
+        />
 
         {/* My RSVPs Summary */}
         {myRsvps && myRsvps.length > 0 && (

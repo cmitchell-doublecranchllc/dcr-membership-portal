@@ -282,3 +282,9 @@
 - [ ] Add approve/reject API endpoints
 - [ ] Add notification when new user registers
 - [ ] Test approval workflow
+
+## Consistent Logo and Navigation
+- [x] Update all pages to use PageHeader component
+- [x] Ensure logo appears on every page
+- [x] Make back button placement consistent (left side, same styling)
+- [x] Test all pages for consistent branding

@@ -8,8 +8,9 @@ import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { toast } from "sonner";
 import { format } from "date-fns";
-import { Calendar, Clock, MapPin, User, AlertTriangle, RefreshCw } from "lucide-react";
+import { Calendar, Clock, MapPin, AlertTriangle, RefreshCw, CheckCircle, XCircle } from "lucide-react";
 import { Link } from "wouter";
+import PageHeader from "@/components/PageHeader";
 
 export default function MyLessons() {
   const { user, isAuthenticated } = useAuth();
@@ -116,17 +117,12 @@ export default function MyLessons() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20">
       <div className="container py-8">
-        <div className="mb-8">
-          <div className="flex items-center justify-between flex-wrap gap-4">
-            <div>
-              <h1 className="text-3xl md:text-4xl font-bold mb-2">My Lessons</h1>
-              <p className="text-muted-foreground">View and manage your upcoming riding lessons</p>
-            </div>
-            <Link href="/">
-              <Button variant="outline">Back to Home</Button>
-            </Link>
-          </div>
-        </div>
+        <PageHeader 
+          title="My Lessons"
+          description="View and manage your upcoming riding lessons"
+          backLink="/"
+          backLabel="Back to Home"
+        />
 
         {/* 24-Hour Rule Notice */}
         <Alert className="mb-6">
