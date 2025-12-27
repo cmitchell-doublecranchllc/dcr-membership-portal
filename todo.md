@@ -335,3 +335,11 @@
 - [x] Store signed contract with signature and timestamp
 - [x] Send admin email notification when new member submits registration
 - [x] Test complete workflow: signup → admin notification → approval → contract assignment
+
+## Automated Contract Reminder System
+- [x] Add reminder tracking fields to contractAssignments table
+- [x] Create contract reminder scheduler (daily cron job at 9 AM)
+- [x] Implement 3-day reminder: email to member + admin notification
+- [x] Implement 7-day reminder: email to member + admin alert
+- [x] Track reminder sent dates to prevent duplicate emails
+- [x] Test reminder system with test contract assignments

@@ -116,6 +116,8 @@ export const contractAssignments = mysqlTable("contractAssignments", {
   dueDate: timestamp("dueDate"),
   isSigned: boolean("isSigned").default(false).notNull(),
   reminderSent: boolean("reminderSent").default(false).notNull(),
+  firstReminderSentAt: timestamp("firstReminderSentAt"), // 3-day reminder
+  finalReminderSentAt: timestamp("finalReminderSentAt"), // 7-day reminder
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });

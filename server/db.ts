@@ -280,6 +280,18 @@ export async function updateAssignment(id: number, updates: Partial<InsertContra
   await db.update(contractAssignments).set(updates).where(eq(contractAssignments.id, id));
 }
 
+export async function updateContractAssignment(id: number, updates: Partial<InsertContractAssignment>) {
+  return updateAssignment(id, updates);
+}
+
+export async function getUnsignedContractAssignments() {
+  const db = await getDb();
+  if (!db) return [];
+  return await db.select().from(contractAssignments)
+    .where(eq(contractAssignments.isSigned, false))
+    .orderBy(desc(contractAssignments.createdAt));
+}
+
 // ============ Contract Signature Functions ============
 
 export async function createSignature(signature: InsertContractSignature) {
