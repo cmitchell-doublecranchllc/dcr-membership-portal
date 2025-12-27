@@ -904,3 +904,156 @@ export async function getAllStudentsWithRidingInfo() {
   
   return result;
 }
+
+// Attendance Analytics
+export async function getAttendanceStatsByStudent(startDate?: Date, endDate?: Date) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  let whereConditions = [eq(lessonBookings.status, "completed")];
+  
+  if (startDate) {
+    whereConditions.push(sql`${lessonSlots.startTime} >= ${startDate.getTime()}`);
+  }
+  if (endDate) {
+    whereConditions.push(sql`${lessonSlots.startTime} <= ${endDate.getTime()}`);
+  }
+  
+  const stats = await db
+    .select({
+      memberId: lessonBookings.memberId,
+      userId: members.userId,
+      totalLessons: sql<number>`COUNT(${lessonBookings.id})`,
+      presentCount: sql<number>`SUM(CASE WHEN ${lessonBookings.attendanceStatus} = 'present' THEN 1 ELSE 0 END)`,
+      lateCount: sql<number>`SUM(CASE WHEN ${lessonBookings.attendanceStatus} = 'late' THEN 1 ELSE 0 END)`,
+      absentCount: sql<number>`SUM(CASE WHEN ${lessonBookings.attendanceStatus} = 'absent' THEN 1 ELSE 0 END)`,
+      noShowRate: sql<number>`ROUND(SUM(CASE WHEN ${lessonBookings.attendanceStatus} = 'absent' THEN 1 ELSE 0 END) * 100.0 / COUNT(${lessonBookings.id}), 2)`,
+    })
+    .from(lessonBookings)
+    .leftJoin(members, eq(lessonBookings.memberId, members.id))
+    .leftJoin(lessonSlots, eq(lessonBookings.slotId, lessonSlots.id))
+    .where(and(...whereConditions))
+    .groupBy(lessonBookings.memberId, members.userId);
+
+
+  
+  // Get user names
+  const statsWithNames = await Promise.all(
+    stats.map(async (stat) => {
+      const user = await getUserById(stat.userId);
+      return {
+        ...stat,
+        memberName: user?.name || "Unknown",
+        userEmail: user?.email || "",
+      };
+    })
+  );
+  
+  return statsWithNames;
+}
+
+export async function getMonthlyAttendanceSummary(year: number, month: number) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  const startOfMonth = new Date(year, month - 1, 1).getTime();
+  const endOfMonth = new Date(year, month, 0, 23, 59, 59).getTime();
+  
+  const summary = await db
+    .select({
+      date: sql<string>`DATE(${lessonSlots.startTime} / 1000, 'unixepoch')`,
+      totalLessons: sql<number>`COUNT(${lessonBookings.id})`,
+      presentCount: sql<number>`SUM(CASE WHEN ${lessonBookings.attendanceStatus} = 'present' THEN 1 ELSE 0 END)`,
+      lateCount: sql<number>`SUM(CASE WHEN ${lessonBookings.attendanceStatus} = 'late' THEN 1 ELSE 0 END)`,
+      absentCount: sql<number>`SUM(CASE WHEN ${lessonBookings.attendanceStatus} = 'absent' THEN 1 ELSE 0 END)`,
+    })
+    .from(lessonBookings)
+    .leftJoin(lessonSlots, eq(lessonBookings.slotId, lessonSlots.id))
+    .where(
+      and(
+        eq(lessonBookings.status, "completed"),
+        sql`${lessonSlots.startTime} >= ${startOfMonth}`,
+        sql`${lessonSlots.startTime} <= ${endOfMonth}`
+      )
+    )
+    .groupBy(sql`DATE(${lessonSlots.startTime} / 1000, 'unixepoch')`)
+    .orderBy(sql`DATE(${lessonSlots.startTime} / 1000, 'unixepoch')`);
+  
+  return summary;
+}
+
+export async function getOverallAttendanceStats(startDate?: Date, endDate?: Date) {
+  const db = await getDb();
+  if (!db) return null;
+  
+  let whereConditions = [eq(lessonBookings.status, "confirmed")];
+  
+  if (startDate) {
+    whereConditions.push(sql`${lessonBookings.startTime} >= ${startDate.getTime()}`);
+  }
+  if (endDate) {
+    whereConditions.push(sql`${lessonBookings.startTime} <= ${endDate.getTime()}`);
+  }
+  
+  const result = await db
+    .select({
+      totalLessons: sql<number>`COUNT(${lessonBookings.id})`,
+      totalStudents: sql<number>`COUNT(DISTINCT ${lessonBookings.memberId})`,
+      presentCount: sql<number>`SUM(CASE WHEN ${lessonBookings.attendanceStatus} = 'present' THEN 1 ELSE 0 END)`,
+      lateCount: sql<number>`SUM(CASE WHEN ${lessonBookings.attendanceStatus} = 'late' THEN 1 ELSE 0 END)`,
+      absentCount: sql<number>`SUM(CASE WHEN ${lessonBookings.attendanceStatus} = 'absent' THEN 1 ELSE 0 END)`,
+      attendanceRate: sql<number>`ROUND((SUM(CASE WHEN ${lessonBookings.attendanceStatus} IN ('present', 'late') THEN 1 ELSE 0 END) * 100.0) / COUNT(${lessonBookings.id}), 2)`,
+      noShowRate: sql<number>`ROUND((SUM(CASE WHEN ${lessonBookings.attendanceStatus} = 'absent' THEN 1 ELSE 0 END) * 100.0) / COUNT(${lessonBookings.id}), 2)`,
+    })
+    .from(lessonBookings)
+    .where(and(...whereConditions));
+  
+  return result[0] || null;
+}
+
+export async function getDetailedAttendanceRecords(startDate?: Date, endDate?: Date) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  let whereConditions = [eq(lessonBookings.status, "confirmed")];
+  
+  if (startDate) {
+    whereConditions.push(sql`${lessonBookings.startTime} >= ${startDate.getTime()}`);
+  }
+  if (endDate) {
+    whereConditions.push(sql`${lessonBookings.startTime} <= ${endDate.getTime()}`);
+  }
+  
+  const records = await db
+    .select({
+      bookingId: lessonBookings.id,
+      memberId: lessonBookings.memberId,
+      userId: members.userId,
+      slotId: lessonBookings.slotId,
+      startTime: lessonBookings.startTime,
+      endTime: lessonBookings.endTime,
+      attendanceStatus: lessonBookings.attendanceStatus,
+      attendanceMarkedAt: lessonBookings.attendanceMarkedAt,
+      attendanceNotes: lessonBookings.attendanceNotes,
+    })
+    .from(lessonBookings)
+    .leftJoin(members, eq(lessonBookings.memberId, members.id))
+    .where(and(...whereConditions))
+    .orderBy(desc(lessonBookings.startTime));
+  
+  // Get user names and slot details
+  const recordsWithDetails = await Promise.all(
+    records.map(async (record) => {
+      const user = await getUserById(record.userId);
+      const slot = await getLessonSlotById(record.slotId);
+      return {
+        ...record,
+        memberName: user?.name || "Unknown",
+        userEmail: user?.email || "",
+        slotTitle: slot?.title || "Lesson",
+      };
+    })
+  );
+  
+  return recordsWithDetails;
+}

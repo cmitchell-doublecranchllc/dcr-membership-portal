@@ -221,3 +221,25 @@
 - [x] Make riding experience fields read-only for students
 - [x] Add instructor interface to edit student riding experience
 - [x] Remove updateRidingInfo mutation for students
+
+## Fix Instructor Students Dashboard
+- [x] Debug why student names show as "user"
+- [x] Fix getAllStudentsWithRidingInfo query
+- [x] Test student list display
+- [x] Create demo student account
+
+## Update to Pony Club Certification Levels
+- [x] Update ridingExperienceLevel enum to include Pony Club levels
+- [x] Update database schema with new certification fields (HM level + riding certs)
+- [x] Update instructor dashboard UI dropdowns
+- [x] Update Profile page UI
+- [x] Update Emma Wilson demo account with correct level
+
+## Attendance Reports Dashboard
+- [ ] Add API endpoint for attendance statistics by student
+- [ ] Add API endpoint for monthly attendance summaries
+- [ ] Add API endpoint for no-show rate analytics
+- [ ] Create attendance reports dashboard page
+- [ ] Add attendance trend charts and visualizations
+- [ ] Implement CSV export functionality
+- [ ] Test attendance reports and export

@@ -25,9 +25,10 @@ export default function Profile() {
   const [emergencyContact, setEmergencyContact] = useState("");
   const [membershipTier, setMembershipTier] = useState<"bronze" | "silver" | "gold">("bronze");
   
-  // Riding experience state
-  const [ridingExperienceLevel, setRidingExperienceLevel] = useState<"beginner" | "intermediate" | "advanced" | "expert" | "">("");
-  const [certifications, setCertifications] = useState("");
+  // Pony Club certifications state
+  const [horseManagementLevel, setHorseManagementLevel] = useState<"d1" | "d2" | "d3" | "c1" | "c2" | "c3" | "hb" | "ha" | "">("");
+  const [ridingCertifications, setRidingCertifications] = useState("");
+  const [otherCertifications, setOtherCertifications] = useState("");
   const [ridingGoals, setRidingGoals] = useState("");
   const [medicalNotes, setMedicalNotes] = useState("");
   
@@ -39,8 +40,9 @@ export default function Profile() {
       setPhone(member.phone || "");
       setEmergencyContact(member.emergencyContact || "");
       setMembershipTier(member.membershipTier);
-      setRidingExperienceLevel(member.ridingExperienceLevel || "");
-      setCertifications(member.certifications || "");
+      setHorseManagementLevel(member.horseManagementLevel || "");
+      setRidingCertifications(member.ridingCertifications || "");
+      setOtherCertifications(member.otherCertifications || "");
       setRidingGoals(member.ridingGoals || "");
       setMedicalNotes(member.medicalNotes || "");
     }
@@ -277,29 +279,38 @@ export default function Profile() {
 
         )}
 
-        {/* Riding Experience - Only for members */}
+        {/* Pony Club Certifications - Only for members */}
         {member && (
         <Card className="mb-6">
           <CardHeader>
-            <CardTitle>Riding Experience</CardTitle>
+            <CardTitle>Pony Club Certifications</CardTitle>
             <CardDescription>
-              Your riding profile as assessed by your instructor
+              Your Pony Club certification levels as assessed by your instructor
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="space-y-2">
-              <Label>Experience Level</Label>
-              {ridingExperienceLevel ? (
-                <p className="text-lg capitalize">{ridingExperienceLevel}</p>
+              <Label>Horse Management Level</Label>
+              {horseManagementLevel ? (
+                <p className="text-lg font-semibold">{horseManagementLevel.toUpperCase().replace(/(\w)(\d)/, "$1-$2")}</p>
               ) : (
                 <p className="text-muted-foreground">Not yet assessed by instructor</p>
               )}
             </div>
 
             <div className="space-y-2">
-              <Label>Certifications & Achievements</Label>
-              {certifications ? (
-                <p className="text-sm bg-muted p-3 rounded-md whitespace-pre-wrap">{certifications}</p>
+              <Label>Riding Certifications</Label>
+              {ridingCertifications ? (
+                <p className="text-sm bg-muted p-3 rounded-md whitespace-pre-wrap">{ridingCertifications}</p>
+              ) : (
+                <p className="text-muted-foreground">None recorded</p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label>Other Certifications & Achievements</Label>
+              {otherCertifications ? (
+                <p className="text-sm bg-muted p-3 rounded-md whitespace-pre-wrap">{otherCertifications}</p>
               ) : (
                 <p className="text-muted-foreground">None recorded</p>
               )}

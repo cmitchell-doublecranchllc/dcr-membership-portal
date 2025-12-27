@@ -29,9 +29,19 @@ export const members = mysqlTable("members", {
   parentId: int("parentId"), // Reference to parent member if this is a child
   isChild: boolean("isChild").default(false).notNull(),
   dateOfBirth: timestamp("dateOfBirth"),
-  // Riding experience fields
-  ridingExperienceLevel: mysqlEnum("ridingExperienceLevel", ["beginner", "intermediate", "advanced", "expert"]),
-  certifications: text("certifications"), // JSON array of certifications
+  // Pony Club Certifications
+  horseManagementLevel: mysqlEnum("horseManagementLevel", [
+    "d1",
+    "d2",
+    "d3",
+    "c1",
+    "c2",
+    "c3",
+    "hb",
+    "ha"
+  ]),
+  ridingCertifications: text("ridingCertifications"), // e.g., "D-2 Eventing, C-1 Dressage"
+  otherCertifications: text("otherCertifications"), // Other non-Pony Club certifications
   ridingGoals: text("ridingGoals"),
   medicalNotes: text("medicalNotes"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),

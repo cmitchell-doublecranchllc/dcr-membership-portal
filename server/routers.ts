@@ -1000,6 +1000,49 @@ export const appRouter = router({
         await db.deleteProgressNote(input.noteId);
         return { success: true };
       }),
+
+    // Attendance Reports
+    getAttendanceStatsByStudent: adminProcedure
+      .input(z.object({
+        startDate: z.number().optional(),
+        endDate: z.number().optional(),
+      }))
+      .query(async ({ input }) => {
+        const startDate = input.startDate ? new Date(input.startDate) : undefined;
+        const endDate = input.endDate ? new Date(input.endDate) : undefined;
+        return await db.getAttendanceStatsByStudent(startDate, endDate);
+      }),
+
+    getMonthlyAttendanceSummary: adminProcedure
+      .input(z.object({
+        year: z.number(),
+        month: z.number().min(1).max(12),
+      }))
+      .query(async ({ input }) => {
+        return await db.getMonthlyAttendanceSummary(input.year, input.month);
+      }),
+
+    getOverallAttendanceStats: adminProcedure
+      .input(z.object({
+        startDate: z.number().optional(),
+        endDate: z.number().optional(),
+      }))
+      .query(async ({ input }) => {
+        const startDate = input.startDate ? new Date(input.startDate) : undefined;
+        const endDate = input.endDate ? new Date(input.endDate) : undefined;
+        return await db.getOverallAttendanceStats(startDate, endDate);
+      }),
+
+    getDetailedAttendanceRecords: adminProcedure
+      .input(z.object({
+        startDate: z.number().optional(),
+        endDate: z.number().optional(),
+      }))
+      .query(async ({ input }) => {
+        const startDate = input.startDate ? new Date(input.startDate) : undefined;
+        const endDate = input.endDate ? new Date(input.endDate) : undefined;
+        return await db.getDetailedAttendanceRecords(startDate, endDate);
+      }),
   }),
 
   horses: router({
@@ -1114,8 +1157,9 @@ export const appRouter = router({
     updateStudentRidingInfo: adminProcedure
       .input(z.object({
         memberId: z.number(),
-        ridingExperienceLevel: z.enum(["beginner", "intermediate", "advanced", "expert"]).optional(),
-        certifications: z.string().optional(),
+        horseManagementLevel: z.enum(["d1", "d2", "d3", "c1", "c2", "c3", "hb", "ha"]).optional(),
+        ridingCertifications: z.string().optional(),
+        otherCertifications: z.string().optional(),
         ridingGoals: z.string().optional(),
         medicalNotes: z.string().optional(),
       }))
