@@ -306,3 +306,7 @@
 - [ ] Test complete signup workflow (fill form and submit)
 - [ ] Verify pending member appears in admin dashboard
 - [ ] Test approval email notifications
+
+## Add Logout Button
+- [x] Add logout button to Profile page
+- [x] Test logout functionality

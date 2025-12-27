@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { trpc } from "@/lib/trpc";
-import { Save, User, Upload, Camera } from "lucide-react";
+import { Save, User, Upload, Camera, LogOut } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import PageHeader from "@/components/PageHeader";
@@ -16,6 +16,7 @@ export default function Profile() {
   const { data: member, refetch } = trpc.members.getMyProfile.useQuery(undefined, { enabled: isAuthenticated });
   const upsertMutation = trpc.members.upsertProfile.useMutation();
   const uploadPhotoMutation = trpc.profile.uploadProfilePhoto.useMutation();
+  const logoutMutation = trpc.auth.logout.useMutation();
 
   
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -207,6 +208,19 @@ export default function Profile() {
               <p className="text-lg capitalize">
                 {user?.role === 'staff' ? 'Instructor' : (user?.role || "member")}
               </p>
+            </div>
+            <div className="pt-4 border-t">
+              <Button 
+                variant="outline" 
+                onClick={async () => {
+                  await logoutMutation.mutateAsync();
+                  window.location.href = '/';
+                }}
+                className="w-full"
+              >
+                <LogOut className="mr-2 h-4 w-4" />
+                Logout
+              </Button>
             </div>
           </CardContent>
         </Card>
