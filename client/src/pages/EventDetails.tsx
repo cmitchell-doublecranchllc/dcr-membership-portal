@@ -6,8 +6,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { trpc } from "@/lib/trpc";
-import { ArrowLeft, Calendar, MapPin, Users, Clock, Trophy, Star, GraduationCap, PartyPopper, CheckCircle, XCircle, HelpCircle } from "lucide-react";
+import { ArrowLeft, Calendar, MapPin, Users, Clock, Trophy, Star, GraduationCap, PartyPopper, CheckCircle, XCircle, HelpCircle, CalendarPlus, Download } from "lucide-react";
 import { useState } from "react";
 import { Link, useParams, useLocation } from "wouter";
 import { toast } from "sonner";
@@ -27,6 +33,10 @@ export default function EventDetails() {
     { enabled: isAuthenticated && eventId > 0 }
   );
   const { data: attendeeCount } = trpc.events.getEventAttendeeCount.useQuery(
+    { eventId },
+    { enabled: isAuthenticated && eventId > 0 }
+  );
+  const { data: calendarExport } = trpc.events.getCalendarExport.useQuery(
     { eventId },
     { enabled: isAuthenticated && eventId > 0 }
   );
@@ -339,11 +349,73 @@ export default function EventDetails() {
                   >
                     Cancel RSVP
                   </Button>
+                  {calendarExport && (
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="outline" className="w-full">
+                          <CalendarPlus className="mr-2 h-4 w-4" />
+                          Add to Calendar
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-56">
+                        <DropdownMenuItem asChild>
+                          <a href={calendarExport.googleUrl} target="_blank" rel="noopener noreferrer">
+                            <Calendar className="mr-2 h-4 w-4" />
+                            Google Calendar
+                          </a>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <a href={calendarExport.appleUrl} download={`${event.title}.ics`}>
+                            <Download className="mr-2 h-4 w-4" />
+                            Apple Calendar
+                          </a>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <a href={calendarExport.outlookUrl} download={`${event.title}.ics`}>
+                            <Download className="mr-2 h-4 w-4" />
+                            Outlook Calendar
+                          </a>
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  )}
                 </>
               ) : (
-                <Button className="w-full" onClick={handleRsvp}>
-                  RSVP Now
-                </Button>
+                <>
+                  <Button className="w-full" onClick={handleRsvp}>
+                    RSVP Now
+                  </Button>
+                  {calendarExport && (
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="outline" className="w-full">
+                          <CalendarPlus className="mr-2 h-4 w-4" />
+                          Add to Calendar
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-56">
+                        <DropdownMenuItem asChild>
+                          <a href={calendarExport.googleUrl} target="_blank" rel="noopener noreferrer">
+                            <Calendar className="mr-2 h-4 w-4" />
+                            Google Calendar
+                          </a>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <a href={calendarExport.appleUrl} download={`${event.title}.ics`}>
+                            <Download className="mr-2 h-4 w-4" />
+                            Apple Calendar
+                          </a>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <a href={calendarExport.outlookUrl} download={`${event.title}.ics`}>
+                            <Download className="mr-2 h-4 w-4" />
+                            Outlook Calendar
+                          </a>
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  )}
+                </>
               )}
             </CardContent>
           </Card>

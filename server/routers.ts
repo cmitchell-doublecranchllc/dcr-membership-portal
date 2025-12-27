@@ -8,6 +8,7 @@ import { TRPCError } from "@trpc/server";
 import { sendEmail, getEventRsvpConfirmationEmail } from "./_core/email";
 import { format } from "date-fns";
 import * as recurringEvents from "./recurringEvents";
+import { generateCalendarExport } from "./calendarExport";
 
 // Admin-only procedure
 const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
@@ -371,6 +372,26 @@ export const appRouter = router({
       .input(z.object({ eventId: z.number() }))
       .query(async ({ input }) => {
         return await db.getEventById(input.eventId);
+      }),
+
+    // Get calendar export links for an event
+    getCalendarExport: protectedProcedure
+      .input(z.object({ eventId: z.number() }))
+      .query(async ({ input }) => {
+        const event = await db.getEventById(input.eventId);
+        if (!event) {
+          throw new TRPCError({ code: 'NOT_FOUND', message: 'Event not found' });
+        }
+
+        const calendarEvent = {
+          title: event.title,
+          description: event.description || undefined,
+          location: event.location || undefined,
+          startTime: new Date(event.startTime),
+          endTime: new Date(event.endTime),
+        };
+
+        return generateCalendarExport(calendarEvent);
       }),
 
     // Get my RSVPs

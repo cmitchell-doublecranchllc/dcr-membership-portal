@@ -84,3 +84,13 @@
 - [x] Support deleting single occurrence vs entire series
 - [x] Test recurring event creation and management
 - [x] Create checkpoint with recurring events feature
+
+## Calendar Export Feature
+- [x] Create ICS file generation utility
+- [x] Add Google Calendar export link generation
+- [x] Add Apple Calendar/iCal export (.ics download)
+- [x] Add Outlook Calendar export (.ics download)
+- [x] Add "Add to Calendar" dropdown to event details page
+- [x] Include all event details in calendar export (title, description, location, time)
+- [x] Test calendar exports on different platforms
+- [x] Create checkpoint with calendar export feature
