@@ -174,6 +174,13 @@ export default function Home() {
                   </Badge>
                 </div>
               )}
+              {!member && (user?.role === 'admin' || user?.role === 'staff') && (
+                <div className="flex items-center gap-2">
+                  <Badge className="bg-primary text-primary-foreground">
+                    {user?.role === 'admin' ? 'ADMIN' : 'INSTRUCTOR'}
+                  </Badge>
+                </div>
+              )}
               </div>
             </div>
             <div className="flex gap-2">
@@ -189,26 +196,23 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Big Check-In Button */}
-        <Card className="mb-8 border-2 border-primary/20 bg-gradient-to-br from-card to-primary/5">
-          <CardContent className="p-8 text-center">
-            <h2 className="text-2xl font-bold mb-4">Ready for your lesson?</h2>
-            <Button 
-              size="lg" 
-              className="text-xl px-12 py-8 h-auto"
-              onClick={handleCheckIn}
-              disabled={isCheckingIn || !member}
-            >
-              <CheckCircle2 className="mr-3 h-8 w-8" />
-              {isCheckingIn ? "Checking In..." : "CHECK IN"}
-            </Button>
-            {!member && (
-              <p className="text-sm text-muted-foreground mt-4">
-                Please complete your profile to check in
-              </p>
-            )}
-          </CardContent>
-        </Card>
+        {/* Big Check-In Button - Only for members */}
+        {member && (
+          <Card className="mb-8 border-2 border-primary/20 bg-gradient-to-br from-card to-primary/5">
+            <CardContent className="p-8 text-center">
+              <h2 className="text-2xl font-bold mb-4">Ready for your lesson?</h2>
+              <Button 
+                size="lg" 
+                className="text-xl px-12 py-8 h-auto"
+                onClick={handleCheckIn}
+                disabled={isCheckingIn}
+              >
+                <CheckCircle2 className="mr-3 h-8 w-8" />
+                {isCheckingIn ? "Checking In..." : "CHECK IN"}
+              </Button>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Alerts and Notifications */}
         <div className="grid md:grid-cols-2 gap-6 mb-8">

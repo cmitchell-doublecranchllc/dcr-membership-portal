@@ -200,8 +200,14 @@
 - [x] Create horses table for horse ownership tracking
 - [x] Add profile photo upload API endpoint
 - [x] Add horse management API endpoints (add, edit, delete)
-- [ ] Update profile page with photo upload
-- [ ] Add riding experience and certifications fields to profile
-- [ ] Add horse ownership management section
-- [ ] Test profile photo upload
-- [ ] Test horse management features
+- [x] Update profile page with photo upload UI
+- [x] Add riding experience and certifications fields to profile
+- [x] Test profile photo upload and riding experience updates
+- [ ] Add horse ownership management section (future)
+- [ ] Test horse management features (future)
+
+## Staff/Admin Role Improvements
+- [x] Update Profile page to handle staff users without member profiles
+- [x] Add instructor role distinction
+- [x] Update Home page to show appropriate content for staff
+- [x] Test staff user experience
