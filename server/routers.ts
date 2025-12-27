@@ -91,6 +91,36 @@ export const appRouter = router({
           `,
         });
 
+        // Send admin notification email
+        const adminEmail = process.env.GMAIL_USER || 'admin@doublecranchllc.com';
+        await sendEmail({
+          to: adminEmail,
+          subject: `New Member Registration: ${input.studentName}`,
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+              <h2 style="color: #7f1d1d;">New Member Registration Pending</h2>
+              <p>A new member has submitted a registration request and is waiting for your approval.</p>
+              
+              <div style="background-color: #f3f4f6; padding: 16px; border-radius: 8px; margin: 20px 0;">
+                <h3 style="margin-top: 0;">Member Details:</h3>
+                <p><strong>Name:</strong> ${input.studentName}</p>
+                <p><strong>Email:</strong> ${input.email}</p>
+                <p><strong>Phone:</strong> ${input.phone}</p>
+                <p><strong>Date of Birth:</strong> ${input.studentDOB}</p>
+                <p><strong>Membership Tier:</strong> ${input.membershipTier.toUpperCase()}</p>
+                <p><strong>Emergency Contact:</strong> ${input.emergencyContactName} (${input.emergencyContactRelationship}) - ${input.emergencyContactPhone}</p>
+                ${input.allergies ? `<p><strong>Allergies:</strong> ${input.allergies}</p>` : ''}
+                ${input.medications ? `<p><strong>Medications:</strong> ${input.medications}</p>` : ''}
+                <p><strong>Riding Experience:</strong> ${input.ridingExperience}</p>
+              </div>
+              
+              <p><a href="${process.env.VITE_OAUTH_PORTAL_URL || 'https://memberdoublecranchllc.com'}/staff/pending-members" style="background-color: #7f1d1d; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block; margin: 16px 0;">Review & Approve Registration</a></p>
+              
+              <p style="color: #6b7280; font-size: 14px;">Log in to the staff dashboard to review the full application and approve or reject this member.</p>
+            </div>
+          `,
+        });
+
         return { success: true };
       }),
   }),
@@ -1255,6 +1285,22 @@ export const appRouter = router({
 
         // Update user status to approved
         await db.updateUserAccountStatus(input.userId, 'approved');
+
+        // Get user's member profile
+        const member = await db.getMemberByUserId(input.userId);
+        if (member) {
+          // Automatically assign Riding Lesson Agreement contract
+          const ridingAgreementContract = await db.getContractById(1); // ID 1 is Riding Lesson Agreement
+          if (ridingAgreementContract) {
+            await db.assignContract({
+              contractId: ridingAgreementContract.id,
+              memberId: member.id,
+              assignedBy: input.userId, // System assignment
+              dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // Due in 7 days
+              isSigned: false,
+            });
+          }
+        }
 
         // Send approval email
         if (user.email) {

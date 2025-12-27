@@ -79,6 +79,7 @@ export const contracts = mysqlTable("contracts", {
   id: int("id").autoincrement().primaryKey(),
   title: varchar("title", { length: 255 }).notNull(),
   description: text("description"),
+  content: text("content"), // Full contract text content
   googleDocId: varchar("googleDocId", { length: 255 }), // Google Doc ID for template
   googleDocUrl: text("googleDocUrl"),
   isActive: boolean("isActive").default(true).notNull(),
@@ -370,3 +371,22 @@ export type InsertEvent = typeof events.$inferInsert;
 
 export type EventRsvp = typeof eventRsvps.$inferSelect;
 export type InsertEventRsvp = typeof eventRsvps.$inferInsert;
+
+/**
+ * Onboarding checklist for new members
+ */
+export const onboardingChecklist = mysqlTable("onboardingChecklist", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  itemKey: varchar("itemKey", { length: 128 }).notNull(), // e.g., "upload_profile_photo", "review_facility_rules"
+  itemTitle: varchar("itemTitle", { length: 255 }).notNull(),
+  itemDescription: text("itemDescription"),
+  isCompleted: boolean("isCompleted").default(false).notNull(),
+  completedAt: timestamp("completedAt"),
+  sortOrder: int("sortOrder").default(0).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type OnboardingChecklistItem = typeof onboardingChecklist.$inferSelect;
+export type InsertOnboardingChecklistItem = typeof onboardingChecklist.$inferInsert;

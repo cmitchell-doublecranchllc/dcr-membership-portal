@@ -324,3 +324,14 @@
 - [x] Add confirmation dialog before deletion
 - [x] Test delete functionality
 - [x] Clean up test profiles from database
+
+## Automatic Riding Lesson Agreement Contract System
+- [x] Save Riding Lesson Agreement text to file
+- [x] Create contract seeding script to add Riding Lesson Agreement to database
+- [x] Update approveUser endpoint to automatically assign Riding Lesson Agreement
+- [x] Create contract signing page with digital signature (similar to signup waiver)
+- [x] Add "Contracts to Sign" banner/alert on home page for unsigned contracts
+- [x] Build contract detail page showing full agreement text
+- [x] Store signed contract with signature and timestamp
+- [x] Send admin email notification when new member submits registration
+- [x] Test complete workflow: signup → admin notification → approval → contract assignment

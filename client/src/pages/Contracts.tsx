@@ -180,10 +180,10 @@ export default function Contracts() {
                     )}
                   </CardHeader>
                   <CardContent className="prose prose-sm max-w-none">
-                    <div className="bg-muted p-4 rounded-md max-h-64 overflow-y-auto">
-                      <p className="text-sm">
-                        {getContractQuery.data.description || "Contract content will be displayed here."}
-                      </p>
+                    <div className="bg-muted p-4 rounded-md max-h-96 overflow-y-auto">
+                      <pre className="text-sm whitespace-pre-wrap font-sans">
+                        {getContractQuery.data.content || getContractQuery.data.description || "Contract content will be displayed here."}
+                      </pre>
                       {getContractQuery.data.googleDocUrl && (
                         <p className="text-sm text-muted-foreground mt-4">
                           <a 
