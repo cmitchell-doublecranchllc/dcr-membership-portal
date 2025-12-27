@@ -21,6 +21,7 @@ import MyLessons from "./pages/MyLessons";
 import StaffAttendance from "./pages/StaffAttendance";
 import StaffProgressNotes from "./pages/StaffProgressNotes";
 import MyProgressNotes from "./pages/MyProgressNotes";
+import InstructorStudents from "./pages/InstructorStudents";
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
@@ -41,6 +42,7 @@ function Router() {
       <Route path="/staff/lessons" component={StaffLessons} />
       <Route path="/staff/attendance" component={StaffAttendance} />
       <Route path="/staff/progress-notes" component={StaffProgressNotes} />
+      <Route path="/staff/students" component={InstructorStudents} />
       <Route path="/my-lessons" component={MyLessons} />
       <Route path="/my-progress" component={MyProgressNotes} />
       <Route path={"/404"} component={NotFound} />

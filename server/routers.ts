@@ -120,6 +120,11 @@ export const appRouter = router({
         await db.updateMember(input.memberId, { membershipTier: input.tier });
         return { success: true };
       }),
+
+    // Instructor: Get all students with riding experience info
+    getAllStudentsWithRidingInfo: adminProcedure.query(async () => {
+      return await db.getAllStudentsWithRidingInfo();
+    }),
   }),
 
   checkIns: router({
@@ -1105,19 +1110,18 @@ export const appRouter = router({
         return { success: true, photoUrl: url };
       }),
 
-    // Update riding experience
-    updateRidingInfo: protectedProcedure
+    // Update student riding experience (instructor only)
+    updateStudentRidingInfo: adminProcedure
       .input(z.object({
+        memberId: z.number(),
         ridingExperienceLevel: z.enum(["beginner", "intermediate", "advanced", "expert"]).optional(),
         certifications: z.string().optional(),
         ridingGoals: z.string().optional(),
         medicalNotes: z.string().optional(),
       }))
-      .mutation(async ({ ctx, input }) => {
-        const member = await db.getMemberByUserId(ctx.user.id);
-        if (!member) throw new TRPCError({ code: "NOT_FOUND", message: "Member profile not found" });
-        
-        await db.updateMemberRidingInfo(member.id, input);
+      .mutation(async ({ input }) => {
+        const { memberId, ...updateData } = input;
+        await db.updateMemberRidingInfo(memberId, updateData);
         return { success: true };
       }),
   }),

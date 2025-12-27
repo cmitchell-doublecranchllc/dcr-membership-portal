@@ -16,7 +16,7 @@ export default function Profile() {
   const { data: member, refetch } = trpc.members.getMyProfile.useQuery(undefined, { enabled: isAuthenticated });
   const upsertMutation = trpc.members.upsertProfile.useMutation();
   const uploadPhotoMutation = trpc.profile.uploadProfilePhoto.useMutation();
-  const updateRidingInfoMutation = trpc.profile.updateRidingInfo.useMutation();
+
   
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -65,25 +65,7 @@ export default function Profile() {
     }
   };
 
-  const handleSaveRidingInfo = async () => {
-    setIsSaving(true);
-    try {
-      await updateRidingInfoMutation.mutateAsync({
-        ridingExperienceLevel: ridingExperienceLevel || undefined,
-        certifications: certifications || undefined,
-        ridingGoals: ridingGoals || undefined,
-        medicalNotes: medicalNotes || undefined,
-      });
-      await refetch();
-      toast.success("Riding experience updated successfully!");
-    } catch (error) {
-      toast.error("Failed to update riding experience", {
-        description: "Please try again",
-      });
-    } finally {
-      setIsSaving(false);
-    }
-  };
+
 
   const handlePhotoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -300,74 +282,54 @@ export default function Profile() {
         <Card className="mb-6">
           <CardHeader>
             <CardTitle>Riding Experience</CardTitle>
-            <CardDescription>Help us understand your riding background and goals</CardDescription>
+            <CardDescription>
+              Your riding profile as assessed by your instructor
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="space-y-2">
-              <Label htmlFor="ridingExperienceLevel">Experience Level</Label>
-              <Select 
-                value={ridingExperienceLevel} 
-                onValueChange={(value: "beginner" | "intermediate" | "advanced" | "expert") => setRidingExperienceLevel(value)}
-              >
-                <SelectTrigger id="ridingExperienceLevel">
-                  <SelectValue placeholder="Select your experience level" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="beginner">Beginner - New to riding</SelectItem>
-                  <SelectItem value="intermediate">Intermediate - Some experience</SelectItem>
-                  <SelectItem value="advanced">Advanced - Experienced rider</SelectItem>
-                  <SelectItem value="expert">Expert - Professional level</SelectItem>
-                </SelectContent>
-              </Select>
+              <Label>Experience Level</Label>
+              {ridingExperienceLevel ? (
+                <p className="text-lg capitalize">{ridingExperienceLevel}</p>
+              ) : (
+                <p className="text-muted-foreground">Not yet assessed by instructor</p>
+              )}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="certifications">Certifications & Achievements</Label>
-              <Textarea
-                id="certifications"
-                placeholder="List any riding certifications, competition wins, or achievements..."
-                value={certifications}
-                onChange={(e) => setCertifications(e.target.value)}
-                rows={3}
-              />
-              <p className="text-sm text-muted-foreground">
-                Include any relevant riding qualifications or accomplishments
-              </p>
+              <Label>Certifications & Achievements</Label>
+              {certifications ? (
+                <p className="text-sm bg-muted p-3 rounded-md whitespace-pre-wrap">{certifications}</p>
+              ) : (
+                <p className="text-muted-foreground">None recorded</p>
+              )}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="ridingGoals">Riding Goals</Label>
-              <Textarea
-                id="ridingGoals"
-                placeholder="What would you like to achieve in your riding journey?"
-                value={ridingGoals}
-                onChange={(e) => setRidingGoals(e.target.value)}
-                rows={3}
-              />
-              <p className="text-sm text-muted-foreground">
-                Share your aspirations - competitions, skill development, or recreational goals
-              </p>
+              <Label>Riding Goals</Label>
+              {ridingGoals ? (
+                <p className="text-sm bg-muted p-3 rounded-md whitespace-pre-wrap">{ridingGoals}</p>
+              ) : (
+                <p className="text-muted-foreground">Not specified</p>
+              )}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="medicalNotes">Medical Notes</Label>
-              <Textarea
-                id="medicalNotes"
-                placeholder="Any medical conditions or physical considerations we should know about..."
-                value={medicalNotes}
-                onChange={(e) => setMedicalNotes(e.target.value)}
-                rows={3}
-              />
-              <p className="text-sm text-muted-foreground">
-                Confidential information to help instructors provide appropriate guidance
-              </p>
+              <Label>Medical Notes</Label>
+              {medicalNotes ? (
+                <div className="bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-200 dark:border-yellow-800 p-3 rounded-md">
+                  <p className="text-sm whitespace-pre-wrap">{medicalNotes}</p>
+                </div>
+              ) : (
+                <p className="text-muted-foreground">None recorded</p>
+              )}
             </div>
 
-            <div className="flex justify-end">
-              <Button onClick={handleSaveRidingInfo} disabled={isSaving}>
-                <Save className="mr-2 h-4 w-4" />
-                {isSaving ? "Saving..." : "Save Riding Experience"}
-              </Button>
+            <div className="bg-muted/50 p-4 rounded-md border border-border">
+              <p className="text-sm text-muted-foreground">
+                <strong>Note:</strong> Riding experience information is managed by your instructor. 
+                If you need to update any of these fields, please speak with your instructor.
+              </p>
             </div>
           </CardContent>
         </Card>

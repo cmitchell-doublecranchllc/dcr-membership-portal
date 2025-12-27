@@ -211,3 +211,13 @@
 - [x] Add instructor role distinction
 - [x] Update Home page to show appropriate content for staff
 - [x] Test staff user experience
+
+## Instructor Student Dashboard
+- [x] Add API endpoint to fetch all students with riding experience
+- [x] Create instructor dashboard page with student list
+- [x] Add student detail view with riding info
+- [x] Add filtering and search functionality
+- [x] Test instructor dashboard
+- [x] Make riding experience fields read-only for students
+- [x] Add instructor interface to edit student riding experience
+- [x] Remove updateRidingInfo mutation for students

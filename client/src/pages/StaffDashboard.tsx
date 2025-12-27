@@ -83,6 +83,9 @@ export default function StaffDashboard() {
               <Link href="/staff/progress-notes">
                 <Button variant="outline">Progress Notes</Button>
               </Link>
+              <Link href="/staff/students">
+                <Button variant="default">Student Profiles</Button>
+              </Link>
               <Link href="/">
                 <Button variant="outline">Back to Home</Button>
               </Link>

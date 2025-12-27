@@ -875,3 +875,32 @@ export async function updateMemberRidingInfo(memberId: number, updates: {
   if (!db) throw new Error("Database not available");
   await db.update(members).set(updates).where(eq(members.id, memberId));
 }
+
+export async function getAllStudentsWithRidingInfo() {
+  const db = await getDb();
+  if (!db) return [];
+  
+  const result = await db
+    .select({
+      memberId: members.id,
+      userId: members.userId,
+      membershipTier: members.membershipTier,
+      phone: members.phone,
+      emergencyContact: members.emergencyContact,
+      ridingExperienceLevel: members.ridingExperienceLevel,
+      certifications: members.certifications,
+      ridingGoals: members.ridingGoals,
+      medicalNotes: members.medicalNotes,
+      dateOfBirth: members.dateOfBirth,
+      createdAt: members.createdAt,
+      userName: users.name,
+      userEmail: users.email,
+      profilePhotoUrl: users.profilePhotoUrl,
+    })
+    .from(members)
+    .leftJoin(users, eq(members.userId, users.id))
+    .where(eq(members.isChild, false))
+    .orderBy(desc(members.createdAt));
+  
+  return result;
+}
