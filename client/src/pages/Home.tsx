@@ -79,12 +79,20 @@ export default function Home() {
             <p className="text-lg text-foreground/80 mb-12 max-w-2xl mx-auto">
               Manage your membership, check in for lessons, sign contracts, view your schedule, and stay connected with our riding community.
             </p>
-            <Button size="lg" asChild className="text-lg px-8 py-6">
-              <a href={getLoginUrl()}>
-                <LogIn className="mr-2 h-5 w-5" />
-                Member Login
-              </a>
-            </Button>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button size="lg" asChild className="text-lg px-8 py-6">
+                <Link href="/signup">
+                  <Users className="mr-2 h-5 w-5" />
+                  Sign Up
+                </Link>
+              </Button>
+              <Button size="lg" variant="outline" asChild className="text-lg px-8 py-6">
+                <a href={getLoginUrl()}>
+                  <LogIn className="mr-2 h-5 w-5" />
+                  Member Login
+                </a>
+              </Button>
+            </div>
           </div>
 
           {/* Features Grid */}

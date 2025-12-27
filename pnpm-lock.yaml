@@ -115,6 +115,9 @@ importers:
       '@trpc/server':
         specifier: ^11.6.0
         version: 11.6.0(typescript@5.9.3)
+      '@types/react-signature-canvas':
+        specifier: ^1.0.7
+        version: 1.0.7
       axios:
         specifier: ^1.12.2
         version: 1.12.2
@@ -2557,6 +2560,9 @@ packages:
     resolution: {integrity: sha512-/EEvYBdT3BflCWvTMO7YkYBHVE9Ci6XdqZciZANQgKpaiDRGOLIlRo91jbTNRQjgPFWVaRxcYc0luVNFitz57A==}
     peerDependencies:
       '@types/react': ^19.2.0
+
+  '@types/react-signature-canvas@1.0.7':
+    resolution: {integrity: sha512-0ulzaUvcIQ0HdNB5fHj+KE7ztWhlhYRsi65TdPIRj/t+FD5Rr8NJKBv4/xLViz7HsUh/tgqsoyKeARrm9+gPIg==}
 
   '@types/react@19.2.1':
     resolution: {integrity: sha512-1U5NQWh/GylZQ50ZMnnPjkYHEaGhg6t5i/KI0LDDh3t4E3h3T3vzm+GLY2BRzMfIjSBwzm6tginoZl5z0O/qsA==}
@@ -7542,6 +7548,11 @@ snapshots:
   '@types/react-dom@19.2.1(@types/react@19.2.1)':
     dependencies:
       '@types/react': 19.2.1
+
+  '@types/react-signature-canvas@1.0.7':
+    dependencies:
+      '@types/react': 19.2.1
+      '@types/signature_pad': 2.3.6
 
   '@types/react@19.2.1':
     dependencies:

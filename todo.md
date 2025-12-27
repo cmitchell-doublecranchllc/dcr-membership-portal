@@ -297,11 +297,12 @@
 ## Member Signup Form
 - [x] Database schema updated with all required fields (emergency contact, medical, consent)
 - [x] Obtained complete liability waiver text from Google Doc
-- [ ] Install react-signature-canvas package for digital signatures
-- [ ] Create multi-step signup page (4 steps: Student Info, Contact Info, Riding Info, Waiver)
-- [ ] Add signup API endpoint in routers.ts
-- [ ] Add route for /signup page in App.tsx
-- [ ] Add "Sign Up" button to homepage
-- [ ] Send confirmation email after signup
-- [ ] Send owner notification when new user registers
-- [ ] Test complete signup and approval flow
+- [x] Install react-signature-canvas package for digital signatures
+- [x] Create multi-step signup page (4 steps: Student Info, Contact Info, Riding Info, Waiver)
+- [x] Add signup API endpoint in routers.ts
+- [x] Add route for /signup page in App.tsx
+- [x] Add "Sign Up" button to homepage
+- [x] Add createUser function to db.ts
+- [ ] Test complete signup workflow (fill form and submit)
+- [ ] Verify pending member appears in admin dashboard
+- [ ] Test approval email notifications

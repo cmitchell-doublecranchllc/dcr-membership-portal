@@ -24,12 +24,14 @@ import MyProgressNotes from "./pages/MyProgressNotes";
 import InstructorStudents from "./pages/InstructorStudents";
 import PendingApproval from "./pages/PendingApproval";
 import StaffPendingMembers from "./pages/StaffPendingMembers";
+import Signup from "./pages/Signup";
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
   return (
     <Switch>
       <Route path={"/"} component={Home} />
+      <Route path="/signup" component={Signup} />
       <Route path="/profile" component={Profile} />
       <Route path="/staff" component={StaffDashboard} />
       <Route path="/contracts" component={Contracts} />

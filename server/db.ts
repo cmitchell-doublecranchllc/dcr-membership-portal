@@ -122,6 +122,23 @@ export async function getUserById(id: number) {
   return result.length > 0 ? result[0] : undefined;
 }
 
+export async function createUser(user: { email: string; name: string; accountStatus: string; role: string }) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(users).values({
+    email: user.email,
+    name: user.name,
+    accountStatus: user.accountStatus as any,
+    role: user.role as any,
+    openId: `signup_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+    loginMethod: "email",
+  });
+  const userId = result[0].insertId;
+  const newUser = await getUserById(userId);
+  if (!newUser) throw new Error("Failed to create user");
+  return newUser;
+}
+
 // ============ Member Functions ============
 
 export async function createMember(member: InsertMember) {

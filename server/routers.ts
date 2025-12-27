@@ -29,6 +29,70 @@ export const appRouter = router({
       ctx.res.clearCookie(COOKIE_NAME, { ...cookieOptions, maxAge: -1 });
       return { success: true } as const;
     }),
+    signup: publicProcedure
+      .input(z.object({
+        studentName: z.string(),
+        studentDOB: z.string(),
+        allergies: z.string().optional(),
+        medications: z.string().optional(),
+        medicalNotes: z.string().optional(),
+        email: z.string().email(),
+        phone: z.string(),
+        emergencyContactName: z.string(),
+        emergencyContactPhone: z.string(),
+        emergencyContactRelationship: z.string(),
+        ridingExperience: z.string(),
+        membershipTier: z.enum(["bronze", "silver", "gold"]),
+        photoConsent: z.boolean(),
+        smsConsent: z.boolean(),
+        liabilityWaiverSigned: z.boolean(),
+        liabilityWaiverSignatureData: z.string(),
+      }))
+      .mutation(async ({ input }) => {
+        // Create user account with pending status
+        const user = await db.createUser({
+          email: input.email,
+          name: input.studentName,
+          accountStatus: "pending",
+          role: "user",
+        });
+
+        // Create member profile
+        await db.createMember({
+          userId: user.id,
+          membershipTier: input.membershipTier,
+          phone: input.phone,
+          emergencyContactName: input.emergencyContactName,
+          emergencyContactPhone: input.emergencyContactPhone,
+          emergencyContactRelationship: input.emergencyContactRelationship,
+          dateOfBirth: new Date(input.studentDOB),
+          allergies: input.allergies || null,
+          medications: input.medications || null,
+          medicalNotes: input.medicalNotes || null,
+          photoConsent: input.photoConsent,
+          smsConsent: input.smsConsent,
+          liabilityWaiverSigned: input.liabilityWaiverSigned,
+          liabilityWaiverSignedAt: new Date(),
+          liabilityWaiverSignatureData: input.liabilityWaiverSignatureData,
+          isChild: false,
+        });
+
+        // Send confirmation email to applicant
+        await sendEmail({
+          to: input.email,
+          subject: "Registration Received - Double C Ranch",
+          html: `
+            <h2>Thank you for registering!</h2>
+            <p>Dear ${input.studentName},</p>
+            <p>We have received your registration for Double C Ranch. Your application is currently pending approval.</p>
+            <p>You will receive an email notification once your account has been reviewed and approved by our staff.</p>
+            <p>If you have any questions, please contact us at info@doublecranchllc.com</p>
+            <p>Best regards,<br/>Double C Ranch Team</p>
+          `,
+        });
+
+        return { success: true };
+      }),
   }),
 
   members: router({
