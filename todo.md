@@ -248,3 +248,9 @@
 - [x] Update getMyProfile to return null instead of undefined for admin users without member profiles
 - [x] Update Home page to handle null member profile gracefully
 - [x] Test with admin user without member profile
+
+## Fix Lesson Slot Click Issue
+- [x] Investigate why lesson slot cards are not clickable
+- [x] Add click handler to lesson slot cards
+- [x] Add detail dialog showing bookings and slot info
+- [x] Test clicking on lesson slots to view details

@@ -7,12 +7,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { format } from "date-fns";
-import { Calendar, Clock, Users, Plus, Trash2 } from "lucide-react";
+import { Calendar, Clock, Users, Plus, Trash2, Eye } from "lucide-react";
 
 export default function StaffLessons() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [selectedSlot, setSelectedSlot] = useState<number | null>(null);
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedTime, setSelectedTime] = useState("");
   const [lessonType, setLessonType] = useState<"private" | "group" | "horsemanship">("private");
@@ -23,6 +25,10 @@ export default function StaffLessons() {
 
   const utils = trpc.useUtils();
   const { data: slots = [], isLoading } = trpc.lessons.getAllSlots.useQuery();
+  const { data: slotBookings = [] } = trpc.lessons.getBookingsBySlot.useQuery(
+    { slotId: selectedSlot! },
+    { enabled: !!selectedSlot }
+  );
   
   const createSlot = trpc.lessons.createSlot.useMutation({
     onSuccess: () => {
@@ -78,7 +84,8 @@ export default function StaffLessons() {
     });
   };
 
-  const handleDeleteSlot = (slotId: number) => {
+  const handleDeleteSlot = (slotId: number, e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent opening the detail dialog
     if (confirm("Are you sure you want to delete this lesson slot?")) {
       deleteSlot.mutate({ slotId });
     }
@@ -95,6 +102,8 @@ export default function StaffLessons() {
   }, {} as Record<string, typeof slots>);
 
   const sortedDates = Object.keys(slotsByDate).sort();
+
+  const selectedSlotData = slots.find(s => s.id === selectedSlot);
 
   return (
     <div className="min-h-screen bg-background">
@@ -255,7 +264,8 @@ export default function StaffLessons() {
                       .map((slot) => (
                         <div
                           key={slot.id}
-                          className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent/50 transition-colors"
+                          onClick={() => setSelectedSlot(slot.id)}
+                          className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent/50 transition-colors cursor-pointer"
                         >
                           <div className="flex-1">
                             <div className="flex items-center gap-4 mb-2">
@@ -291,14 +301,26 @@ export default function StaffLessons() {
                               </p>
                             )}
                           </div>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleDeleteSlot(slot.id)}
-                            disabled={deleteSlot.isPending}
-                          >
-                            <Trash2 className="h-4 w-4 text-destructive" />
-                          </Button>
+                          <div className="flex gap-2">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedSlot(slot.id);
+                              }}
+                            >
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={(e) => handleDeleteSlot(slot.id, e)}
+                              disabled={deleteSlot.isPending}
+                            >
+                              <Trash2 className="h-4 w-4 text-destructive" />
+                            </Button>
+                          </div>
                         </div>
                       ))}
                   </div>
@@ -307,6 +329,95 @@ export default function StaffLessons() {
             ))}
           </div>
         )}
+
+        {/* Slot Detail Dialog */}
+        <Dialog open={!!selectedSlot} onOpenChange={(open) => !open && setSelectedSlot(null)}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Lesson Slot Details</DialogTitle>
+              <DialogDescription>
+                View bookings and manage this lesson slot
+              </DialogDescription>
+            </DialogHeader>
+            
+            {selectedSlotData && (
+              <div className="space-y-6">
+                {/* Slot Info */}
+                <div className="grid grid-cols-2 gap-4 p-4 bg-accent/30 rounded-lg">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Date & Time</p>
+                    <p className="font-medium">
+                      {format(new Date(selectedSlotData.startTime), "EEEE, MMM d, yyyy")}
+                    </p>
+                    <p className="text-sm">
+                      {format(new Date(selectedSlotData.startTime), "h:mm a")} - {format(new Date(selectedSlotData.endTime), "h:mm a")}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Lesson Type</p>
+                    <p className="font-medium capitalize">{selectedSlotData.lessonType}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Capacity</p>
+                    <p className="font-medium">
+                      {selectedSlotData.currentStudents}/{selectedSlotData.maxStudents} students
+                    </p>
+                  </div>
+                  {selectedSlotData.instructorName && (
+                    <div>
+                      <p className="text-sm text-muted-foreground">Instructor</p>
+                      <p className="font-medium">{selectedSlotData.instructorName}</p>
+                    </div>
+                  )}
+                  {selectedSlotData.location && (
+                    <div>
+                      <p className="text-sm text-muted-foreground">Location</p>
+                      <p className="font-medium">{selectedSlotData.location}</p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Bookings */}
+                <div>
+                  <h3 className="font-semibold mb-3">Booked Students</h3>
+                  {slotBookings.length === 0 ? (
+                    <div className="text-center py-8 border rounded-lg">
+                      <Users className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+                      <p className="text-muted-foreground">No bookings yet</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      {slotBookings.map((booking) => (
+                        <div
+                          key={booking.id}
+                          className="flex items-center justify-between p-3 border rounded-lg"
+                        >
+                          <div>
+                            <p className="font-medium">{booking.member?.user?.name || "Unknown"}</p>
+                            <p className="text-sm text-muted-foreground">
+                              {booking.member?.user?.email}
+                            </p>
+                          </div>
+                          <Badge
+                            variant={
+                              booking.status === "confirmed"
+                                ? "default"
+                                : booking.status === "cancelled"
+                                ? "destructive"
+                                : "secondary"
+                            }
+                          >
+                            {booking.status}
+                          </Badge>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
