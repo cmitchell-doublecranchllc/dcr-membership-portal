@@ -94,3 +94,18 @@
 - [x] Include all event details in calendar export (title, description, location, time)
 - [x] Test calendar exports on different platforms
 - [x] Create checkpoint with calendar export feature
+
+## Personalized Student Portal System
+- [x] Update database schema for lesson time slots
+- [x] Add lesson booking/assignment table linking students to slots
+- [x] Implement privacy filters so students see only their own data
+- [x] Create lesson rescheduling logic with 24-hour advance rule
+- [ ] Build staff interface for managing available time slots
+- [ ] Build student view showing only their scheduled lessons
+- [ ] Add lesson rescheduling UI for students
+- [ ] Display available slots for rescheduling
+- [ ] Enforce 24-hour minimum advance notice for rescheduling
+- [ ] Add lesson type support (private, group, etc.)
+- [ ] Test student data isolation and privacy
+- [ ] Test rescheduling workflow and 24-hour rule
+- [ ] Create checkpoint with personalized student portal

@@ -12,7 +12,9 @@ import {
   appointments, InsertAppointment,
   events, InsertEvent,
   eventRsvps, InsertEventRsvp,
-  recurringEventSeries, InsertRecurringEventSeries
+  recurringEventSeries, InsertRecurringEventSeries,
+  lessonSlots, InsertLessonSlot,
+  lessonBookings, InsertLessonBooking
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
@@ -560,4 +562,138 @@ export async function deleteEventsBySeries(seriesId: number) {
   if (!db) return 0;
   const result = await db.delete(events).where(eq(events.recurringSeriesId, seriesId));
   return result[0].affectedRows || 0;
+}
+
+// ============ Lesson Slot Functions ============
+
+export async function createLessonSlot(slot: InsertLessonSlot) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(lessonSlots).values(slot);
+  return result[0].insertId;
+}
+
+export async function getAllLessonSlots() {
+  const db = await getDb();
+  if (!db) return [];
+  return await db.select().from(lessonSlots).orderBy(lessonSlots.startTime);
+}
+
+export async function getAvailableLessonSlots(fromTime: number) {
+  const db = await getDb();
+  if (!db) return [];
+  // Get slots that are in the future and have space available
+  const slots = await db.select().from(lessonSlots)
+    .where(gte(lessonSlots.startTime, fromTime))
+    .orderBy(lessonSlots.startTime);
+  
+  // Filter to only slots with available space
+  return slots.filter(slot => slot.currentStudents < slot.maxStudents);
+}
+
+export async function getLessonSlotById(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(lessonSlots).where(eq(lessonSlots.id, id)).limit(1);
+  return result[0];
+}
+
+export async function updateLessonSlot(id: number, updates: Partial<InsertLessonSlot>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  return await db.update(lessonSlots).set(updates).where(eq(lessonSlots.id, id));
+}
+
+export async function incrementSlotStudentCount(slotId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const slot = await getLessonSlotById(slotId);
+  if (!slot) throw new Error("Slot not found");
+  
+  return await db.update(lessonSlots)
+    .set({ currentStudents: slot.currentStudents + 1 })
+    .where(eq(lessonSlots.id, slotId));
+}
+
+export async function decrementSlotStudentCount(slotId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const slot = await getLessonSlotById(slotId);
+  if (!slot) throw new Error("Slot not found");
+  
+  const newCount = Math.max(0, slot.currentStudents - 1);
+  return await db.update(lessonSlots)
+    .set({ currentStudents: newCount })
+    .where(eq(lessonSlots.id, slotId));
+}
+
+export async function deleteLessonSlot(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  return await db.delete(lessonSlots).where(eq(lessonSlots.id, id));
+}
+
+// ============ Lesson Booking Functions ============
+
+export async function createLessonBooking(booking: InsertLessonBooking) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(lessonBookings).values(booking);
+  return result[0].insertId;
+}
+
+export async function getBookingsByMember(memberId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return await db.select().from(lessonBookings)
+    .where(eq(lessonBookings.memberId, memberId))
+    .orderBy(desc(lessonBookings.bookedAt));
+}
+
+export async function getActiveBookingsByMember(memberId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return await db.select().from(lessonBookings)
+    .where(and(
+      eq(lessonBookings.memberId, memberId),
+      eq(lessonBookings.status, "confirmed")
+    ))
+    .orderBy(desc(lessonBookings.bookedAt));
+}
+
+export async function getBookingsBySlot(slotId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return await db.select().from(lessonBookings)
+    .where(eq(lessonBookings.slotId, slotId));
+}
+
+export async function getBookingById(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(lessonBookings).where(eq(lessonBookings.id, id)).limit(1);
+  return result[0];
+}
+
+export async function updateLessonBooking(id: number, updates: Partial<InsertLessonBooking>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  return await db.update(lessonBookings).set(updates).where(eq(lessonBookings.id, id));
+}
+
+export async function cancelLessonBooking(id: number, cancelledAt: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  return await db.update(lessonBookings)
+    .set({ 
+      status: "cancelled",
+      cancelledAt: cancelledAt 
+    })
+    .where(eq(lessonBookings.id, id));
+}
+
+export async function deleteLessonBooking(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  return await db.delete(lessonBookings).where(eq(lessonBookings.id, id));
 }

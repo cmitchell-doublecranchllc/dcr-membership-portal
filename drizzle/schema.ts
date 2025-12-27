@@ -139,6 +139,47 @@ export const appointments = mysqlTable("appointments", {
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
 
+/**
+ * Lesson time slots available for booking
+ * Staff creates these slots manually, students book them
+ */
+export const lessonSlots = mysqlTable("lessonSlots", {
+  id: int("id").autoincrement().primaryKey(),
+  startTime: bigint("startTime", { mode: "number" }).notNull(), // Unix timestamp in milliseconds
+  endTime: bigint("endTime", { mode: "number" }).notNull(), // Unix timestamp in milliseconds
+  lessonType: mysqlEnum("lessonType", ["private", "group", "horsemanship"]).notNull(),
+  maxStudents: int("maxStudents").default(1).notNull(), // 1 for private, 4 for group
+  currentStudents: int("currentStudents").default(0).notNull(), // Track how many booked
+  instructorName: varchar("instructorName", { length: 255 }),
+  location: varchar("location", { length: 255 }),
+  notes: text("notes"),
+  isRecurring: boolean("isRecurring").default(false).notNull(), // For Sunday horsemanship
+  recurringSeriesId: int("recurringSeriesId"), // Link to recurring series if applicable
+  googleCalendarEventId: varchar("googleCalendarEventId", { length: 255 }), // For future Google Calendar sync
+  createdBy: int("createdBy").notNull(), // Staff user who created the slot
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+/**
+ * Student lesson bookings - links students to lesson slots
+ */
+export const lessonBookings = mysqlTable("lessonBookings", {
+  id: int("id").autoincrement().primaryKey(),
+  slotId: int("slotId").notNull(), // Reference to lessonSlots
+  memberId: int("memberId").notNull(), // Student who booked
+  bookedBy: int("bookedBy").notNull(), // User ID who made the booking (parent or student)
+  status: mysqlEnum("status", ["confirmed", "cancelled", "rescheduled", "completed"]).default("confirmed").notNull(),
+  rescheduledFromSlotId: int("rescheduledFromSlotId"), // Original slot if this was rescheduled
+  rescheduledToSlotId: int("rescheduledToSlotId"), // New slot if this was rescheduled
+  rescheduleCount: int("rescheduleCount").default(0).notNull(), // Track how many times rescheduled
+  notes: text("notes"),
+  bookedAt: bigint("bookedAt", { mode: "number" }).notNull(), // Unix timestamp in milliseconds
+  cancelledAt: bigint("cancelledAt", { mode: "number" }), // Unix timestamp if cancelled
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
 
@@ -147,6 +188,12 @@ export type InsertMember = typeof members.$inferInsert;
 
 export type CheckIn = typeof checkIns.$inferSelect;
 export type InsertCheckIn = typeof checkIns.$inferInsert;
+
+export type LessonSlot = typeof lessonSlots.$inferSelect;
+export type InsertLessonSlot = typeof lessonSlots.$inferInsert;
+
+export type LessonBooking = typeof lessonBookings.$inferSelect;
+export type InsertLessonBooking = typeof lessonBookings.$inferInsert;
 
 export type Contract = typeof contracts.$inferSelect;
 export type InsertContract = typeof contracts.$inferInsert;

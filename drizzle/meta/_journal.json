@@ -29,6 +29,13 @@
       "when": 1766790422229,
       "tag": "0003_stiff_ezekiel",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1766796116144,
+      "tag": "0004_fuzzy_violations",
+      "breakpoints": true
     }
   ]
 }
