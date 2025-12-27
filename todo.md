@@ -109,3 +109,37 @@
 - [ ] Test student data isolation and privacy
 - [ ] Test rescheduling workflow and 24-hour rule
 - [ ] Create checkpoint with personalized student portal
+
+
+## Complete Student Portal UI
+- [x] Add tRPC API endpoints for lesson slot management
+- [x] Add tRPC API endpoints for lesson booking and rescheduling
+- [x] Create staff interface for creating/editing lesson slots
+- [x] Build student "My Lessons" page showing only their lessons
+- [x] Add lesson rescheduling UI with available slots
+- [x] Display 24-hour rule warnings in UI
+- [ ] Test student data privacy (students see only their own lessons)
+
+## Automated Lesson Reminders
+- [ ] Request Aircall API credentials from user
+- [ ] Integrate Aircall SMS API
+- [ ] Create lesson reminder scheduler (24h before lessons)
+- [ ] Add SMS notification preferences to student profiles
+- [ ] Implement email fallback if SMS fails
+- [ ] Test reminder system
+
+## Lesson Attendance Tracking
+- [ ] Add attendance status to lesson bookings table
+- [ ] Create staff attendance marking interface
+- [ ] Build attendance history view for students
+- [ ] Add attendance reports for staff
+- [ ] Track attendance patterns and statistics
+- [ ] Test attendance tracking workflow
+
+## Final Testing & Delivery
+- [ ] Write comprehensive unit tests for all new features
+- [ ] Test complete student portal workflow
+- [ ] Test staff lesson management workflow
+- [ ] Verify 24-hour rescheduling rule enforcement
+- [ ] Test SMS and email notifications
+- [ ] Create final checkpoint

@@ -9,6 +9,7 @@ import { sendEmail, getEventRsvpConfirmationEmail } from "./_core/email";
 import { format } from "date-fns";
 import * as recurringEvents from "./recurringEvents";
 import { generateCalendarExport } from "./calendarExport";
+import * as lessonScheduling from "./lessonScheduling";
 
 // Admin-only procedure
 const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
@@ -738,6 +739,187 @@ export const appRouter = router({
           startTime: input.startTime,
           endTime: input.endTime,
           status: input.status || "scheduled",
+          notes: input.notes,
+        });
+        return { success: true };
+      }),
+  }),
+
+  lessons: router({
+    // Student: Get my upcoming lessons
+    getMyLessons: protectedProcedure.query(async ({ ctx }) => {
+      const member = await db.getMemberByUserId(ctx.user.id);
+      if (!member) return [];
+      return await lessonScheduling.getStudentUpcomingLessons(member.id);
+    }),
+
+    // Student: Get available slots for booking/rescheduling
+    getAvailableSlots: protectedProcedure
+      .input(z.object({
+        fromTime: z.number().optional(), // Unix timestamp in ms
+      }))
+      .query(async ({ input }) => {
+        const fromTime = input.fromTime || Date.now();
+        return await db.getAvailableLessonSlots(fromTime);
+      }),
+
+    // Student: Book a lesson slot
+    bookLesson: protectedProcedure
+      .input(z.object({
+        slotId: z.number(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const member = await db.getMemberByUserId(ctx.user.id);
+        if (!member) {
+          throw new TRPCError({ code: 'NOT_FOUND', message: 'Member profile not found' });
+        }
+
+        // Check if student can book this slot
+        const canBook = await lessonScheduling.canStudentBookSlot(member.id, input.slotId);
+        if (!canBook.canBook) {
+          throw new TRPCError({ code: 'BAD_REQUEST', message: canBook.reason || 'Cannot book this slot' });
+        }
+
+        const result = await lessonScheduling.bookLessonSlot(
+          input.slotId,
+          member.id,
+          ctx.user.id
+        );
+
+        if (!result.success) {
+          throw new TRPCError({ code: 'BAD_REQUEST', message: result.message });
+        }
+
+        return { success: true, bookingId: result.bookingId };
+      }),
+
+    // Student: Reschedule a lesson (24-hour rule enforced)
+    rescheduleLesson: protectedProcedure
+      .input(z.object({
+        bookingId: z.number(),
+        newSlotId: z.number(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const member = await db.getMemberByUserId(ctx.user.id);
+        if (!member) {
+          throw new TRPCError({ code: 'NOT_FOUND', message: 'Member profile not found' });
+        }
+
+        // Verify booking belongs to this member
+        const booking = await db.getBookingById(input.bookingId);
+        if (!booking || booking.memberId !== member.id) {
+          throw new TRPCError({ code: 'FORBIDDEN', message: 'Not authorized to reschedule this lesson' });
+        }
+
+        const result = await lessonScheduling.rescheduleLessonBooking(
+          input.bookingId,
+          input.newSlotId,
+          ctx.user.id
+        );
+
+        if (!result.success) {
+          throw new TRPCError({ code: 'BAD_REQUEST', message: result.message });
+        }
+
+        return { success: true };
+      }),
+
+    // Student: Cancel a lesson (24-hour rule enforced)
+    cancelLesson: protectedProcedure
+      .input(z.object({
+        bookingId: z.number(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const member = await db.getMemberByUserId(ctx.user.id);
+        if (!member) {
+          throw new TRPCError({ code: 'NOT_FOUND', message: 'Member profile not found' });
+        }
+
+        // Verify booking belongs to this member
+        const booking = await db.getBookingById(input.bookingId);
+        if (!booking || booking.memberId !== member.id) {
+          throw new TRPCError({ code: 'FORBIDDEN', message: 'Not authorized to cancel this lesson' });
+        }
+
+        const result = await lessonScheduling.cancelLesson(input.bookingId);
+
+        if (!result.success) {
+          throw new TRPCError({ code: 'BAD_REQUEST', message: result.message });
+        }
+
+        return { success: true };
+      }),
+
+    // Staff: Get all lesson slots
+    getAllSlots: adminProcedure.query(async () => {
+      return await db.getAllLessonSlots();
+    }),
+
+    // Staff: Get bookings for a specific slot
+    getSlotBookings: adminProcedure
+      .input(z.object({ slotId: z.number() }))
+      .query(async ({ input }) => {
+        return await db.getBookingsBySlot(input.slotId);
+      }),
+
+    // Staff: Create a new lesson slot
+    createSlot: adminProcedure
+      .input(z.object({
+        startTime: z.number(), // Unix timestamp in ms
+        endTime: z.number(), // Unix timestamp in ms
+        lessonType: z.enum(["private", "group", "horsemanship"]),
+        maxStudents: z.number(),
+        instructorName: z.string().optional(),
+        location: z.string().optional(),
+        notes: z.string().optional(),
+        isRecurring: z.boolean().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const slotId = await db.createLessonSlot({
+          ...input,
+          currentStudents: 0,
+          createdBy: ctx.user.id,
+        });
+        return { success: true, slotId };
+      }),
+
+    // Staff: Update a lesson slot
+    updateSlot: adminProcedure
+      .input(z.object({
+        slotId: z.number(),
+        startTime: z.number().optional(),
+        endTime: z.number().optional(),
+        lessonType: z.enum(["private", "group", "horsemanship"]).optional(),
+        maxStudents: z.number().optional(),
+        instructorName: z.string().optional(),
+        location: z.string().optional(),
+        notes: z.string().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const { slotId, ...updates } = input;
+        await db.updateLessonSlot(slotId, updates);
+        return { success: true };
+      }),
+
+    // Staff: Delete a lesson slot
+    deleteSlot: adminProcedure
+      .input(z.object({ slotId: z.number() }))
+      .mutation(async ({ input }) => {
+        await db.deleteLessonSlot(input.slotId);
+        return { success: true };
+      }),
+
+    // Staff: Mark attendance for a booking
+    markAttendance: adminProcedure
+      .input(z.object({
+        bookingId: z.number(),
+        attended: z.boolean(),
+        notes: z.string().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const status = input.attended ? "completed" : "cancelled";
+        await db.updateLessonBooking(input.bookingId, {
+          status,
           notes: input.notes,
         });
         return { success: true };

@@ -16,6 +16,8 @@ import Events from "./pages/Events";
 import EventDetails from "./pages/EventDetails";
 import AdminEvents from "./pages/AdminEvents";
 import AdminRecurringEvents from "./pages/AdminRecurringEvents";
+import StaffLessons from "./pages/StaffLessons";
+import MyLessons from "./pages/MyLessons";
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
@@ -33,6 +35,8 @@ function Router() {
       <Route path="/events/:id" component={EventDetails} />
       <Route path="/admin/events" component={AdminEvents} />
       <Route path="/admin/recurring-events" component={AdminRecurringEvents} />
+      <Route path="/staff/lessons" component={StaffLessons} />
+      <Route path="/my-lessons" component={MyLessons} />
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />
