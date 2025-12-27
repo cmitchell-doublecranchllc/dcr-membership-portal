@@ -310,3 +310,9 @@
 ## Add Logout Button
 - [x] Add logout button to Profile page
 - [x] Test logout functionality
+
+## View Pending Member Details
+- [x] Add "View Details" button to each pending member card
+- [x] Create dialog showing all submitted information
+- [x] Display student info, medical info, emergency contact, riding experience, consents
+- [x] Test details view

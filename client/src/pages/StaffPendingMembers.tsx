@@ -7,7 +7,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import PageHeader from "@/components/PageHeader";
-import { CheckCircle, XCircle, Mail, Calendar, User } from "lucide-react";
+import { CheckCircle, XCircle, Mail, Calendar, User, Eye, Phone, AlertCircle, Heart, FileText } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { format } from "date-fns";
@@ -17,6 +17,8 @@ export default function StaffPendingMembers() {
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [rejectReason, setRejectReason] = useState("");
   const [showRejectDialog, setShowRejectDialog] = useState(false);
+  const [showDetailsDialog, setShowDetailsDialog] = useState(false);
+  const [selectedUserDetails, setSelectedUserDetails] = useState<any>(null);
 
   const { data: pendingUsers, refetch } = trpc.admin.getPendingUsers.useQuery(
     undefined,
@@ -125,6 +127,16 @@ export default function StaffPendingMembers() {
                     </div>
                     <div className="flex gap-2">
                       <Button
+                        onClick={() => {
+                          setSelectedUserDetails(pendingUser);
+                          setShowDetailsDialog(true);
+                        }}
+                        variant="outline"
+                      >
+                        <Eye className="mr-2 h-4 w-4" />
+                        View Details
+                      </Button>
+                      <Button
                         onClick={() => handleApprove(pendingUser.id)}
                         disabled={approveMutation.isPending}
                         className="bg-green-600 hover:bg-green-700"
@@ -147,6 +159,181 @@ export default function StaffPendingMembers() {
             ))}
           </div>
         )}
+
+        {/* View Details Dialog */}
+        <Dialog open={showDetailsDialog} onOpenChange={setShowDetailsDialog}>
+          <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Member Application Details</DialogTitle>
+              <DialogDescription>
+                Complete information submitted by {selectedUserDetails?.name}
+              </DialogDescription>
+            </DialogHeader>
+            {selectedUserDetails?.member && (
+              <div className="space-y-6 py-4">
+                {/* Student Information */}
+                <div>
+                  <h3 className="font-semibold text-lg mb-3 flex items-center gap-2">
+                    <User className="h-5 w-5" />
+                    Student Information
+                  </h3>
+                  <div className="grid grid-cols-2 gap-4 bg-muted/50 p-4 rounded-lg">
+                    <div>
+                      <Label className="text-sm text-muted-foreground">Full Name</Label>
+                      <p className="font-medium">{selectedUserDetails.name}</p>
+                    </div>
+                    <div>
+                      <Label className="text-sm text-muted-foreground">Date of Birth</Label>
+                      <p className="font-medium">
+                        {selectedUserDetails.member.dateOfBirth 
+                          ? format(new Date(selectedUserDetails.member.dateOfBirth), 'MMM d, yyyy')
+                          : 'Not provided'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Medical Information */}
+                <div>
+                  <h3 className="font-semibold text-lg mb-3 flex items-center gap-2">
+                    <Heart className="h-5 w-5 text-red-600" />
+                    Medical Information
+                  </h3>
+                  <div className="space-y-3 bg-muted/50 p-4 rounded-lg">
+                    <div>
+                      <Label className="text-sm text-muted-foreground">Allergies</Label>
+                      <p className="font-medium">{selectedUserDetails.member.allergies || 'None reported'}</p>
+                    </div>
+                    <div>
+                      <Label className="text-sm text-muted-foreground">Current Medications</Label>
+                      <p className="font-medium">{selectedUserDetails.member.medications || 'None reported'}</p>
+                    </div>
+                    <div>
+                      <Label className="text-sm text-muted-foreground">Special Medical Conditions</Label>
+                      <p className="font-medium">{selectedUserDetails.member.medicalNotes || 'None reported'}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Contact Information */}
+                <div>
+                  <h3 className="font-semibold text-lg mb-3 flex items-center gap-2">
+                    <Phone className="h-5 w-5" />
+                    Contact Information
+                  </h3>
+                  <div className="grid grid-cols-2 gap-4 bg-muted/50 p-4 rounded-lg">
+                    <div>
+                      <Label className="text-sm text-muted-foreground">Email</Label>
+                      <p className="font-medium">{selectedUserDetails.email}</p>
+                    </div>
+                    <div>
+                      <Label className="text-sm text-muted-foreground">Phone</Label>
+                      <p className="font-medium">{selectedUserDetails.member.phone || 'Not provided'}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Emergency Contact */}
+                <div>
+                  <h3 className="font-semibold text-lg mb-3 flex items-center gap-2">
+                    <AlertCircle className="h-5 w-5 text-orange-600" />
+                    Emergency Contact
+                  </h3>
+                  <div className="grid grid-cols-3 gap-4 bg-muted/50 p-4 rounded-lg">
+                    <div>
+                      <Label className="text-sm text-muted-foreground">Name</Label>
+                      <p className="font-medium">{selectedUserDetails.member.emergencyContactName || 'Not provided'}</p>
+                    </div>
+                    <div>
+                      <Label className="text-sm text-muted-foreground">Phone</Label>
+                      <p className="font-medium">{selectedUserDetails.member.emergencyContactPhone || 'Not provided'}</p>
+                    </div>
+                    <div>
+                      <Label className="text-sm text-muted-foreground">Relationship</Label>
+                      <p className="font-medium">{selectedUserDetails.member.emergencyContactRelationship || 'Not provided'}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Riding Information */}
+                <div>
+                  <h3 className="font-semibold text-lg mb-3 flex items-center gap-2">
+                    <FileText className="h-5 w-5" />
+                    Riding Information
+                  </h3>
+                  <div className="grid grid-cols-2 gap-4 bg-muted/50 p-4 rounded-lg">
+                    <div>
+                      <Label className="text-sm text-muted-foreground">Membership Tier</Label>
+                      <p className="font-medium capitalize">{selectedUserDetails.member.membershipTier || 'Not selected'}</p>
+                    </div>
+                    <div>
+                      <Label className="text-sm text-muted-foreground">Horse Management Level</Label>
+                      <p className="font-medium capitalize">{selectedUserDetails.member.horseManagementLevel || 'Not specified'}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Consents */}
+                <div>
+                  <h3 className="font-semibold text-lg mb-3">Consents & Agreements</h3>
+                  <div className="space-y-2 bg-muted/50 p-4 rounded-lg">
+                    <div className="flex items-center gap-2">
+                      {selectedUserDetails.member.liabilityWaiverSigned ? (
+                        <CheckCircle className="h-5 w-5 text-green-600" />
+                      ) : (
+                        <XCircle className="h-5 w-5 text-red-600" />
+                      )}
+                      <span>Liability Waiver Signed</span>
+                      {selectedUserDetails.member.liabilityWaiverSignedAt && (
+                        <span className="text-sm text-muted-foreground">
+                          ({format(new Date(selectedUserDetails.member.liabilityWaiverSignedAt), 'MMM d, yyyy h:mm a')})
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {selectedUserDetails.member.photoConsent ? (
+                        <CheckCircle className="h-5 w-5 text-green-600" />
+                      ) : (
+                        <XCircle className="h-5 w-5 text-red-600" />
+                      )}
+                      <span>Photo/Media Consent</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {selectedUserDetails.member.smsConsent ? (
+                        <CheckCircle className="h-5 w-5 text-green-600" />
+                      ) : (
+                        <XCircle className="h-5 w-5 text-red-600" />
+                      )}
+                      <span>SMS/Text Message Consent</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowDetailsDialog(false);
+                  setSelectedUserDetails(null);
+                }}
+              >
+                Close
+              </Button>
+              <Button
+                onClick={() => {
+                  setShowDetailsDialog(false);
+                  handleApprove(selectedUserDetails.id);
+                }}
+                disabled={approveMutation.isPending}
+                className="bg-green-600 hover:bg-green-700"
+              >
+                <CheckCircle className="mr-2 h-4 w-4" />
+                Approve
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
         {/* Reject Dialog */}
         <Dialog open={showRejectDialog} onOpenChange={setShowRejectDialog}>
