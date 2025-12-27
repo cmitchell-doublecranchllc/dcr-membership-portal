@@ -36,6 +36,20 @@
       "when": 1766796116144,
       "tag": "0004_fuzzy_violations",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1766800084453,
+      "tag": "0005_gigantic_rogue",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1766800123512,
+      "tag": "0006_cool_supernaut",
+      "breakpoints": true
     }
   ]
 }

@@ -66,7 +66,10 @@ export default function Home() {
         {/* Hero Section */}
         <div className="container py-16 md:py-24">
           <div className="max-w-3xl mx-auto text-center">
-            <img src="/logo.png" alt="Double C Ranch Logo" className="h-32 mx-auto mb-8" />
+            <div className="flex items-center justify-center gap-6 mb-8">
+              <img src="/logo-cc.png" alt="Double C Ranch" className="h-32" />
+              <img src="/logo-pony-club.png" alt="United States Pony Clubs" className="h-32" />
+            </div>
             <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
               Double C Ranch
             </h1>
@@ -159,7 +162,7 @@ export default function Home() {
         <div className="mb-8">
           <div className="flex items-center justify-between flex-wrap gap-4">
             <div className="flex items-center gap-4">
-              <img src="/logo.png" alt="Double C Ranch" className="h-16" />
+              <img src="/logo-cc.png" alt="Double C Ranch" className="h-16" />
               <div>
                 <h1 className="text-3xl md:text-4xl font-bold mb-2">
                   Welcome back, {user?.name || 'Rider'}!
@@ -302,6 +305,16 @@ export default function Home() {
                 <Users className="h-8 w-8 text-primary mb-2" />
                 <CardTitle>My Profile</CardTitle>
                 <CardDescription>Manage your account</CardDescription>
+              </CardHeader>
+            </Card>
+          </Link>
+
+          <Link href="/my-progress">
+            <Card className="hover:border-primary transition-colors cursor-pointer h-full">
+              <CardHeader>
+                <FileText className="h-8 w-8 text-primary mb-2" />
+                <CardTitle>My Progress</CardTitle>
+                <CardDescription>View instructor notes</CardDescription>
               </CardHeader>
             </Card>
           </Link>

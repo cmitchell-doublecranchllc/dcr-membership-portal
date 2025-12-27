@@ -8,6 +8,7 @@ import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
 import { initializeReminderScheduler } from "./eventReminders";
+import { initializeLessonReminderScheduler } from "./lessonReminders";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -63,6 +64,9 @@ async function startServer() {
     
     // Initialize event reminder scheduler
     initializeReminderScheduler();
+    
+    // Initialize lesson reminder scheduler (30 min before lessons)
+    initializeLessonReminderScheduler();
   });
 }
 

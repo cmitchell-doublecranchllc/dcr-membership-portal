@@ -66,7 +66,7 @@ export const appRouter = router({
             dateOfBirth: input.dateOfBirth ? new Date(input.dateOfBirth) : undefined,
             isChild: false,
           });
-          return { success: true, memberId: Number(result[0].insertId) };
+          return { success: true, memberId: result };
         }
       }),
 
@@ -102,7 +102,7 @@ export const appRouter = router({
           membershipTier: parentMember.membershipTier, // Inherit parent's tier
         });
 
-        return { success: true, childId: Number(result[0].insertId) };
+        return { success: true, childId: result };
       }),
 
     // Admin: Get all members
@@ -913,15 +913,86 @@ export const appRouter = router({
     markAttendance: adminProcedure
       .input(z.object({
         bookingId: z.number(),
-        attended: z.boolean(),
+        attendanceStatus: z.enum(["present", "absent", "late"]),
         notes: z.string().optional(),
       }))
-      .mutation(async ({ input }) => {
-        const status = input.attended ? "completed" : "cancelled";
-        await db.updateLessonBooking(input.bookingId, {
-          status,
-          notes: input.notes,
+      .mutation(async ({ ctx, input }) => {
+        await db.markLessonAttendance(
+          input.bookingId,
+          input.attendanceStatus,
+          ctx.user.id,
+          input.notes
+        );
+        return { success: true };
+      }),
+
+    // Staff: Get attendance history for a student
+    getStudentAttendance: adminProcedure
+      .input(z.object({ memberId: z.number() }))
+      .query(async ({ input }) => {
+        return await db.getStudentAttendanceHistory(input.memberId);
+      }),
+
+    // Student: Get my attendance history
+    getMyAttendance: protectedProcedure.query(async ({ ctx }) => {
+      const member = await db.getMemberByUserId(ctx.user.id);
+      if (!member) return [];
+      return await db.getStudentAttendanceHistory(member.id);
+    }),
+
+    // Staff: Add progress note for a student
+    addProgressNote: adminProcedure
+      .input(z.object({
+        memberId: z.number(),
+        lessonBookingId: z.number().optional(),
+        category: z.enum(["skill_progress", "behavior", "achievement", "goal", "concern", "general"]),
+        title: z.string(),
+        content: z.string(),
+        isVisibleToParent: z.boolean().default(true),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const noteId = await db.createProgressNote({
+          ...input,
+          createdBy: ctx.user.id,
+          noteDate: Date.now(),
         });
+        return { success: true, noteId };
+      }),
+
+    // Staff: Get all progress notes for a student
+    getStudentProgressNotes: adminProcedure
+      .input(z.object({ memberId: z.number() }))
+      .query(async ({ input }) => {
+        return await db.getStudentProgressNotes(input.memberId);
+      }),
+
+    // Student/Parent: Get my progress notes (only visible ones)
+    getMyProgressNotes: protectedProcedure.query(async ({ ctx }) => {
+      const member = await db.getMemberByUserId(ctx.user.id);
+      if (!member) return [];
+      return await db.getStudentProgressNotes(member.id, true); // Only visible to parent
+    }),
+
+    // Staff: Update progress note
+    updateProgressNote: adminProcedure
+      .input(z.object({
+        noteId: z.number(),
+        title: z.string().optional(),
+        content: z.string().optional(),
+        category: z.enum(["skill_progress", "behavior", "achievement", "goal", "concern", "general"]).optional(),
+        isVisibleToParent: z.boolean().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const { noteId, ...updates } = input;
+        await db.updateProgressNote(noteId, updates);
+        return { success: true };
+      }),
+
+    // Staff: Delete progress note
+    deleteProgressNote: adminProcedure
+      .input(z.object({ noteId: z.number() }))
+      .mutation(async ({ input }) => {
+        await db.deleteProgressNote(input.noteId);
         return { success: true };
       }),
   }),

@@ -1,4 +1,4 @@
-import { eq, and, desc, gte, lte } from "drizzle-orm";
+import { eq, and, or, desc, gte, lte } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import { 
   InsertUser, users,
@@ -14,7 +14,8 @@ import {
   eventRsvps, InsertEventRsvp,
   recurringEventSeries, InsertRecurringEventSeries,
   lessonSlots, InsertLessonSlot,
-  lessonBookings, InsertLessonBooking
+  lessonBookings, InsertLessonBooking,
+  progressNotes, InsertProgressNote
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
@@ -117,7 +118,7 @@ export async function createMember(member: InsertMember) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   const result = await db.insert(members).values(member);
-  return result;
+  return result[0].insertId;
 }
 
 export async function getMemberByUserId(userId: number) {
@@ -149,7 +150,17 @@ export async function getChildrenByParentId(parentId: number) {
 export async function getAllMembers() {
   const db = await getDb();
   if (!db) return [];
-  return await db.select().from(members).orderBy(desc(members.createdAt));
+  return await db
+    .select({
+      id: members.id,
+      userId: members.userId,
+      membershipTier: members.membershipTier,
+      phone: members.phone,
+      user: users,
+    })
+    .from(members)
+    .innerJoin(users, eq(members.userId, users.id))
+    .orderBy(desc(members.createdAt));
 }
 
 // ============ Check-in Functions ============
@@ -664,7 +675,25 @@ export async function getActiveBookingsByMember(memberId: number) {
 export async function getBookingsBySlot(slotId: number) {
   const db = await getDb();
   if (!db) return [];
-  return await db.select().from(lessonBookings)
+  return await db
+    .select({
+      id: lessonBookings.id,
+      slotId: lessonBookings.slotId,
+      memberId: lessonBookings.memberId,
+      bookedBy: lessonBookings.bookedBy,
+      status: lessonBookings.status,
+      attendanceStatus: lessonBookings.attendanceStatus,
+      attendanceMarkedBy: lessonBookings.attendanceMarkedBy,
+      attendanceMarkedAt: lessonBookings.attendanceMarkedAt,
+      attendanceNotes: lessonBookings.attendanceNotes,
+      notes: lessonBookings.notes,
+      bookedAt: lessonBookings.bookedAt,
+      member: members,
+      user: users,
+    })
+    .from(lessonBookings)
+    .innerJoin(members, eq(lessonBookings.memberId, members.id))
+    .innerJoin(users, eq(members.userId, users.id))
     .where(eq(lessonBookings.slotId, slotId));
 }
 
@@ -696,4 +725,99 @@ export async function deleteLessonBooking(id: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   return await db.delete(lessonBookings).where(eq(lessonBookings.id, id));
+}
+
+
+// ============ Attendance Tracking Functions ============
+
+export async function markLessonAttendance(
+  bookingId: number,
+  attendanceStatus: "present" | "absent" | "late",
+  markedBy: number,
+  notes?: string
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  return await db
+    .update(lessonBookings)
+    .set({
+      attendanceStatus,
+      attendanceMarkedBy: markedBy,
+      attendanceMarkedAt: Date.now(),
+      attendanceNotes: notes,
+      status: attendanceStatus === "present" ? "completed" : "confirmed",
+    })
+    .where(eq(lessonBookings.id, bookingId));
+}
+
+export async function getStudentAttendanceHistory(memberId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return await db
+    .select({
+      booking: lessonBookings,
+      slot: lessonSlots,
+    })
+    .from(lessonBookings)
+    .innerJoin(lessonSlots, eq(lessonBookings.slotId, lessonSlots.id))
+    .where(
+      and(
+        eq(lessonBookings.memberId, memberId),
+        or(
+          eq(lessonBookings.attendanceStatus, "present"),
+          eq(lessonBookings.attendanceStatus, "absent"),
+          eq(lessonBookings.attendanceStatus, "late")
+        )
+      )
+    )
+    .orderBy(desc(lessonSlots.startTime));
+}
+
+// ============ Progress Notes Functions ============
+
+export async function createProgressNote(note: InsertProgressNote) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const result = await db.insert(progressNotes).values(note);
+  return result[0].insertId;
+}
+
+export async function getStudentProgressNotes(memberId: number, visibleOnly: boolean = false) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  const conditions = [eq(progressNotes.memberId, memberId)];
+  if (visibleOnly) {
+    conditions.push(eq(progressNotes.isVisibleToParent, true));
+  }
+  
+  return await db
+    .select({
+      note: progressNotes,
+      instructor: users,
+    })
+    .from(progressNotes)
+    .innerJoin(users, eq(progressNotes.createdBy, users.id))
+    .where(and(...conditions))
+    .orderBy(desc(progressNotes.noteDate));
+}
+
+export async function updateProgressNote(noteId: number, updates: Partial<InsertProgressNote>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  return await db
+    .update(progressNotes)
+    .set(updates)
+    .where(eq(progressNotes.id, noteId));
+}
+
+export async function deleteProgressNote(noteId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  return await db.delete(progressNotes).where(eq(progressNotes.id, noteId));
 }

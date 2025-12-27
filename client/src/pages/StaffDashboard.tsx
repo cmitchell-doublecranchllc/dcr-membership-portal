@@ -77,6 +77,12 @@ export default function StaffDashboard() {
               <Link href="/staff/lessons">
                 <Button variant="default">Manage Lessons</Button>
               </Link>
+              <Link href="/staff/attendance">
+                <Button variant="outline">Attendance</Button>
+              </Link>
+              <Link href="/staff/progress-notes">
+                <Button variant="outline">Progress Notes</Button>
+              </Link>
               <Link href="/">
                 <Button variant="outline">Back to Home</Button>
               </Link>
@@ -221,7 +227,7 @@ export default function StaffDashboard() {
                           {member.phone || '-'}
                         </TableCell>
                         <TableCell className="text-muted-foreground">
-                          {new Date(member.createdAt).toLocaleDateString()}
+                          {new Date(member.user.createdAt).toLocaleDateString()}
                         </TableCell>
                       </TableRow>
                     ))}

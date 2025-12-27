@@ -43,15 +43,15 @@
 }
 
 :root {
-  --primary: oklch(0.35 0.29 4);
+  --primary: oklch(0.31 0.29 6);
   --primary-foreground: oklch(1 0 0);
-  --sidebar-primary: oklch(0.35 0.29 4);
+  --sidebar-primary: oklch(0.31 0.29 6);
   --sidebar-primary-foreground: oklch(1 0 0);
-  --chart-1: oklch(0.55 0.20 4);
-  --chart-2: oklch(0.45 0.25 4);
-  --chart-3: oklch(0.35 0.29 4);
-  --chart-4: oklch(0.30 0.25 4);
-  --chart-5: oklch(0.25 0.20 4);
+  --chart-1: oklch(0.51 0.20 6);
+  --chart-2: oklch(0.41 0.25 6);
+  --chart-3: oklch(0.31 0.29 6);
+  --chart-4: oklch(0.26 0.25 6);
+  --chart-5: oklch(0.21 0.20 6);
   --radius: 0.65rem;
   --background: oklch(1 0 0);
   --foreground: oklch(0.235 0.015 65);

@@ -176,6 +176,30 @@ export const lessonBookings = mysqlTable("lessonBookings", {
   notes: text("notes"),
   bookedAt: bigint("bookedAt", { mode: "number" }).notNull(), // Unix timestamp in milliseconds
   cancelledAt: bigint("cancelledAt", { mode: "number" }), // Unix timestamp if cancelled
+  
+  // Attendance tracking
+  attendanceStatus: mysqlEnum("attendanceStatus", ["pending", "present", "absent", "late"]).default("pending").notNull(),
+  attendanceMarkedBy: int("attendanceMarkedBy"), // Staff user who marked attendance
+  attendanceMarkedAt: bigint("attendanceMarkedAt", { mode: "number" }), // Unix timestamp when marked
+  attendanceNotes: text("attendanceNotes"), // Staff notes about attendance
+  
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+/**
+ * Student progress notes - instructor documentation of student achievements and skill progression
+ */
+export const progressNotes = mysqlTable("progressNotes", {
+  id: int("id").autoincrement().primaryKey(),
+  memberId: int("memberId").notNull(), // Student this note is about
+  lessonBookingId: int("lessonBookingId"), // Optional link to specific lesson
+  createdBy: int("createdBy").notNull(), // Instructor/staff who wrote the note
+  noteDate: bigint("noteDate", { mode: "number" }).notNull(), // Unix timestamp of when note was written
+  category: mysqlEnum("category", ["skill_progress", "behavior", "achievement", "goal", "concern", "general"]).default("general").notNull(),
+  title: varchar("title", { length: 255 }).notNull(),
+  content: text("content").notNull(), // The actual note content
+  isVisibleToParent: boolean("isVisibleToParent").default(true).notNull(), // Control visibility to parents
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
@@ -194,6 +218,9 @@ export type InsertLessonSlot = typeof lessonSlots.$inferInsert;
 
 export type LessonBooking = typeof lessonBookings.$inferSelect;
 export type InsertLessonBooking = typeof lessonBookings.$inferInsert;
+
+export type ProgressNote = typeof progressNotes.$inferSelect;
+export type InsertProgressNote = typeof progressNotes.$inferInsert;
 
 export type Contract = typeof contracts.$inferSelect;
 export type InsertContract = typeof contracts.$inferInsert;

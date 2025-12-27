@@ -120,12 +120,11 @@
 - [x] Display 24-hour rule warnings in UI
 - [ ] Test student data privacy (students see only their own lessons)
 
-## Automated Lesson Reminders
-- [ ] Request Aircall API credentials from user
-- [ ] Integrate Aircall SMS API
-- [ ] Create lesson reminder scheduler (24h before lessons)
+## Automated Lesson Reminders (Using Klaviyo SMS)
+- [x] Klaviyo API credentials configured
+- [x] Klaviyo SMS integration service created
+- [ ] Complete lesson reminder scheduler (30 min before lessons)
 - [ ] Add SMS notification preferences to student profiles
-- [ ] Implement email fallback if SMS fails
 - [ ] Test reminder system
 
 ## Lesson Attendance Tracking
@@ -156,3 +155,34 @@
 - [x] Add logo to login page
 - [x] Test logo display on all pages
 - [x] Create checkpoint with logo
+
+
+## Update Branding
+- [x] Update color to darker #852645
+- [x] Replace logo with separate symbols (CC and Pony Club badge)
+- [x] Test updated branding
+
+## Klaviyo SMS Reminders
+- [x] Request Klaviyo API credentials
+- [x] Integrate Klaviyo SMS API
+- [x] Send lesson reminders 30 min before
+- [x] Initialize lesson reminder scheduler
+- [ ] Send check-in reminders
+- [ ] Send unsigned contract alerts
+- [ ] Send late arrival notifications
+- [ ] Add SMS opt-in/opt-out preferences
+
+## Lesson Attendance Tracking
+- [x] Add attendance fields to lesson bookings table
+- [x] Add attendance tracking API endpoints
+- [x] Create staff attendance marking interface
+- [x] Display attendance history for students
+- [x] Add navigation links to attendance page
+
+## Student Progress Notes
+- [x] Add progress notes table to database
+- [x] Add progress notes API endpoints
+- [x] Create instructor interface for adding notes
+- [x] Display progress notes in student portal
+- [x] Allow parents to view child's progress history
+- [x] Add navigation links to progress notes pages
