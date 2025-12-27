@@ -186,3 +186,22 @@
 - [x] Display progress notes in student portal
 - [x] Allow parents to view child's progress history
 - [x] Add navigation links to progress notes pages
+
+## Add New Event Types
+- [x] Add "riding lesson" and "horsemanship lesson" to event types enum in schema
+- [x] Update database schema with new event types
+- [x] Update event creation UI to show new types
+- [x] Update event display to handle new types
+- [x] Test creating and viewing new event types
+
+## Enhanced User Profiles
+- [x] Add profile photo field to users table
+- [x] Add riding experience fields to members table (experience level, certifications)
+- [x] Create horses table for horse ownership tracking
+- [x] Add profile photo upload API endpoint
+- [x] Add horse management API endpoints (add, edit, delete)
+- [ ] Update profile page with photo upload
+- [ ] Add riding experience and certifications fields to profile
+- [ ] Add horse ownership management section
+- [ ] Test profile photo upload
+- [ ] Test horse management features

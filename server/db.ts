@@ -15,7 +15,8 @@ import {
   recurringEventSeries, InsertRecurringEventSeries,
   lessonSlots, InsertLessonSlot,
   lessonBookings, InsertLessonBooking,
-  progressNotes, InsertProgressNote
+  progressNotes, InsertProgressNote,
+  horses, InsertHorse
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
@@ -820,4 +821,57 @@ export async function deleteProgressNote(noteId: number) {
   if (!db) throw new Error("Database not available");
   
   return await db.delete(progressNotes).where(eq(progressNotes.id, noteId));
+}
+
+// ============ Horse Management Functions ============
+
+export async function createHorse(horse: InsertHorse) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(horses).values(horse);
+  return result[0].insertId;
+}
+
+export async function getHorsesByOwnerId(ownerId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return await db.select().from(horses).where(eq(horses.ownerId, ownerId));
+}
+
+export async function getHorseById(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(horses).where(eq(horses.id, id));
+  return result[0];
+}
+
+export async function updateHorse(id: number, updates: Partial<InsertHorse>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(horses).set(updates).where(eq(horses.id, id));
+}
+
+export async function deleteHorse(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.delete(horses).where(eq(horses.id, id));
+}
+
+// ============ Profile Update Functions ============
+
+export async function updateUserProfilePhoto(userId: number, profilePhotoUrl: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(users).set({ profilePhotoUrl }).where(eq(users.id, userId));
+}
+
+export async function updateMemberRidingInfo(memberId: number, updates: {
+  ridingExperienceLevel?: "beginner" | "intermediate" | "advanced" | "expert";
+  certifications?: string;
+  ridingGoals?: string;
+  medicalNotes?: string;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(members).set(updates).where(eq(members.id, memberId));
 }

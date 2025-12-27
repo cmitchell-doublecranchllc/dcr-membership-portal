@@ -20,7 +20,7 @@ export default function AdminRecurringEvents() {
   const [formData, setFormData] = useState({
     title: "",
     description: "",
-    eventType: "clinic" as "competition" | "show" | "clinic" | "social" | "other",
+    eventType: "clinic" as "competition" | "show" | "clinic" | "social" | "riding_lesson" | "horsemanship_lesson" | "other",
     location: "",
     capacity: "",
     requiresRsvp: true,
@@ -183,6 +183,8 @@ export default function AdminRecurringEvents() {
                         <SelectItem value="competition">Competition</SelectItem>
                         <SelectItem value="show">Show</SelectItem>
                         <SelectItem value="social">Social</SelectItem>
+                        <SelectItem value="riding_lesson">Riding Lesson</SelectItem>
+                        <SelectItem value="horsemanship_lesson">Horsemanship Lesson</SelectItem>
                         <SelectItem value="other">Other</SelectItem>
                       </SelectContent>
                     </Select>

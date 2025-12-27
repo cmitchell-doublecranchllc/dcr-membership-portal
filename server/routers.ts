@@ -544,7 +544,7 @@ export const appRouter = router({
       .input(z.object({
         title: z.string(),
         description: z.string().optional(),
-        eventType: z.enum(["competition", "show", "clinic", "social", "other"]),
+        eventType: z.enum(["competition", "show", "clinic", "social", "riding_lesson", "horsemanship_lesson", "other"]),
         location: z.string().optional(),
         startTime: z.number(),
         endTime: z.number(),
@@ -622,7 +622,7 @@ export const appRouter = router({
       .input(z.object({
         title: z.string(),
         description: z.string().optional(),
-        eventType: z.enum(["competition", "show", "clinic", "social", "other"]),
+        eventType: z.enum(["competition", "show", "clinic", "social", "riding_lesson", "horsemanship_lesson", "other"]),
         location: z.string().optional(),
         capacity: z.number().optional(),
         requiresRsvp: z.boolean().default(true),
@@ -993,6 +993,131 @@ export const appRouter = router({
       .input(z.object({ noteId: z.number() }))
       .mutation(async ({ input }) => {
         await db.deleteProgressNote(input.noteId);
+        return { success: true };
+      }),
+  }),
+
+  horses: router({
+    // Get my horses
+    getMyHorses: protectedProcedure.query(async ({ ctx }) => {
+      const member = await db.getMemberByUserId(ctx.user.id);
+      if (!member) return [];
+      return await db.getHorsesByOwnerId(member.id);
+    }),
+
+    // Add a horse
+    addHorse: protectedProcedure
+      .input(z.object({
+        name: z.string(),
+        breed: z.string().optional(),
+        age: z.number().optional(),
+        color: z.string().optional(),
+        gender: z.enum(["mare", "gelding", "stallion"]).optional(),
+        height: z.string().optional(),
+        temperament: z.string().optional(),
+        specialNeeds: z.string().optional(),
+        vetInfo: z.string().optional(),
+        photoUrl: z.string().optional(),
+        isBoarded: z.boolean().default(false),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const member = await db.getMemberByUserId(ctx.user.id);
+        if (!member) throw new TRPCError({ code: "NOT_FOUND", message: "Member profile not found" });
+        
+        const horseId = await db.createHorse({
+          ownerId: member.id,
+          ...input,
+        });
+        return { success: true, horseId };
+      }),
+
+    // Update a horse
+    updateHorse: protectedProcedure
+      .input(z.object({
+        id: z.number(),
+        name: z.string().optional(),
+        breed: z.string().optional(),
+        age: z.number().optional(),
+        color: z.string().optional(),
+        gender: z.enum(["mare", "gelding", "stallion"]).optional(),
+        height: z.string().optional(),
+        temperament: z.string().optional(),
+        specialNeeds: z.string().optional(),
+        vetInfo: z.string().optional(),
+        photoUrl: z.string().optional(),
+        isBoarded: z.boolean().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const { id, ...updates } = input;
+        const horse = await db.getHorseById(id);
+        if (!horse) throw new TRPCError({ code: "NOT_FOUND", message: "Horse not found" });
+        
+        const member = await db.getMemberByUserId(ctx.user.id);
+        if (!member || horse.ownerId !== member.id) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "You can only update your own horses" });
+        }
+        
+        await db.updateHorse(id, updates);
+        return { success: true };
+      }),
+
+    // Delete a horse
+    deleteHorse: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        const horse = await db.getHorseById(input.id);
+        if (!horse) throw new TRPCError({ code: "NOT_FOUND", message: "Horse not found" });
+        
+        const member = await db.getMemberByUserId(ctx.user.id);
+        if (!member || horse.ownerId !== member.id) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "You can only delete your own horses" });
+        }
+        
+        await db.deleteHorse(input.id);
+        return { success: true };
+      }),
+  }),
+
+  profile: router({
+    // Upload profile photo
+    uploadProfilePhoto: protectedProcedure
+      .input(z.object({
+        photoData: z.string(), // Base64 encoded image data
+        mimeType: z.string(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const { storagePut } = await import("./storage");
+        
+        // Convert base64 to buffer
+        const buffer = Buffer.from(input.photoData, 'base64');
+        
+        // Generate unique filename
+        const randomSuffix = Math.random().toString(36).substring(7);
+        const extension = input.mimeType.split('/')[1];
+        const fileKey = `profile-photos/${ctx.user.id}-${randomSuffix}.${extension}`;
+        
+        // Upload to S3
+        const { url } = await storagePut(fileKey, buffer, input.mimeType);
+        
+        // Update user profile
+        await db.updateUserProfilePhoto(ctx.user.id, url);
+        
+        return { success: true, photoUrl: url };
+      }),
+
+    // Update riding experience
+    updateRidingInfo: protectedProcedure
+      .input(z.object({
+        ridingExperienceLevel: z.enum(["beginner", "intermediate", "advanced", "expert"]).optional(),
+        certifications: z.string().optional(),
+        ridingGoals: z.string().optional(),
+        medicalNotes: z.string().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const member = await db.getMemberByUserId(ctx.user.id);
+        if (!member) throw new TRPCError({ code: "NOT_FOUND", message: "Member profile not found" });
+        
+        await db.updateMemberRidingInfo(member.id, input);
         return { success: true };
       }),
   }),

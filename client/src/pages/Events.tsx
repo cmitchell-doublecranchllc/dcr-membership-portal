@@ -113,6 +113,10 @@ function EventCard({ event, hasRsvp, onClick }: { event: any; hasRsvp: boolean; 
         return <GraduationCap className="h-5 w-5" />;
       case 'social':
         return <PartyPopper className="h-5 w-5" />;
+      case 'riding_lesson':
+        return <Calendar className="h-5 w-5" />;
+      case 'horsemanship_lesson':
+        return <GraduationCap className="h-5 w-5" />;
       default:
         return <Calendar className="h-5 w-5" />;
     }
@@ -128,6 +132,10 @@ function EventCard({ event, hasRsvp, onClick }: { event: any; hasRsvp: boolean; 
         return 'bg-blue-600';
       case 'social':
         return 'bg-green-600';
+      case 'riding_lesson':
+        return 'bg-rose-600';
+      case 'horsemanship_lesson':
+        return 'bg-indigo-600';
       default:
         return 'bg-gray-600';
     }

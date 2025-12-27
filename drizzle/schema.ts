@@ -10,6 +10,7 @@ export const users = mysqlTable("users", {
   email: varchar("email", { length: 320 }),
   loginMethod: varchar("loginMethod", { length: 64 }),
   role: mysqlEnum("role", ["user", "admin", "staff"]).default("user").notNull(),
+  profilePhotoUrl: text("profilePhotoUrl"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
   lastSignedIn: timestamp("lastSignedIn").defaultNow().notNull(),
@@ -28,6 +29,11 @@ export const members = mysqlTable("members", {
   parentId: int("parentId"), // Reference to parent member if this is a child
   isChild: boolean("isChild").default(false).notNull(),
   dateOfBirth: timestamp("dateOfBirth"),
+  // Riding experience fields
+  ridingExperienceLevel: mysqlEnum("ridingExperienceLevel", ["beginner", "intermediate", "advanced", "expert"]),
+  certifications: text("certifications"), // JSON array of certifications
+  ridingGoals: text("ridingGoals"),
+  medicalNotes: text("medicalNotes"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
@@ -204,6 +210,27 @@ export const progressNotes = mysqlTable("progressNotes", {
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
 
+/**
+ * Horse ownership tracking - members can register their horses
+ */
+export const horses = mysqlTable("horses", {
+  id: int("id").autoincrement().primaryKey(),
+  ownerId: int("ownerId").notNull(), // Member ID who owns the horse
+  name: varchar("name", { length: 255 }).notNull(),
+  breed: varchar("breed", { length: 255 }),
+  age: int("age"),
+  color: varchar("color", { length: 100 }),
+  gender: mysqlEnum("gender", ["mare", "gelding", "stallion"]),
+  height: varchar("height", { length: 50 }), // e.g., "15.2 hands"
+  temperament: text("temperament"),
+  specialNeeds: text("specialNeeds"),
+  vetInfo: text("vetInfo"), // Vet contact and medical info
+  photoUrl: text("photoUrl"),
+  isBoarded: boolean("isBoarded").default(false).notNull(), // Boarded at the facility
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
 
@@ -221,6 +248,9 @@ export type InsertLessonBooking = typeof lessonBookings.$inferInsert;
 
 export type ProgressNote = typeof progressNotes.$inferSelect;
 export type InsertProgressNote = typeof progressNotes.$inferInsert;
+
+export type Horse = typeof horses.$inferSelect;
+export type InsertHorse = typeof horses.$inferInsert;
 
 export type Contract = typeof contracts.$inferSelect;
 export type InsertContract = typeof contracts.$inferInsert;
@@ -250,7 +280,7 @@ export const recurringEventSeries = mysqlTable("recurring_event_series", {
   id: int("id").autoincrement().primaryKey(),
   title: varchar("title", { length: 255 }).notNull(),
   description: text("description"),
-  eventType: mysqlEnum("eventType", ["competition", "show", "clinic", "social", "other"]).default("other").notNull(),
+  eventType: mysqlEnum("eventType", ["competition", "show", "clinic", "social", "riding_lesson", "horsemanship_lesson", "other"]).default("other").notNull(),
   location: varchar("location", { length: 255 }),
   capacity: int("capacity"),
   requiresRsvp: boolean("requiresRsvp").default(false).notNull(),
@@ -278,7 +308,7 @@ export const events = mysqlTable("events", {
   id: int("id").autoincrement().primaryKey(),
   title: varchar("title", { length: 255 }).notNull(),
   description: text("description"),
-  eventType: mysqlEnum("eventType", ["competition", "show", "clinic", "social", "other"]).default("other").notNull(),
+  eventType: mysqlEnum("eventType", ["competition", "show", "clinic", "social", "riding_lesson", "horsemanship_lesson", "other"]).default("other").notNull(),
   location: varchar("location", { length: 255 }),
   startTime: bigint("startTime", { mode: "number" }).notNull(), // Unix timestamp in milliseconds
   endTime: bigint("endTime", { mode: "number" }).notNull(), // Unix timestamp in milliseconds

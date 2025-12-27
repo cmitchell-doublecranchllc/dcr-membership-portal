@@ -24,7 +24,7 @@ export default function AdminEvents() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [eventType, setEventType] = useState<"competition" | "show" | "clinic" | "social" | "other">("other");
+  const [eventType, setEventType] = useState<"competition" | "show" | "clinic" | "social" | "riding_lesson" | "horsemanship_lesson" | "other">("other");
   const [location, setLocation] = useState("");
   const [startDate, setStartDate] = useState("");
   const [startTime, setStartTime] = useState("");
@@ -176,6 +176,8 @@ export default function AdminEvents() {
                           <SelectItem value="show">Show</SelectItem>
                           <SelectItem value="clinic">Clinic</SelectItem>
                           <SelectItem value="social">Social Event</SelectItem>
+                          <SelectItem value="riding_lesson">Riding Lesson</SelectItem>
+                          <SelectItem value="horsemanship_lesson">Horsemanship Lesson</SelectItem>
                           <SelectItem value="other">Other</SelectItem>
                         </SelectContent>
                       </Select>
