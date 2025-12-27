@@ -7,7 +7,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import PageHeader from "@/components/PageHeader";
-import { CheckCircle, XCircle, Mail, Calendar, User, Eye, Phone, AlertCircle, Heart, FileText } from "lucide-react";
+import { CheckCircle, XCircle, Mail, Calendar, User, Eye, Phone, AlertCircle, Heart, FileText, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { format } from "date-fns";
@@ -48,6 +48,16 @@ export default function StaffPendingMembers() {
     },
   });
 
+  const deleteMutation = trpc.admin.deleteUser.useMutation({
+    onSuccess: () => {
+      toast.success("User deleted successfully.");
+      refetch();
+    },
+    onError: (error) => {
+      toast.error(`Failed to delete user: ${error.message}`);
+    },
+  });
+
   const handleApprove = (userId: number) => {
     if (confirm("Are you sure you want to approve this user? They will receive a welcome email and gain full portal access.")) {
       approveMutation.mutate({ userId });
@@ -65,6 +75,12 @@ export default function StaffPendingMembers() {
         userId: selectedUser.id,
         reason: rejectReason || undefined,
       });
+    }
+  };
+
+  const handleDelete = (userId: number, userName: string) => {
+    if (confirm(`Are you sure you want to permanently delete ${userName}'s registration? This action cannot be undone.`)) {
+      deleteMutation.mutate({ userId });
     }
   };
 
@@ -151,6 +167,15 @@ export default function StaffPendingMembers() {
                       >
                         <XCircle className="mr-2 h-4 w-4" />
                         Reject
+                      </Button>
+                      <Button
+                        onClick={() => handleDelete(pendingUser.id, pendingUser.name)}
+                        disabled={deleteMutation.isPending}
+                        variant="outline"
+                        className="border-red-200 text-red-600 hover:bg-red-50"
+                      >
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        Delete
                       </Button>
                     </div>
                   </div>

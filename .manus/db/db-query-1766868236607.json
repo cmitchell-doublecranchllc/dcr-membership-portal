@@ -1,0 +1,242 @@
+{
+  "query": "SELECT u.id, u.name, u.email, u.accountStatus, u.createdAt, m.id as member_id \nFROM users u \nLEFT JOIN members m ON u.id = m.userId \nWHERE u.name LIKE '%Test%' OR u.name LIKE '%test%' OR u.name LIKE '%Emma Wilson%'\nORDER BY u.createdAt DESC;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2HuJQ2ACAAzqLGn.root --database SMbEjvRKS9YWLQQQ74RCcL --execute SELECT u.id, u.name, u.email, u.accountStatus, u.createdAt, m.id as member_id \nFROM users u \nLEFT JOIN members m ON u.id = m.userId \nWHERE u.name LIKE '%Test%' OR u.name LIKE '%test%' OR u.name LIKE '%Emma Wilson%'\nORDER BY u.createdAt DESC;",
+  "rows": [
+    {
+      "id": "210085",
+      "name": "Test Test ",
+      "email": "doublecranch2015@gmail.com",
+      "accountStatus": "approved",
+      "createdAt": "2025-12-27 13:00:25",
+      "member_id": "60001"
+    },
+    {
+      "id": "180737",
+      "name": "Emma Wilson",
+      "email": "emma.wilson@example.com",
+      "accountStatus": "approved",
+      "createdAt": "2025-12-27 03:10:53",
+      "member_id": "30027"
+    },
+    {
+      "id": "180671",
+      "name": "Test Student",
+      "email": "student@test.com",
+      "accountStatus": "rejected",
+      "createdAt": "2025-12-27 02:54:51",
+      "member_id": "30025"
+    },
+    {
+      "id": "180671",
+      "name": "Test Student",
+      "email": "student@test.com",
+      "accountStatus": "rejected",
+      "createdAt": "2025-12-27 02:54:51",
+      "member_id": "30026"
+    },
+    {
+      "id": "180661",
+      "name": "Test Instructor",
+      "email": "instructor@test.com",
+      "accountStatus": "rejected",
+      "createdAt": "2025-12-27 02:53:48",
+      "member_id": "NULL"
+    },
+    {
+      "id": "180579",
+      "name": "Test Rider",
+      "email": "rider@test.com",
+      "accountStatus": "rejected",
+      "createdAt": "2025-12-27 02:44:26",
+      "member_id": "30024"
+    },
+    {
+      "id": "180578",
+      "name": "Test Rider",
+      "email": "rider@test.com",
+      "accountStatus": "rejected",
+      "createdAt": "2025-12-27 02:44:26",
+      "member_id": "30023"
+    },
+    {
+      "id": "180577",
+      "name": "Test Rider",
+      "email": "rider@test.com",
+      "accountStatus": "rejected",
+      "createdAt": "2025-12-27 02:44:24",
+      "member_id": "30022"
+    },
+    {
+      "id": "180575",
+      "name": "Test Rider",
+      "email": "rider@test.com",
+      "accountStatus": "rejected",
+      "createdAt": "2025-12-27 02:44:23",
+      "member_id": "30021"
+    },
+    {
+      "id": "180570",
+      "name": "Test Rider",
+      "email": "rider@test.com",
+      "accountStatus": "rejected",
+      "createdAt": "2025-12-27 02:44:22",
+      "member_id": "30016"
+    },
+    {
+      "id": "180574",
+      "name": "Test Rider",
+      "email": "rider@test.com",
+      "accountStatus": "rejected",
+      "createdAt": "2025-12-27 02:44:22",
+      "member_id": "30020"
+    },
+    {
+      "id": "180573",
+      "name": "Test Rider",
+      "email": "rider@test.com",
+      "accountStatus": "rejected",
+      "createdAt": "2025-12-27 02:44:22",
+      "member_id": "30019"
+    },
+    {
+      "id": "180572",
+      "name": "Test Rider",
+      "email": "rider@test.com",
+      "accountStatus": "rejected",
+      "createdAt": "2025-12-27 02:44:22",
+      "member_id": "30018"
+    },
+    {
+      "id": "180571",
+      "name": "Test Rider",
+      "email": "rider@test.com",
+      "accountStatus": "rejected",
+      "createdAt": "2025-12-27 02:44:22",
+      "member_id": "30017"
+    },
+    {
+      "id": "180548",
+      "name": "Test Rider",
+      "email": "rider@test.com",
+      "accountStatus": "rejected",
+      "createdAt": "2025-12-27 02:40:26",
+      "member_id": "30013"
+    },
+    {
+      "id": "180547",
+      "name": "Test Rider",
+      "email": "rider@test.com",
+      "accountStatus": "rejected",
+      "createdAt": "2025-12-27 02:40:26",
+      "member_id": "30012"
+    },
+    {
+      "id": "180546",
+      "name": "Test Rider",
+      "email": "rider@test.com",
+      "accountStatus": "rejected",
+      "createdAt": "2025-12-27 02:40:25",
+      "member_id": "30011"
+    },
+    {
+      "id": "180545",
+      "name": "Test Rider",
+      "email": "rider@test.com",
+      "accountStatus": "rejected",
+      "createdAt": "2025-12-27 02:40:24",
+      "member_id": "30010"
+    },
+    {
+      "id": "180542",
+      "name": "Test Rider",
+      "email": "rider@test.com",
+      "accountStatus": "rejected",
+      "createdAt": "2025-12-27 02:40:23",
+      "member_id": "30007"
+    },
+    {
+      "id": "180544",
+      "name": "Test Rider",
+      "email": "rider@test.com",
+      "accountStatus": "rejected",
+      "createdAt": "2025-12-27 02:40:23",
+      "member_id": "30009"
+    },
+    {
+      "id": "180543",
+      "name": "Test Rider",
+      "email": "rider@test.com",
+      "accountStatus": "rejected",
+      "createdAt": "2025-12-27 02:40:23",
+      "member_id": "30008"
+    },
+    {
+      "id": "180541",
+      "name": "Test Rider",
+      "email": "rider@test.com",
+      "accountStatus": "rejected",
+      "createdAt": "2025-12-27 02:40:23",
+      "member_id": "30006"
+    },
+    {
+      "id": "180540",
+      "name": "Test Rider",
+      "email": "rider@test.com",
+      "accountStatus": "rejected",
+      "createdAt": "2025-12-27 02:40:23",
+      "member_id": "30005"
+    },
+    {
+      "id": "180466",
+      "name": "Test Admin",
+      "email": "admin@test.com",
+      "accountStatus": "rejected",
+      "createdAt": "2025-12-27 02:23:45",
+      "member_id": "NULL"
+    },
+    {
+      "id": "180339",
+      "name": "Test Student",
+      "email": "student@test.com",
+      "accountStatus": "rejected",
+      "createdAt": "2025-12-27 01:55:40",
+      "member_id": "30015"
+    },
+    {
+      "id": "180339",
+      "name": "Test Student",
+      "email": "student@test.com",
+      "accountStatus": "rejected",
+      "createdAt": "2025-12-27 01:55:40",
+      "member_id": "30001"
+    },
+    {
+      "id": "180339",
+      "name": "Test Student",
+      "email": "student@test.com",
+      "accountStatus": "rejected",
+      "createdAt": "2025-12-27 01:55:40",
+      "member_id": "30002"
+    },
+    {
+      "id": "180339",
+      "name": "Test Student",
+      "email": "student@test.com",
+      "accountStatus": "rejected",
+      "createdAt": "2025-12-27 01:55:40",
+      "member_id": "30003"
+    },
+    {
+      "id": "180339",
+      "name": "Test Student",
+      "email": "student@test.com",
+      "accountStatus": "rejected",
+      "createdAt": "2025-12-27 01:55:40",
+      "member_id": "30004"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\temail\taccountStatus\tcreatedAt\tmember_id\n210085\tTest Test \tdoublecranch2015@gmail.com\tapproved\t2025-12-27 13:00:25\t60001\n180737\tEmma Wilson\temma.wilson@example.com\tapproved\t2025-12-27 03:10:53\t30027\n180671\tTest Student\tstudent@test.com\trejected\t2025-12-27 02:54:51\t30025\n180671\tTest Student\tstudent@test.com\trejected\t2025-12-27 02:54:51\t30026\n180661\tTest Instructor\tinstructor@test.com\trejected\t2025-12-27 02:53:48\tNULL\n180579\tTest Rider\trider@test.com\trejected\t2025-12-27 02:44:26\t30024\n180578\tTest Rider\trider@test.com\trejected\t2025-12-27 02:44:26\t30023\n180577\tTest Rider\trider@test.com\trejected\t2025-12-27 02:44:24\t30022\n180575\tTest Rider\trider@test.com\trejected\t2025-12-27 02:44:23\t30021\n180570\tTest Rider\trider@test.com\trejected\t2025-12-27 02:44:22\t30016\n180574\tTest Rider\trider@test.com\trejected\t2025-12-27 02:44:22\t30020\n180573\tTest Rider\trider@test.com\trejected\t2025-12-27 02:44:22\t30019\n180572\tTest Rider\trider@test.com\trejected\t2025-12-27 02:44:22\t30018\n180571\tTest Rider\trider@test.com\trejected\t2025-12-27 02:44:22\t30017\n180548\tTest Rider\trider@test.com\trejected\t2025-12-27 02:40:26\t30013\n180547\tTest Rider\trider@test.com\trejected\t2025-12-27 02:40:26\t30012\n180546\tTest Rider\trider@test.com\trejected\t2025-12-27 02:40:25\t30011\n180545\tTest Rider\trider@test.com\trejected\t2025-12-27 02:40:24\t30010\n180542\tTest Rider\trider@test.com\trejected\t2025-12-27 02:40:23\t30007\n180544\tTest Rider\trider@test.com\trejected\t2025-12-27 02:40:23\t30009\n180543\tTest Rider\trider@test.com\trejected\t2025-12-27 02:40:23\t30008\n180541\tTest Rider\trider@test.com\trejected\t2025-12-27 02:40:23\t30006\n180540\tTest Rider\trider@test.com\trejected\t2025-12-27 02:40:23\t30005\n180466\tTest Admin\tadmin@test.com\trejected\t2025-12-27 02:23:45\tNULL\n180339\tTest Student\tstudent@test.com\trejected\t2025-12-27 01:55:40\t30015\n180339\tTest Student\tstudent@test.com\trejected\t2025-12-27 01:55:40\t30001\n180339\tTest Student\tstudent@test.com\trejected\t2025-12-27 01:55:40\t30002\n180339\tTest Student\tstudent@test.com\trejected\t2025-12-27 01:55:40\t30003\n180339\tTest Student\tstudent@test.com\trejected\t2025-12-27 01:55:40\t30004\n",
+  "stderr": "",
+  "execution_time_ms": 127
+}

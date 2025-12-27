@@ -1325,6 +1325,23 @@ export const appRouter = router({
 
         return { success: true };
       }),
+
+    // Delete a user (and their member profile)
+    deleteUser: adminProcedure
+      .input(z.object({
+        userId: z.number(),
+      }))
+      .mutation(async ({ input }) => {
+        const user = await db.getUserById(input.userId);
+        if (!user) {
+          throw new TRPCError({ code: 'NOT_FOUND', message: 'User not found' });
+        }
+
+        // Delete user and member records
+        await db.deleteUserAndMember(input.userId);
+
+        return { success: true };
+      }),
   }),
 });
 

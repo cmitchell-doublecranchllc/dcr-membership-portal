@@ -1105,3 +1105,14 @@ export async function updateUserAccountStatus(userId: number, status: 'approved'
     .set({ accountStatus: status })
     .where(eq(users.id, userId));
 }
+
+export async function deleteUserAndMember(userId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  // First delete member record if exists
+  await db.delete(members).where(eq(members.userId, userId));
+  
+  // Then delete user record
+  await db.delete(users).where(eq(users.id, userId));
+}

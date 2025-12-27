@@ -316,3 +316,11 @@
 - [x] Create dialog showing all submitted information
 - [x] Display student info, medical info, emergency contact, riding experience, consents
 - [x] Test details view
+
+## Add Delete Functionality for Pending Members
+- [x] Add deleteUser tRPC endpoint
+- [x] Add deleteMember database helper function
+- [x] Add Delete button to Pending Members page UI
+- [x] Add confirmation dialog before deletion
+- [x] Test delete functionality
+- [x] Clean up test profiles from database
