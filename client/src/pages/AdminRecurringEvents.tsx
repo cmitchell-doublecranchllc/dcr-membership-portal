@@ -9,7 +9,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { format } from "date-fns";
-import { Calendar, Clock, MapPin, Repeat, Trash2 } from "lucide-react";
+import { Calendar, Clock, MapPin, Repeat, Trash2, ArrowLeft } from "lucide-react";
+import { Link } from "wouter";
 
 export default function AdminRecurringEvents() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -124,6 +125,12 @@ export default function AdminRecurringEvents() {
   return (
     <div className="min-h-screen bg-background p-4 md:p-8">
       <div className="max-w-6xl mx-auto">
+        <Link href="/staff">
+          <Button variant="ghost" className="mb-4">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back to Dashboard
+          </Button>
+        </Link>
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-3xl font-bold">Recurring Events</h1>

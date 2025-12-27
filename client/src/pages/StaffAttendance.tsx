@@ -115,7 +115,7 @@ export default function StaffAttendance() {
               <p className="text-muted-foreground">Mark attendance for completed lessons</p>
             </div>
             <div className="flex gap-2">
-              <Link href="/staff/dashboard">
+              <Link href="/staff">
                 <Button variant="outline">Back to Dashboard</Button>
               </Link>
             </div>

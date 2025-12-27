@@ -120,7 +120,7 @@ export default function StaffProgressNotes() {
               <p className="text-muted-foreground">Document student achievements and skill progression</p>
             </div>
             <div className="flex gap-2">
-              <Link href="/staff/dashboard">
+              <Link href="/staff">
                 <Button variant="outline">Back to Dashboard</Button>
               </Link>
               <Button onClick={() => setShowAddDialog(true)} disabled={!selectedMemberId}>

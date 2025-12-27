@@ -3,8 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { trpc } from "@/lib/trpc";
-import { FileText, ArrowLeft } from "lucide-react";
-import { Link } from "wouter";
+import { FileText } from "lucide-react";
+import PageHeader from "@/components/PageHeader";
 
 export default function MyProgressNotes() {
   const { user, isAuthenticated } = useAuth();
@@ -49,22 +49,12 @@ export default function MyProgressNotes() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20">
       <div className="container py-8">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center gap-4 mb-4">
-            <Link href="/">
-              <Button variant="ghost" size="icon">
-                <ArrowLeft className="h-5 w-5" />
-              </Button>
-            </Link>
-            <div>
-              <h1 className="text-3xl md:text-4xl font-bold">My Progress Notes</h1>
-              <p className="text-muted-foreground">
-                View your riding progress and instructor feedback
-              </p>
-            </div>
-          </div>
-        </div>
+        <PageHeader 
+          title="My Progress Notes"
+          description="View your riding progress and instructor feedback"
+          backLink="/"
+          backLabel="Back to Home"
+        />
 
         {/* Progress Notes */}
         <Card>

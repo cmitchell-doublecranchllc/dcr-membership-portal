@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { Calendar, Clock, MapPin, Users, Trash2, Eye, Edit, Copy } from "lucide-react";
 import { toast } from "sonner";
+import PageHeader from "@/components/PageHeader";
 
 export default function StaffLessons() {
   const [selectedDate, setSelectedDate] = useState("");
@@ -174,12 +175,13 @@ export default function StaffLessons() {
 
   return (
     <div className="container py-8">
-      <div className="flex justify-between items-center mb-6">
-        <div>
-          <h1 className="text-3xl font-bold">Lesson Slot Management</h1>
-          <p className="text-muted-foreground">Create and manage available lesson time slots</p>
-        </div>
-        <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
+      <PageHeader 
+        title="Lesson Slot Management"
+        description="Create and manage available lesson time slots"
+        backLink="/staff"
+        backLabel="Back to Dashboard"
+        action={
+          <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
           <DialogTrigger asChild>
             <Button size="lg" className="bg-red-900 hover:bg-red-800">
               + Create Lesson Slot
@@ -274,8 +276,9 @@ export default function StaffLessons() {
               </Button>
             </div>
           </DialogContent>
-        </Dialog>
-      </div>
+          </Dialog>
+        }
+      />
 
       {/* Edit Dialog */}
       <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>

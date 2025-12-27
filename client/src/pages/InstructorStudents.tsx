@@ -114,7 +114,7 @@ export default function InstructorStudents() {
 
   return (
     <div className="container py-8">
-      <Link href="/staff/dashboard">
+      <Link href="/staff">
         <Button variant="ghost" className="mb-6">
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to Staff Dashboard
