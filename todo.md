@@ -394,3 +394,17 @@
 - [x] Add "Browse Lessons" link to member home page
 - [x] Verify calendar view is accessible from My Lessons page
 - [x] Test complete navigation flow
+
+## Replace Aircall with Twilio Integration
+- [x] Set up Twilio account and get API credentials
+- [x] Purchase Twilio phone number (local or toll-free)
+- [x] Install Twilio SDK and create integration module
+- [x] Build SMS sending functionality for automated reminders
+- [x] Add SMS reminders for upcoming lessons (30 minutes before)
+- [ ] Add SMS reminders for unsigned contracts
+- [ ] Add SMS notifications for lesson bookings/cancellations
+- [ ] Build phone call integration with call forwarding
+- [ ] Add voicemail handling and transcription
+- [ ] Create admin interface to send manual SMS to members
+- [ ] Remove Aircall integration and credentials
+- [ ] Test complete Twilio SMS and phone functionality

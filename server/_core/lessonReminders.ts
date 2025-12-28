@@ -1,4 +1,4 @@
-import { sendKlaviyoSMS } from "./klaviyo";
+import { sendSMS } from "./twilioSMS";
 import { getDb } from "../db";
 import { lessonBookings, lessonSlots, users, members } from "../../drizzle/schema";
 import { eq, and, gte, lte } from "drizzle-orm";
@@ -56,10 +56,11 @@ export async function sendLessonReminders(): Promise<void> {
 
       const message = `Reminder: Your ${slot.lessonType} lesson at Double C Ranch starts in 30 minutes (${lessonTime}). ${slot.location || "See you soon!"}`;
 
-      const sent = await sendKlaviyoSMS({
-        phoneNumber: member.phone,
+      const result = await sendSMS({
+        to: member.phone,
         message,
       });
+      const sent = result.success;
 
       if (sent) {
         console.log(`[Lesson Reminders] Sent reminder to ${user.name} for lesson at ${lessonTime}`);
