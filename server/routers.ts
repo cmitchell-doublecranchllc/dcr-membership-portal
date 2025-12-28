@@ -1348,6 +1348,64 @@ export const appRouter = router({
       }),
   }),
 
+  lessonNotes: router({    // Add lesson note
+    addNote: adminProcedure
+      .input(z.object({
+        memberId: z.number(),
+        lessonDate: z.number(), // Unix timestamp
+        lessonType: z.string(),
+        whatWasCovered: z.string(),
+        achievements: z.string(),
+        areasForImprovement: z.string(),
+        instructorComments: z.string().optional(),
+        instructorName: z.string(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const noteId = await db.createLessonNote({
+          ...input,
+          createdBy: ctx.user.id,
+        });
+        return { success: true, noteId };
+      }),
+
+    // Get lesson notes for a student
+    getStudentNotes: protectedProcedure
+      .input(z.object({ memberId: z.number() }))
+      .query(async ({ input }) => {
+        return await db.getLessonNotesByMemberId(input.memberId);
+      }),
+
+    // Get my lesson notes (student view)
+    getMyNotes: protectedProcedure.query(async ({ ctx }) => {
+      const member = await db.getMemberByUserId(ctx.user.id);
+      if (!member) return [];
+      return await db.getLessonNotesByMemberId(member.id);
+    }),
+
+    // Update lesson note
+    updateNote: adminProcedure
+      .input(z.object({
+        noteId: z.number(),
+        whatWasCovered: z.string().optional(),
+        achievements: z.string().optional(),
+        areasForImprovement: z.string().optional(),
+        instructorComments: z.string().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const { noteId, ...updates } = input;
+        await db.updateLessonNote(noteId, updates);
+        return { success: true };
+      }),
+
+    // Delete lesson note
+    deleteNote: adminProcedure
+      .input(z.object({ noteId: z.number() }))
+      .mutation(async ({ input }) => {
+        await db.deleteLessonNote(input.noteId);
+        return { success: true };
+      }),
+  }),
+
   horses: router({
     // Get my horses
     getMyHorses: protectedProcedure.query(async ({ ctx }) => {

@@ -380,14 +380,14 @@
 - [ ] Test recurring lesson slot creation
 
 ## Student Progress Tracking System
-- [ ] Design database schema for lesson notes (lessonNotes table)
-- [ ] Create API endpoints for creating/viewing lesson notes
-- [ ] Build instructor lesson notes form (after lesson completion)
-- [ ] Add fields: what was covered, achievements, areas for improvement, instructor comments
-- [ ] Create student progress view page showing all lesson notes
-- [ ] Add timeline/history view of progress over time
-- [ ] Restrict lesson notes to instructors/admin only (students can only view their own)
-- [ ] Test lesson notes creation and student progress view
+- [x] Design database schema for lesson notes (lessonNotes table)
+- [x] Create API endpoints for creating/viewing lesson notes
+- [x] Build instructor lesson notes form (after lesson completion)
+- [x] Add fields: what was covered, achievements, areas for improvement, instructor comments
+- [x] Create student progress view page showing all lesson notes
+- [x] Add timeline/history view of progress over time
+- [x] Restrict lesson notes to instructors/admin only (students can only view their own)
+- [x] Test lesson notes creation and student progress view
 
 ## Fix Navigation and Visibility
 - [x] Add "Lesson Management" link to staff dashboard navigation

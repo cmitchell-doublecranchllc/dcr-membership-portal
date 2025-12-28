@@ -28,6 +28,7 @@ import StaffPendingMembers from "./pages/StaffPendingMembers";
 import Signup from "./pages/Signup";
 import Documents from "./pages/Documents";
 import BrowseLessons from "./pages/BrowseLessons";
+import MyProgress from "./pages/MyProgress";
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
@@ -55,6 +56,7 @@ function Router() {
       <Route path="/staff/pending-members" component={StaffPendingMembers} />
       <Route path="/my-lessons" component={MyLessons} />
       <Route path="/browse-lessons" component={BrowseLessons} />
+      <Route path="/my-progress" component={MyProgress} />
       <Route path="/my-progress" component={MyProgressNotes} />
       <Route path="/pending-approval" component={PendingApproval} />
       <Route path={"/404"} component={NotFound} />

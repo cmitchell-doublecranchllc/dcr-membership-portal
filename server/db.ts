@@ -17,7 +17,8 @@ import {
   lessonBookings, InsertLessonBooking,
   progressNotes, InsertProgressNote,
   horses, InsertHorse,
-  memberDocuments
+  memberDocuments,
+  lessonNotes
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
