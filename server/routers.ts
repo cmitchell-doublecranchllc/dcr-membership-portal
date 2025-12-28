@@ -989,6 +989,77 @@ export const appRouter = router({
           throw new TRPCError({ code: 'BAD_REQUEST', message: result.message });
         }
 
+        // Get lesson details for calendar file and notifications
+        const lessonSlot = await db.getLessonSlotById(input.slotId);
+        if (lessonSlot) {
+          const { generateLessonICS } = await import('./_core/icsGenerator');
+          const { sendGmailEmail } = await import('./_core/gmailService');
+          const { format } = await import('date-fns');
+
+          const icsContent = generateLessonICS({
+            lessonType: lessonSlot.lessonType,
+            startTime: new Date(lessonSlot.startTime),
+            endTime: new Date(lessonSlot.endTime),
+            instructorName: lessonSlot.instructorName,
+            location: lessonSlot.location,
+            studentEmail: ctx.user.email,
+            studentName: ctx.user.name,
+          });
+
+          // Send confirmation email to student with calendar file
+          await sendGmailEmail({
+            to: ctx.user.email,
+            subject: 'Lesson Booking Confirmed - Double C Ranch',
+            html: `
+              <h2>Lesson Booking Confirmed!</h2>
+              <p>Hi ${ctx.user.name},</p>
+              <p>Your riding lesson has been successfully booked.</p>
+              <h3>Lesson Details:</h3>
+              <ul>
+                <li><strong>Type:</strong> ${lessonSlot.lessonType.charAt(0).toUpperCase() + lessonSlot.lessonType.slice(1)} Lesson</li>
+                <li><strong>Date:</strong> ${format(new Date(lessonSlot.startTime), 'EEEE, MMMM d, yyyy')}</li>
+                <li><strong>Time:</strong> ${format(new Date(lessonSlot.startTime), 'h:mm a')} - ${format(new Date(lessonSlot.endTime), 'h:mm a')}</li>
+                ${lessonSlot.instructorName ? `<li><strong>Instructor:</strong> ${lessonSlot.instructorName}</li>` : ''}
+                ${lessonSlot.location ? `<li><strong>Location:</strong> ${lessonSlot.location}</li>` : ''}
+              </ul>
+              <p><strong>Click the attached calendar file to add this lesson to your calendar.</strong></p>
+              <p>If you need to reschedule or have any questions, please contact us at support@doublecranchllc.com</p>
+              <p>See you at the ranch!</p>
+              <p>- Double C Ranch Team</p>
+            `,
+            attachments: [{
+              filename: 'lesson.ics',
+              content: icsContent,
+              contentType: 'text/calendar',
+            }],
+          });
+
+          // Send notification to admin with calendar file
+          await sendGmailEmail({
+            to: 'support@doublecranchllc.com',
+            subject: `New Lesson Booking: ${ctx.user.name}`,
+            html: `
+              <h2>New Lesson Booked</h2>
+              <p><strong>${ctx.user.name}</strong> has booked a lesson.</p>
+              <h3>Lesson Details:</h3>
+              <ul>
+                <li><strong>Student:</strong> ${ctx.user.name} (${ctx.user.email})</li>
+                <li><strong>Type:</strong> ${lessonSlot.lessonType.charAt(0).toUpperCase() + lessonSlot.lessonType.slice(1)} Lesson</li>
+                <li><strong>Date:</strong> ${format(new Date(lessonSlot.startTime), 'EEEE, MMMM d, yyyy')}</li>
+                <li><strong>Time:</strong> ${format(new Date(lessonSlot.startTime), 'h:mm a')} - ${format(new Date(lessonSlot.endTime), 'h:mm a')}</li>
+                ${lessonSlot.instructorName ? `<li><strong>Instructor:</strong> ${lessonSlot.instructorName}</li>` : ''}
+                ${lessonSlot.location ? `<li><strong>Location:</strong> ${lessonSlot.location}</li>` : ''}
+              </ul>
+              <p><strong>Click the attached calendar file to add this lesson to your Google Calendar.</strong></p>
+            `,
+            attachments: [{
+              filename: 'lesson.ics',
+              content: icsContent,
+              contentType: 'text/calendar',
+            }],
+          });
+        }
+
         return { success: true, bookingId: result.bookingId };
       }),
 

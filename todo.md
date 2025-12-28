@@ -358,3 +358,14 @@
 
 ## Update Contact Email
 - [x] Replace info@doublecranchllc.com with support@doublecranchllc.com throughout codebase
+
+## Member Lesson Calendar View & Calendar Integration
+- [x] Investigate current lesson booking system (MyLessons page)
+- [x] Create calendar view component showing available lesson slots
+- [x] Add visual calendar UI (week/month view) for lesson booking
+- [x] Implement lesson slot selection and booking from calendar
+- [x] Set up Google Calendar API integration (switched to .ics file approach)
+- [x] Generate .ics calendar files for lesson bookings
+- [x] Attach .ics files to booking confirmation emails
+- [x] Send booking notifications to admin with calendar file
+- [x] Test complete lesson booking flow with calendar files

@@ -144,9 +144,12 @@ export default function MyLessons() {
               <p className="text-muted-foreground mb-4">
                 You don't have any lessons scheduled yet.
               </p>
-              <p className="text-sm text-muted-foreground">
-                Contact staff to schedule your weekly riding lesson.
+              <p className="text-sm text-muted-foreground mb-4">
+                Browse available lesson times and book your first lesson.
               </p>
+              <Link href="/browse-lessons">
+                <Button>Browse Available Lessons</Button>
+              </Link>
             </CardContent>
           </Card>
         ) : (

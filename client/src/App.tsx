@@ -26,6 +26,7 @@ import PendingApproval from "./pages/PendingApproval";
 import StaffPendingMembers from "./pages/StaffPendingMembers";
 import Signup from "./pages/Signup";
 import Documents from "./pages/Documents";
+import BrowseLessons from "./pages/BrowseLessons";
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
@@ -51,6 +52,7 @@ function Router() {
       <Route path="/staff/students" component={InstructorStudents} />
       <Route path="/staff/pending-members" component={StaffPendingMembers} />
       <Route path="/my-lessons" component={MyLessons} />
+      <Route path="/browse-lessons" component={BrowseLessons} />
       <Route path="/my-progress" component={MyProgressNotes} />
       <Route path="/pending-approval" component={PendingApproval} />
       <Route path={"/404"} component={NotFound} />
