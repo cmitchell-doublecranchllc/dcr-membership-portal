@@ -377,6 +377,106 @@ export const appRouter = router({
     }),
   }),
 
+  documents: router({
+    // Upload a document
+    uploadDocument: protectedProcedure
+      .input(z.object({
+        fileName: z.string(),
+        fileData: z.string(), // Base64 encoded file
+        documentType: z.enum(['medical_form', 'insurance_certificate', 'photo_release', 'emergency_contact', 'other']),
+        notes: z.string().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const member = await db.getMemberByUserId(ctx.user.id);
+        if (!member) {
+          throw new TRPCError({ code: 'NOT_FOUND', message: 'Member profile not found' });
+        }
+
+        // Decode base64 file data
+        const fileBuffer = Buffer.from(input.fileData, 'base64');
+        const fileSize = fileBuffer.length;
+        
+        // Determine MIME type from file extension
+        const ext = input.fileName.split('.').pop()?.toLowerCase();
+        const mimeTypes: Record<string, string> = {
+          'pdf': 'application/pdf',
+          'jpg': 'image/jpeg',
+          'jpeg': 'image/jpeg',
+          'png': 'image/png',
+          'doc': 'application/msword',
+          'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        };
+        const mimeType = mimeTypes[ext || ''] || 'application/octet-stream';
+
+        // Generate unique file key
+        const timestamp = Date.now();
+        const randomSuffix = Math.random().toString(36).substring(7);
+        const fileKey = `member-documents/${member.id}/${input.documentType}/${timestamp}-${randomSuffix}-${input.fileName}`;
+
+        // Upload to S3
+        const { storagePut } = await import('./storage');
+        const { url } = await storagePut(fileKey, fileBuffer, mimeType);
+
+        // Save to database
+        await db.createMemberDocument({
+          memberId: member.id,
+          documentType: input.documentType,
+          fileName: input.fileName,
+          fileKey,
+          fileUrl: url,
+          fileSize,
+          mimeType,
+          uploadedBy: ctx.user.id,
+          notes: input.notes,
+        });
+
+        return { success: true, fileUrl: url };
+      }),
+
+    // Get my documents
+    getMyDocuments: protectedProcedure.query(async ({ ctx }) => {
+      const member = await db.getMemberByUserId(ctx.user.id);
+      if (!member) {
+        throw new TRPCError({ code: 'NOT_FOUND', message: 'Member profile not found' });
+      }
+      return await db.getMemberDocuments(member.id);
+    }),
+
+    // Get documents by type
+    getDocumentsByType: protectedProcedure
+      .input(z.object({
+        documentType: z.string(),
+      }))
+      .query(async ({ ctx, input }) => {
+        const member = await db.getMemberByUserId(ctx.user.id);
+        if (!member) {
+          throw new TRPCError({ code: 'NOT_FOUND', message: 'Member profile not found' });
+        }
+        return await db.getMemberDocumentsByType(member.id, input.documentType);
+      }),
+
+    // Delete a document
+    deleteDocument: protectedProcedure
+      .input(z.object({
+        documentId: z.number(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const member = await db.getMemberByUserId(ctx.user.id);
+        if (!member) {
+          throw new TRPCError({ code: 'NOT_FOUND', message: 'Member profile not found' });
+        }
+
+        // Verify document belongs to this member
+        const document = await db.getMemberDocumentById(input.documentId);
+        if (!document || document.memberId !== member.id) {
+          throw new TRPCError({ code: 'FORBIDDEN', message: 'Cannot delete this document' });
+        }
+
+        await db.deleteMemberDocument(input.documentId);
+        return { success: true };
+      }),
+  }),
+
   announcements: router({
     // Get published announcements
     getAnnouncements: protectedProcedure.query(async () => {

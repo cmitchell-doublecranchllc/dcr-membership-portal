@@ -343,3 +343,15 @@
 - [x] Implement 7-day reminder: email to member + admin alert
 - [x] Track reminder sent dates to prevent duplicate emails
 - [x] Test reminder system with test contract assignments
+
+## Member Document Management Dashboard
+- [x] Design database schema for member documents (memberDocuments table)
+- [x] Add document categories: medical forms, insurance certificates, photo releases, emergency contacts, etc.
+- [x] Create document upload API endpoint with S3 storage
+- [x] Create document retrieval API endpoints (by member, by category)
+- [x] Build document dashboard page showing signed contracts section
+- [x] Add document upload interface with drag-and-drop support
+- [x] Display uploaded documents with download links
+- [x] Add document deletion capability
+- [x] Show document upload status and validation
+- [x] Test complete document management workflow

@@ -16,7 +16,8 @@ import {
   lessonSlots, InsertLessonSlot,
   lessonBookings, InsertLessonBooking,
   progressNotes, InsertProgressNote,
-  horses, InsertHorse
+  horses, InsertHorse,
+  memberDocuments
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
@@ -1127,4 +1128,58 @@ export async function deleteUserAndMember(userId: number) {
   
   // Then delete user record
   await db.delete(users).where(eq(users.id, userId));
+}
+
+
+// ============ Member Document Functions ============
+
+export async function createMemberDocument(document: {
+  memberId: number;
+  documentType: string;
+  fileName: string;
+  fileKey: string;
+  fileUrl: string;
+  fileSize?: number;
+  mimeType?: string;
+  uploadedBy: number;
+  notes?: string;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(memberDocuments).values(document);
+  return result;
+}
+
+export async function getMemberDocuments(memberId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return await db.select().from(memberDocuments)
+    .where(eq(memberDocuments.memberId, memberId))
+    .orderBy(desc(memberDocuments.createdAt));
+}
+
+export async function getMemberDocumentsByType(memberId: number, documentType: string) {
+  const db = await getDb();
+  if (!db) return [];
+  return await db.select().from(memberDocuments)
+    .where(and(
+      eq(memberDocuments.memberId, memberId),
+      eq(memberDocuments.documentType, documentType)
+    ))
+    .orderBy(desc(memberDocuments.createdAt));
+}
+
+export async function deleteMemberDocument(documentId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.delete(memberDocuments).where(eq(memberDocuments.id, documentId));
+}
+
+export async function getMemberDocumentById(documentId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(memberDocuments)
+    .where(eq(memberDocuments.id, documentId))
+    .limit(1);
+  return result.length > 0 ? result[0] : undefined;
 }

@@ -123,6 +123,24 @@ export const contractAssignments = mysqlTable("contractAssignments", {
 });
 
 /**
+ * Member uploaded documents (medical forms, insurance, etc.)
+ */
+export const memberDocuments = mysqlTable("memberDocuments", {
+  id: int("id").autoincrement().primaryKey(),
+  memberId: int("memberId").notNull(),
+  documentType: varchar("documentType", { length: 100 }).notNull(), // 'medical_form', 'insurance_certificate', 'photo_release', 'emergency_contact', 'other'
+  fileName: varchar("fileName", { length: 255 }).notNull(),
+  fileKey: varchar("fileKey", { length: 500 }).notNull(), // S3 key
+  fileUrl: varchar("fileUrl", { length: 1000 }).notNull(), // S3 URL
+  fileSize: int("fileSize"), // in bytes
+  mimeType: varchar("mimeType", { length: 100 }),
+  uploadedBy: int("uploadedBy").notNull(), // User who uploaded (member or admin)
+  notes: text("notes"), // Optional notes about the document
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+/**
  * Announcements and news
  */
 export const announcements = mysqlTable("announcements", {

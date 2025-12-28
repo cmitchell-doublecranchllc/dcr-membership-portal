@@ -291,6 +291,16 @@ export default function Home() {
             </Card>
           </Link>
 
+          <Link href="/documents">
+            <Card className="hover:border-primary transition-colors cursor-pointer h-full">
+              <CardHeader>
+                <FileText className="h-8 w-8 text-primary mb-2" />
+                <CardTitle>My Documents</CardTitle>
+                <CardDescription>Upload required documents</CardDescription>
+              </CardHeader>
+            </Card>
+          </Link>
+
           <Link href="/messages">
             <Card className="hover:shadow-lg transition-shadow cursor-pointer">
               <CardHeader>

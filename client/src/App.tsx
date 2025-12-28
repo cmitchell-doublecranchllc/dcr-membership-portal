@@ -25,6 +25,7 @@ import InstructorStudents from "./pages/InstructorStudents";
 import PendingApproval from "./pages/PendingApproval";
 import StaffPendingMembers from "./pages/StaffPendingMembers";
 import Signup from "./pages/Signup";
+import Documents from "./pages/Documents";
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
@@ -35,6 +36,7 @@ function Router() {
       <Route path="/profile" component={Profile} />
       <Route path="/staff" component={StaffDashboard} />
       <Route path="/contracts" component={Contracts} />
+      <Route path="/documents" component={Documents} />
       <Route path="/admin/contracts" component={AdminContracts} />
       <Route path="/schedule" component={Schedule} />
       <Route path="/messages" component={Messages} />
