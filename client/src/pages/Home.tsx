@@ -237,7 +237,7 @@ export default function Home() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <Link href="/contracts">
+                <Link href="/documents">
                   <Button variant="destructive" className="w-full">
                     Sign Contracts Now
                   </Button>
@@ -281,22 +281,12 @@ export default function Home() {
             </Card>
           </Link>
 
-          <Link href="/contracts">
-            <Card className="hover:border-primary transition-colors cursor-pointer h-full">
-              <CardHeader>
-                <FileText className="h-8 w-8 text-primary mb-2" />
-                <CardTitle>Contracts</CardTitle>
-                <CardDescription>Sign and view contracts</CardDescription>
-              </CardHeader>
-            </Card>
-          </Link>
-
           <Link href="/documents">
             <Card className="hover:border-primary transition-colors cursor-pointer h-full">
               <CardHeader>
                 <FileText className="h-8 w-8 text-primary mb-2" />
                 <CardTitle>My Documents</CardTitle>
-                <CardDescription>Upload required documents</CardDescription>
+                <CardDescription>Sign contracts & upload documents</CardDescription>
               </CardHeader>
             </Card>
           </Link>

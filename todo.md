@@ -408,3 +408,11 @@
 - [ ] Create admin interface to send manual SMS to members
 - [ ] Remove Aircall integration and credentials
 - [ ] Test complete Twilio SMS and phone functionality
+
+## Consolidate Contracts and Documents
+- [x] Remove separate "Contracts" card from home page
+- [x] Update "My Documents" to include liability waiver section with signature capability
+- [x] Move contract signing functionality into Documents page
+- [ ] Update navigation routes (remove /contracts route)
+- [x] Ensure unsigned contract banner still appears on home page
+- [x] Test complete document management workflow

@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
+import { useAuth } from '@/_core/hooks/useAuth';
 import { trpc } from '@/lib/trpc';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,7 +8,16 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
-import { FileText, Upload, Download, Trash2, FileCheck, AlertCircle } from 'lucide-react';
+import { FileText, Upload, Download, Trash2, FileCheck, AlertCircle, PenTool, CheckCircle } from 'lucide-react';
+import SignatureCanvas from 'react-signature-canvas';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Badge } from '@/components/ui/badge';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -34,10 +44,17 @@ export default function Documents() {
   const [uploading, setUploading] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [documentToDelete, setDocumentToDelete] = useState<number | null>(null);
+  const [selectedContract, setSelectedContract] = useState<any>(null);
+  const [isSigningDialogOpen, setIsSigningDialogOpen] = useState(false);
+  const [isSigning, setIsSigning] = useState(false);
+  const signatureRef = useRef<SignatureCanvas>(null);
 
   const utils = trpc.useUtils();
   const { data: documents, isLoading } = trpc.documents.getMyDocuments.useQuery();
   const { data: contracts } = trpc.contracts.myContracts.useQuery();
+  const { data: assignments, refetch: refetchAssignments } = trpc.contracts.getMyAssignments.useQuery();
+  const { data: member } = trpc.members.getMyProfile.useQuery();
+  const { user } = useAuth();
   const uploadMutation = trpc.documents.uploadDocument.useMutation({
     onSuccess: () => {
       toast.success('Document uploaded successfully!');
@@ -62,6 +79,12 @@ export default function Documents() {
       toast.error(`Delete failed: ${error.message}`);
     },
   });
+
+  const signContractMutation = trpc.contracts.signContract.useMutation();
+  const getContractQuery = trpc.contracts.getContract.useQuery(
+    { contractId: selectedContract?.contractId || 0 },
+    { enabled: !!selectedContract }
+  );
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -115,6 +138,53 @@ export default function Documents() {
     }
   };
 
+  const handleSignContract = async (assignment: any) => {
+    setSelectedContract(assignment);
+    setIsSigningDialogOpen(true);
+  };
+
+  const handleClearSignature = () => {
+    signatureRef.current?.clear();
+  };
+
+  const handleSubmitSignature = async () => {
+    if (!signatureRef.current || signatureRef.current.isEmpty()) {
+      toast.error('Please provide a signature');
+      return;
+    }
+
+    if (!selectedContract || !member) {
+      toast.error('Missing contract or member information');
+      return;
+    }
+
+    setIsSigning(true);
+    try {
+      const signatureData = signatureRef.current.toDataURL();
+      
+      await signContractMutation.mutateAsync({
+        contractId: selectedContract.contractId,
+        assignmentId: selectedContract.id,
+        signatureData,
+      });
+
+      toast.success('Contract signed successfully!', {
+        description: 'Your signature has been recorded',
+      });
+
+      setIsSigningDialogOpen(false);
+      setSelectedContract(null);
+      await refetchAssignments();
+      utils.contracts.myContracts.invalidate();
+    } catch (error) {
+      toast.error('Failed to sign contract', {
+        description: 'Please try again',
+      });
+    } finally {
+      setIsSigning(false);
+    }
+  };
+
   const formatFileSize = (bytes: number | null | undefined) => {
     if (!bytes) return 'Unknown size';
     if (bytes < 1024) return bytes + ' B';
@@ -129,6 +199,8 @@ export default function Documents() {
   // Separate signed and unsigned contracts
   const signedContracts = contracts?.filter(c => c.isSigned) || [];
   const unsignedContracts = contracts?.filter(c => !c.isSigned) || [];
+  const unsignedAssignments = assignments?.filter(a => !a.isSigned) || [];
+  const signedAssignments = assignments?.filter(a => a.isSigned) || [];
 
   if (isLoading) {
     return (
@@ -145,26 +217,45 @@ export default function Documents() {
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-foreground mb-2">My Documents</h1>
         <p className="text-muted-foreground">
-          View your signed contracts and upload required documents
+          Sign contracts, view signed documents, and upload required files
         </p>
       </div>
 
-      {/* Unsigned Contracts Alert */}
-      {unsignedContracts.length > 0 && (
-        <Card className="mb-6 border-red-200 bg-red-50 dark:bg-red-950/20">
+      {/* Unsigned Contracts Section */}
+      {unsignedAssignments.length > 0 && (
+        <Card className="mb-6 border-2 border-destructive/50">
           <CardHeader>
-            <div className="flex items-center gap-2">
-              <AlertCircle className="h-5 w-5 text-red-600" />
-              <CardTitle className="text-red-900 dark:text-red-100">Contracts Requiring Signature</CardTitle>
-            </div>
-            <CardDescription className="text-red-700 dark:text-red-300">
-              You have {unsignedContracts.length} contract{unsignedContracts.length > 1 ? 's' : ''} that need your signature
+            <CardTitle className="flex items-center gap-2 text-destructive">
+              <FileText className="h-5 w-5" />
+              Contracts Requiring Signature ({unsignedAssignments.length})
+            </CardTitle>
+            <CardDescription>
+              These contracts require your signature before you can participate in lessons
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <Button asChild variant="destructive">
-              <a href="/contracts">Sign Contracts Now</a>
-            </Button>
+          <CardContent className="space-y-4">
+            {unsignedAssignments.map((assignment) => (
+              <div key={assignment.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-1">
+                    <h3 className="font-semibold">Contract #{assignment.contractId}</h3>
+                    <Badge variant="destructive">Pending</Badge>
+                  </div>
+                  {assignment.dueDate && (
+                    <p className="text-sm text-muted-foreground">
+                      Due: {new Date(assignment.dueDate).toLocaleDateString()}
+                    </p>
+                  )}
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Assigned: {new Date(assignment.createdAt).toLocaleDateString()}
+                  </p>
+                </div>
+                <Button onClick={() => handleSignContract(assignment)}>
+                  <PenTool className="mr-2 h-4 w-4" />
+                  Sign Now
+                </Button>
+              </div>
+            ))}
           </CardContent>
         </Card>
       )}
@@ -360,6 +451,94 @@ export default function Documents() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Signature Dialog */}
+      <Dialog open={isSigningDialogOpen} onOpenChange={setIsSigningDialogOpen}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Sign Contract</DialogTitle>
+            <DialogDescription>
+              Please review the contract and provide your signature below
+            </DialogDescription>
+          </DialogHeader>
+
+          {/* Contract Content */}
+          {getContractQuery.data && (
+            <div className="space-y-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">{getContractQuery.data.title}</CardTitle>
+                  {getContractQuery.data.description && (
+                    <CardDescription>{getContractQuery.data.description}</CardDescription>
+                  )}
+                </CardHeader>
+                <CardContent className="prose prose-sm max-w-none">
+                  <div className="bg-muted p-4 rounded-md max-h-96 overflow-y-auto">
+                    <pre className="text-sm whitespace-pre-wrap font-sans">
+                      {getContractQuery.data.content || getContractQuery.data.description || "Contract content will be displayed here."}
+                    </pre>
+                    {getContractQuery.data.googleDocUrl && (
+                      <p className="text-sm text-muted-foreground mt-4">
+                        <a 
+                          href={getContractQuery.data.googleDocUrl} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-primary hover:underline"
+                        >
+                          View full contract in Google Docs →
+                        </a>
+                      </p>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Signature Pad */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Your Signature</label>
+                <div className="border-2 border-dashed border-border rounded-md bg-background">
+                  <SignatureCanvas
+                    ref={signatureRef}
+                    canvasProps={{
+                      className: "w-full h-48 cursor-crosshair",
+                    }}
+                  />
+                </div>
+                <div className="flex justify-between items-center">
+                  <p className="text-xs text-muted-foreground">
+                    Sign above using your mouse or touchscreen
+                  </p>
+                  <Button variant="ghost" size="sm" onClick={handleClearSignature}>
+                    Clear
+                  </Button>
+                </div>
+              </div>
+
+              {/* Agreement Text */}
+              <div className="bg-muted p-4 rounded-md">
+                <p className="text-sm">
+                  By signing this contract, I acknowledge that I have read and agree to the terms and conditions outlined above.
+                  I understand that this electronic signature has the same legal effect as a handwritten signature.
+                </p>
+                <p className="text-xs text-muted-foreground mt-2">
+                  Signed by: {user?.name} ({user?.email})
+                </p>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex justify-end gap-2">
+                <Button variant="outline" onClick={() => setIsSigningDialogOpen(false)}>
+                  Cancel
+                </Button>
+                <Button onClick={handleSubmitSignature} disabled={isSigning}>
+                  <PenTool className="mr-2 h-4 w-4" />
+                  {isSigning ? "Signing..." : "Sign Contract"}
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
