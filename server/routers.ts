@@ -86,13 +86,13 @@ export const appRouter = router({
             <p>Dear ${input.studentName},</p>
             <p>We have received your registration for Double C Ranch. Your application is currently pending approval.</p>
             <p>You will receive an email notification once your account has been reviewed and approved by our staff.</p>
-            <p>If you have any questions, please contact us at info@doublecranchllc.com</p>
+            <p>If you have any questions, please contact us at support@doublecranchllc.com</p>
             <p>Best regards,<br/>Double C Ranch Team</p>
           `,
         });
 
         // Send admin notification email
-        const adminEmail = process.env.GMAIL_USER || 'admin@doublecranchllc.com';
+        const adminEmail = process.env.GMAIL_USER || 'support@doublecranchllc.com';
         await sendEmail({
           to: adminEmail,
           subject: `New Member Registration: ${input.studentName}`,

@@ -2,7 +2,7 @@ import * as db from "../db";
 import { sendEmail } from "./email";
 import cron from "node-cron";
 
-const ADMIN_EMAIL = process.env.GMAIL_USER || 'admin@doublecranchllc.com';
+const ADMIN_EMAIL = process.env.GMAIL_USER || 'support@doublecranchllc.com';
 const PORTAL_URL = process.env.VITE_OAUTH_PORTAL_URL || 'https://memberdoublecranchllc.com';
 
 /**

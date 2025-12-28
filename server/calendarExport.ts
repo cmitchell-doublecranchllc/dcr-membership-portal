@@ -38,7 +38,7 @@ export function generateICSFile(event: CalendarEvent): string {
     url: event.url,
     status: 'CONFIRMED',
     busyStatus: 'BUSY',
-    organizer: { name: 'Double C Ranch', email: 'info@doublecranchllc.com' },
+    organizer: { name: 'Double C Ranch', email: 'support@doublecranchllc.com' },
   };
 
   const { error, value } = createEvents([eventAttributes]);

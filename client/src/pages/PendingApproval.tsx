@@ -39,7 +39,7 @@ export default function PendingApproval() {
             <Mail className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
             <div className="text-sm text-blue-900">
               <p className="font-medium mb-1">Need immediate access?</p>
-              <p>Contact us at <a href="mailto:c.mitchell@doublecranchllc.com" className="underline">c.mitchell@doublecranchllc.com</a></p>
+              <p>Contact us at <a href="mailto:support@doublecranchllc.com" className="underline">support@doublecranchllc.com</a></p>
             </div>
           </div>
 

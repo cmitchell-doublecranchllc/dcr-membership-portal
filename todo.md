@@ -355,3 +355,6 @@
 - [x] Add document deletion capability
 - [x] Show document upload status and validation
 - [x] Test complete document management workflow
+
+## Update Contact Email
+- [x] Replace info@doublecranchllc.com with support@doublecranchllc.com throughout codebase
