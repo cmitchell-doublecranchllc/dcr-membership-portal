@@ -369,3 +369,28 @@
 - [x] Attach .ics files to booking confirmation emails
 - [x] Send booking notifications to admin with calendar file
 - [x] Test complete lesson booking flow with calendar files
+
+## Staff Lesson Slot Management
+- [x] Create staff lesson management page in staff dashboard
+- [x] Add recurring lesson slot creation form (weekly pattern)
+- [x] Implement bulk lesson slot generation (e.g., every Monday 2-3pm for 12 weeks)
+- [x] Add lesson slot editing and deletion capabilities
+- [x] Show calendar view of all created lesson slots
+- [ ] Add validation for overlapping lesson slots
+- [ ] Test recurring lesson slot creation
+
+## Student Progress Tracking System
+- [ ] Design database schema for lesson notes (lessonNotes table)
+- [ ] Create API endpoints for creating/viewing lesson notes
+- [ ] Build instructor lesson notes form (after lesson completion)
+- [ ] Add fields: what was covered, achievements, areas for improvement, instructor comments
+- [ ] Create student progress view page showing all lesson notes
+- [ ] Add timeline/history view of progress over time
+- [ ] Restrict lesson notes to instructors/admin only (students can only view their own)
+- [ ] Test lesson notes creation and student progress view
+
+## Fix Navigation and Visibility
+- [x] Add "Lesson Management" link to staff dashboard navigation
+- [x] Add "Browse Lessons" link to member home page
+- [x] Verify calendar view is accessible from My Lessons page
+- [x] Test complete navigation flow

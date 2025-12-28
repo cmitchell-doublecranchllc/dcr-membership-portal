@@ -141,6 +141,28 @@ export const memberDocuments = mysqlTable("memberDocuments", {
 });
 
 /**
+ * Lesson notes and student progress tracking
+ */
+export const lessonNotes = mysqlTable("lessonNotes", {
+  id: int("id").autoincrement().primaryKey(),
+  bookingId: int("bookingId").notNull(), // Reference to lessonBookings
+  memberId: int("memberId").notNull(), // Student
+  instructorId: int("instructorId").notNull(), // Instructor who wrote the note
+  lessonDate: timestamp("lessonDate").notNull(),
+  // Progress tracking fields
+  topicsCovered: text("topicsCovered"), // What was taught/practiced
+  achievements: text("achievements"), // What the student did well
+  areasForImprovement: text("areasForImprovement"), // What needs work
+  instructorComments: text("instructorComments"), // General observations
+  skillLevel: mysqlEnum("skillLevel", ["beginner", "intermediate", "advanced"]),
+  behaviorNotes: text("behaviorNotes"), // Student behavior/attitude
+  horseNotes: text("horseNotes"), // Notes about the horse used
+  nextLessonGoals: text("nextLessonGoals"), // Goals for next lesson
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+/**
  * Announcements and news
  */
 export const announcements = mysqlTable("announcements", {

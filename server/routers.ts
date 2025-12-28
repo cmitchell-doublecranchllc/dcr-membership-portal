@@ -1153,6 +1153,44 @@ export const appRouter = router({
         return { success: true, slotId };
       }),
 
+    // Staff: Create recurring lesson slots (e.g., every Monday for 12 weeks)
+    createRecurringSlots: adminProcedure
+      .input(z.object({
+        lessonType: z.enum(["private", "group", "horsemanship"]),
+        startDateTime: z.number(), // Unix timestamp for first slot
+        durationMinutes: z.number(),
+        weekCount: z.number().min(1).max(52),
+        maxStudents: z.number(),
+        instructorName: z.string().nullable(),
+        location: z.string().nullable(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const slots = [];
+        const weekMs = 7 * 24 * 60 * 60 * 1000; // 1 week in milliseconds
+        const durationMs = input.durationMinutes * 60 * 1000;
+
+        for (let i = 0; i < input.weekCount; i++) {
+          const startTime = input.startDateTime + (i * weekMs);
+          const endTime = startTime + durationMs;
+
+          const slotId = await db.createLessonSlot({
+            startTime,
+            endTime,
+            lessonType: input.lessonType,
+            maxStudents: input.maxStudents,
+            currentStudents: 0,
+            instructorName: input.instructorName,
+            location: input.location,
+            isRecurring: true,
+            createdBy: ctx.user.id,
+          });
+
+          slots.push(slotId);
+        }
+
+        return { success: true, count: slots.length, slotIds: slots };
+      }),
+
     // Staff: Update a lesson slot
     updateSlot: adminProcedure
       .input(z.object({

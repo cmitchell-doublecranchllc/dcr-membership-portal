@@ -77,6 +77,9 @@ export default function StaffDashboard() {
               <Link href="/staff/lessons">
                 <Button variant="default">Manage Lessons</Button>
               </Link>
+              <Link href="/staff/lesson-management">
+                <Button variant="outline">Create Lesson Slots</Button>
+              </Link>
               <Link href="/staff/attendance">
                 <Button variant="outline">Attendance</Button>
               </Link>

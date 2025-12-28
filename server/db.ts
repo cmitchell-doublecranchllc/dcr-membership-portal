@@ -1183,3 +1183,74 @@ export async function getMemberDocumentById(documentId: number) {
     .limit(1);
   return result.length > 0 ? result[0] : undefined;
 }
+
+// ============ Lesson Notes Functions ============
+
+export async function createLessonNote(note: {
+  bookingId: number;
+  memberId: number;
+  instructorId: number;
+  lessonDate: Date;
+  topicsCovered?: string;
+  achievements?: string;
+  areasForImprovement?: string;
+  instructorComments?: string;
+  skillLevel?: 'beginner' | 'intermediate' | 'advanced';
+  behaviorNotes?: string;
+  horseNotes?: string;
+  nextLessonGoals?: string;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(lessonNotes).values(note);
+  return result.insertId;
+}
+
+export async function getLessonNotesByMember(memberId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return await db.select().from(lessonNotes)
+    .where(eq(lessonNotes.memberId, memberId))
+    .orderBy(desc(lessonNotes.lessonDate));
+}
+
+export async function getLessonNoteById(noteId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(lessonNotes)
+    .where(eq(lessonNotes.id, noteId))
+    .limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function getLessonNoteByBooking(bookingId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(lessonNotes)
+    .where(eq(lessonNotes.bookingId, bookingId))
+    .limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function updateLessonNote(noteId: number, updates: Partial<{
+  topicsCovered: string;
+  achievements: string;
+  areasForImprovement: string;
+  instructorComments: string;
+  skillLevel: 'beginner' | 'intermediate' | 'advanced';
+  behaviorNotes: string;
+  horseNotes: string;
+  nextLessonGoals: string;
+}>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(lessonNotes)
+    .set(updates)
+    .where(eq(lessonNotes.id, noteId));
+}
+
+export async function deleteLessonNote(noteId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.delete(lessonNotes).where(eq(lessonNotes.id, noteId));
+}
