@@ -1,9 +1,0 @@
-{
-  "query": "INSERT INTO members (userId, membershipTier, phone, emergencyContact, dateOfBirth, isChild, ridingExperienceLevel, certifications, ridingGoals, medicalNotes, createdAt, updatedAt) \nSELECT id, 'gold', '555-0123', 'Mother: Sarah Wilson - 555-0124', '2008-03-15', 0, 'intermediate', 'Pony Club D-Level, Basic Horsemanship Certificate', 'Improve jumping technique and prepare for C-Level certification', 'Mild hay allergy - needs antihistamine before barn work', NOW(), NOW() \nFROM users WHERE openId = 'student-emma-wilson-001'",
-  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2HuJQ2ACAAzqLGn.root --database SMbEjvRKS9YWLQQQ74RCcL --execute INSERT INTO members (userId, membershipTier, phone, emergencyContact, dateOfBirth, isChild, ridingExperienceLevel, certifications, ridingGoals, medicalNotes, createdAt, updatedAt) \nSELECT id, 'gold', '555-0123', 'Mother: Sarah Wilson - 555-0124', '2008-03-15', 0, 'intermediate', 'Pony Club D-Level, Basic Horsemanship Certificate', 'Improve jumping technique and prepare for C-Level certification', 'Mild hay allergy - needs antihistamine before barn work', NOW(), NOW() \nFROM users WHERE openId = 'student-emma-wilson-001'",
-  "rows": [],
-  "messages": [],
-  "stdout": "",
-  "stderr": "",
-  "execution_time_ms": 62
-}

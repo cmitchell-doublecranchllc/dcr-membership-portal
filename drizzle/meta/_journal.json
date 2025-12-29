@@ -1,34 +1,5 @@
 {
   "version": "7",
   "dialect": "mysql",
-  "entries": [
-    {
-      "idx": 0,
-      "version": "5",
-      "when": 1766780768946,
-      "tag": "0000_light_harry_osborn",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "5",
-      "when": 1766780905237,
-      "tag": "0001_typical_lethal_legion",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "5",
-      "when": 1766781976519,
-      "tag": "0002_overjoyed_swordsman",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "5",
-      "when": 1766810974524,
-      "tag": "0003_flowery_stick",
-      "breakpoints": true
-    }
-  ]
+  "entries": []
 }

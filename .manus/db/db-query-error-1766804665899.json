@@ -1,8 +1,0 @@
-{
-  "query": "SELECT m.id as memberId, m.userId, u.name, u.email, m.membershipTier FROM members m LEFT JOIN user u ON m.userId = u.id LIMIT 10",
-  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2HuJQ2ACAAzqLGn.root --database SMbEjvRKS9YWLQQQ74RCcL --execute SELECT m.id as memberId, m.userId, u.name, u.email, m.membershipTier FROM members m LEFT JOIN user u ON m.userId = u.id LIMIT 10",
-  "returncode": 1,
-  "logs": [
-    "ERROR 1146 (42S02) at line 1: Table 'smbejvrks9ywlqqq74rccl.user' doesn't exist"
-  ]
-}

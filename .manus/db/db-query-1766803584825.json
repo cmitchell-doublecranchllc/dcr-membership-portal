@@ -1,9 +1,0 @@
-{
-  "query": "SELECT u.id, u.openId, u.name, u.email, u.role, m.id as memberId FROM users u LEFT JOIN members m ON u.id = m.userId WHERE u.openId = (SELECT value FROM (SELECT 'OWNER_OPEN_ID' as value) as env_var) LIMIT 1;",
-  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2HuJQ2ACAAzqLGn.root --database SMbEjvRKS9YWLQQQ74RCcL --execute SELECT u.id, u.openId, u.name, u.email, u.role, m.id as memberId FROM users u LEFT JOIN members m ON u.id = m.userId WHERE u.openId = (SELECT value FROM (SELECT 'OWNER_OPEN_ID' as value) as env_var) LIMIT 1;",
-  "rows": [],
-  "messages": [],
-  "stdout": "",
-  "stderr": "",
-  "execution_time_ms": 62
-}

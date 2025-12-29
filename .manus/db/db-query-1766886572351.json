@@ -1,9 +1,0 @@
-{
-  "query": "CREATE TABLE IF NOT EXISTS lessonNotes (\n  id INT AUTO_INCREMENT PRIMARY KEY,\n  bookingId INT NOT NULL,\n  memberId INT NOT NULL,\n  instructorId INT NOT NULL,\n  lessonDate TIMESTAMP NOT NULL,\n  topicsCovered TEXT,\n  achievements TEXT,\n  areasForImprovement TEXT,\n  instructorComments TEXT,\n  skillLevel ENUM('beginner', 'intermediate', 'advanced'),\n  behaviorNotes TEXT,\n  horseNotes TEXT,\n  nextLessonGoals TEXT,\n  createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,\n  updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL\n)",
-  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2HuJQ2ACAAzqLGn.root --database SMbEjvRKS9YWLQQQ74RCcL --execute CREATE TABLE IF NOT EXISTS lessonNotes (\n  id INT AUTO_INCREMENT PRIMARY KEY,\n  bookingId INT NOT NULL,\n  memberId INT NOT NULL,\n  instructorId INT NOT NULL,\n  lessonDate TIMESTAMP NOT NULL,\n  topicsCovered TEXT,\n  achievements TEXT,\n  areasForImprovement TEXT,\n  instructorComments TEXT,\n  skillLevel ENUM('beginner', 'intermediate', 'advanced'),\n  behaviorNotes TEXT,\n  horseNotes TEXT,\n  nextLessonGoals TEXT,\n  createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,\n  updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL\n)",
-  "rows": [],
-  "messages": [],
-  "stdout": "",
-  "stderr": "",
-  "execution_time_ms": 294
-}

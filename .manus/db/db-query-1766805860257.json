@@ -1,9 +1,0 @@
-{
-  "query": "UPDATE members SET ridingExperienceLevel = NULL WHERE ridingExperienceLevel IN ('beginner', 'intermediate', 'advanced', 'expert')",
-  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2HuJQ2ACAAzqLGn.root --database SMbEjvRKS9YWLQQQ74RCcL --execute UPDATE members SET ridingExperienceLevel = NULL WHERE ridingExperienceLevel IN ('beginner', 'intermediate', 'advanced', 'expert')",
-  "rows": [],
-  "messages": [],
-  "stdout": "",
-  "stderr": "",
-  "execution_time_ms": 112
-}
