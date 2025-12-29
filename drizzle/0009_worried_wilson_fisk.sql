@@ -1,0 +1,1 @@
+ALTER TABLE `members` MODIFY COLUMN `ridingExperienceLevel` enum('hm_d1','hm_d2_dressage','hm_d2_hunter_jumper','hm_d2_eventing','hm_d2_western_dressage','hm_d2_western','hm_d3_dressage','hm_d3_hunter_jumper','hm_d3_eventing','hm_d3_western_dressage','hm_d3_western','c1','c2');

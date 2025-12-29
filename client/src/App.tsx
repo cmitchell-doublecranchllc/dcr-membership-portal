@@ -5,12 +5,56 @@ import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
+import Profile from "./pages/Profile";
+import StaffDashboard from "./pages/StaffDashboard";
+import Contracts from "./pages/Contracts";
+import AdminContracts from "./pages/AdminContracts";
+import Schedule from "./pages/Schedule";
+import Messages from "./pages/Messages";
+import Announcements from "./pages/Announcements";
+import Events from "./pages/Events";
+import EventDetails from "./pages/EventDetails";
+import AdminEvents from "./pages/AdminEvents";
+import AdminRecurringEvents from "./pages/AdminRecurringEvents";
+import StaffLessons from "./pages/StaffLessons";
+import MyLessons from "./pages/MyLessons";
+import StaffAttendance from "./pages/StaffAttendance";
+import StaffProgressNotes from "./pages/StaffProgressNotes";
+import MyProgressNotes from "./pages/MyProgressNotes";
+import InstructorStudents from "./pages/InstructorStudents";
+import PendingApproval from "./pages/PendingApproval";
+import StaffPendingMembers from "./pages/StaffPendingMembers";
+import Signup from "./pages/Signup";
+import Documents from "./pages/Documents";
+import BrowseLessons from "./pages/BrowseLessons";
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
   return (
     <Switch>
       <Route path={"/"} component={Home} />
+      <Route path="/signup" component={Signup} />
+      <Route path="/profile" component={Profile} />
+      <Route path="/staff" component={StaffDashboard} />
+      <Route path="/contracts" component={Contracts} />
+      <Route path="/documents" component={Documents} />
+      <Route path="/admin/contracts" component={AdminContracts} />
+      <Route path="/schedule" component={Schedule} />
+      <Route path="/messages" component={Messages} />
+      <Route path="/announcements" component={Announcements} />
+      <Route path="/events" component={Events} />
+      <Route path="/events/:id" component={EventDetails} />
+      <Route path="/admin/events" component={AdminEvents} />
+      <Route path="/admin/recurring-events" component={AdminRecurringEvents} />
+      <Route path="/staff/lessons" component={StaffLessons} />
+      <Route path="/staff/attendance" component={StaffAttendance} />
+      <Route path="/staff/progress-notes" component={StaffProgressNotes} />
+      <Route path="/staff/students" component={InstructorStudents} />
+      <Route path="/staff/pending-members" component={StaffPendingMembers} />
+      <Route path="/my-lessons" component={MyLessons} />
+      <Route path="/browse-lessons" component={BrowseLessons} />
+      <Route path="/my-progress" component={MyProgressNotes} />
+      <Route path="/pending-approval" component={PendingApproval} />
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />

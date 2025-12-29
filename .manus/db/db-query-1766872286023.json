@@ -1,0 +1,9 @@
+{
+  "query": "INSERT INTO contracts (title, description, googleDocId, googleDocUrl, isActive, requiresSignature)\nVALUES (\n  'Riding Lesson Agreement',\n  'Required agreement for all riding lesson students at Double C Ranch LLC',\n  NULL,\n  NULL,\n  1,\n  1\n);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2HuJQ2ACAAzqLGn.root --database SMbEjvRKS9YWLQQQ74RCcL --execute INSERT INTO contracts (title, description, googleDocId, googleDocUrl, isActive, requiresSignature)\nVALUES (\n  'Riding Lesson Agreement',\n  'Required agreement for all riding lesson students at Double C Ranch LLC',\n  NULL,\n  NULL,\n  1,\n  1\n);",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 91
+}

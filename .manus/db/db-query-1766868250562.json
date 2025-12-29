@@ -1,0 +1,9 @@
+{
+  "query": "SELECT u.id, u.name, u.email, u.accountStatus, u.createdAt \nFROM users u \nWHERE u.name LIKE '%Test%' OR u.name LIKE '%test%' OR u.name LIKE '%Emma Wilson%'\nORDER BY u.createdAt DESC;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2HuJQ2ACAAzqLGn.root --database SMbEjvRKS9YWLQQQ74RCcL --execute SELECT u.id, u.name, u.email, u.accountStatus, u.createdAt \nFROM users u \nWHERE u.name LIKE '%Test%' OR u.name LIKE '%test%' OR u.name LIKE '%Emma Wilson%'\nORDER BY u.createdAt DESC;",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 93
+}

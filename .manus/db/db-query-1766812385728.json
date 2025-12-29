@@ -1,0 +1,9 @@
+{
+  "query": "ALTER TABLE members \nADD COLUMN emergencyContactName VARCHAR(255),\nADD COLUMN emergencyContactPhone VARCHAR(32),\nADD COLUMN emergencyContactRelationship VARCHAR(128),\nADD COLUMN allergies TEXT,\nADD COLUMN medications TEXT,\nADD COLUMN photoConsent BOOLEAN NOT NULL DEFAULT FALSE,\nADD COLUMN smsConsent BOOLEAN NOT NULL DEFAULT FALSE,\nADD COLUMN liabilityWaiverSigned BOOLEAN NOT NULL DEFAULT FALSE,\nADD COLUMN liabilityWaiverSignedAt TIMESTAMP NULL,\nADD COLUMN liabilityWaiverSignatureData TEXT;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2HuJQ2ACAAzqLGn.root --database SMbEjvRKS9YWLQQQ74RCcL --execute ALTER TABLE members \nADD COLUMN emergencyContactName VARCHAR(255),\nADD COLUMN emergencyContactPhone VARCHAR(32),\nADD COLUMN emergencyContactRelationship VARCHAR(128),\nADD COLUMN allergies TEXT,\nADD COLUMN medications TEXT,\nADD COLUMN photoConsent BOOLEAN NOT NULL DEFAULT FALSE,\nADD COLUMN smsConsent BOOLEAN NOT NULL DEFAULT FALSE,\nADD COLUMN liabilityWaiverSigned BOOLEAN NOT NULL DEFAULT FALSE,\nADD COLUMN liabilityWaiverSignedAt TIMESTAMP NULL,\nADD COLUMN liabilityWaiverSignatureData TEXT;",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 2707
+}

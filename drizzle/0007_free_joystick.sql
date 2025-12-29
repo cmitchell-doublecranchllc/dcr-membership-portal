@@ -1,0 +1,2 @@
+ALTER TABLE `events` MODIFY COLUMN `eventType` enum('competition','show','clinic','social','riding_lesson','horsemanship_lesson','other') NOT NULL DEFAULT 'other';--> statement-breakpoint
+ALTER TABLE `recurring_event_series` MODIFY COLUMN `eventType` enum('competition','show','clinic','social','riding_lesson','horsemanship_lesson','other') NOT NULL DEFAULT 'other';

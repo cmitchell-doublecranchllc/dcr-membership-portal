@@ -7,6 +7,9 @@ import { registerOAuthRoutes } from "./oauth";
 import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
+import { initializeReminderScheduler } from "./eventReminders";
+import { initializeLessonReminderScheduler } from "./lessonReminders";
+import { initContractReminderScheduler } from "./contractReminders";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -59,6 +62,15 @@ async function startServer() {
 
   server.listen(port, () => {
     console.log(`Server running on http://localhost:${port}/`);
+    
+    // Initialize event reminder scheduler
+    initializeReminderScheduler();
+    
+    // Initialize lesson reminder scheduler (30 min before lessons)
+    initializeLessonReminderScheduler();
+    
+    // Initialize contract reminder scheduler (daily at 9 AM)
+    initContractReminderScheduler();
   });
 }
 
