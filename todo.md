@@ -9,3 +9,6 @@
 ## Consolidate Contracts and Documents
 - [x] Remove separate Contracts card from home page
 - [x] Update Documents card description to include contracts
+
+## Bug Fixes
+- [x] Fix delete button in Lesson Slot Management (parameter mismatch)

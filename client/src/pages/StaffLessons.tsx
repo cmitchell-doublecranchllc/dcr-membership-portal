@@ -166,7 +166,7 @@ export default function StaffLessons() {
 
   const handleDeleteSlot = (slotId: number) => {
     if (confirm("Are you sure you want to delete this lesson slot?")) {
-      deleteSlot.mutate({ id: slotId });
+      deleteSlot.mutate({ slotId });
     }
   };
 
