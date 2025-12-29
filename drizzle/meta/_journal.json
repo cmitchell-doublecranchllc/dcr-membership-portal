@@ -29,6 +29,20 @@
       "when": 1766810974524,
       "tag": "0003_flowery_stick",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1766972278914,
+      "tag": "0004_open_zaran",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1766972651405,
+      "tag": "0005_pink_young_avengers",
+      "breakpoints": true
     }
   ]
 }

@@ -1179,6 +1179,44 @@ export const appRouter = router({
         return { success: true };
       }),
 
+    // Staff: Duplicate a lesson slot for X weeks
+    duplicateSlotForWeeks: adminProcedure
+      .input(z.object({
+        slotId: z.number(),
+        numberOfWeeks: z.number().min(1).max(52),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        // Get the original slot
+        const slots = await db.getAllLessonSlots();
+        const originalSlot = slots.find(s => s.id === input.slotId);
+        if (!originalSlot) {
+          throw new TRPCError({ code: 'NOT_FOUND', message: 'Lesson slot not found' });
+        }
+
+        // Create duplicates for each week
+        const createdSlots = [];
+        for (let week = 1; week <= input.numberOfWeeks; week++) {
+          const weekOffset = week * 7 * 24 * 60 * 60 * 1000; // milliseconds in a week
+          const newStartTime = originalSlot.startTime + weekOffset;
+          const newEndTime = originalSlot.endTime + weekOffset;
+
+          const slotId = await db.createLessonSlot({
+            startTime: newStartTime,
+            endTime: newEndTime,
+            lessonType: originalSlot.lessonType,
+            maxStudents: originalSlot.maxStudents,
+            currentStudents: 0,
+            instructorName: originalSlot.instructorName || undefined,
+            location: originalSlot.location || undefined,
+            notes: originalSlot.notes || undefined,
+            createdBy: ctx.user.id,
+          });
+          createdSlots.push(slotId);
+        }
+
+        return { success: true, createdCount: createdSlots.length, slotIds: createdSlots };
+      }),
+
     // Staff: Mark attendance for a booking
     markAttendance: adminProcedure
       .input(z.object({

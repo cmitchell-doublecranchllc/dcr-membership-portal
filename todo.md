@@ -369,3 +369,9 @@
 - [x] Attach .ics files to booking confirmation emails
 - [x] Send booking notifications to admin with calendar file
 - [x] Test complete lesson booking flow with calendar files
+
+## Add Simple Lesson Duplication Feature
+- [x] Add backend procedure to duplicate a lesson slot for X weeks
+- [x] Add "Duplicate for 52 weeks" button to existing lesson slots in UI
+- [x] Test duplication creates correct weekly recurring slots
+- [x] Verify no React errors or form issues

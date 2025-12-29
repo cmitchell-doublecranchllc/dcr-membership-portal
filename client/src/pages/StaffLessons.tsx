@@ -50,6 +50,16 @@ export default function StaffLessons() {
     },
   });
 
+  const duplicateForWeeks = trpc.lessons.duplicateSlotForWeeks.useMutation({
+    onSuccess: (data) => {
+      utils.lessons.getAllSlots.invalidate();
+      toast.success(`Created ${data.createdCount} weekly lesson slots successfully`);
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to duplicate lesson slots");
+    },
+  });
+
   const deleteSlot = trpc.lessons.deleteSlot.useMutation({
     onSuccess: () => {
       utils.lessons.getAllSlots.invalidate();
@@ -560,6 +570,20 @@ export default function StaffLessons() {
                         title="Duplicate Slot"
                       >
                         <Copy className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (confirm('Create 52 weekly recurring lessons from this slot?')) {
+                            duplicateForWeeks.mutate({ slotId: slot.id, numberOfWeeks: 52 });
+                          }
+                        }}
+                        title="Create 52 Weekly Lessons"
+                        disabled={duplicateForWeeks.isPending}
+                      >
+                        {duplicateForWeeks.isPending ? 'Creating...' : '52 Weeks'}
                       </Button>
                       <Button
                         variant="ghost"
