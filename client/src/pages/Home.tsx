@@ -281,12 +281,12 @@ export default function Home() {
             </Card>
           </Link>
 
-          <Link href="/contracts">
+          <Link href="/book-lesson">
             <Card className="hover:border-primary transition-colors cursor-pointer h-full">
               <CardHeader>
-                <FileText className="h-8 w-8 text-primary mb-2" />
-                <CardTitle>Contracts</CardTitle>
-                <CardDescription>Sign and view contracts</CardDescription>
+                <Calendar className="h-8 w-8 text-primary mb-2" />
+                <CardTitle>Schedule a Lesson</CardTitle>
+                <CardDescription>Book or reschedule lessons</CardDescription>
               </CardHeader>
             </Card>
           </Link>
@@ -296,7 +296,7 @@ export default function Home() {
               <CardHeader>
                 <FileText className="h-8 w-8 text-primary mb-2" />
                 <CardTitle>My Documents</CardTitle>
-                <CardDescription>Upload required documents</CardDescription>
+                <CardDescription>Sign contracts & upload documents</CardDescription>
               </CardHeader>
             </Card>
           </Link>
