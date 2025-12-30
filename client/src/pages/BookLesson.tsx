@@ -14,7 +14,7 @@ export default function BookLesson() {
         <CardContent>
           <div className="w-full" style={{ minHeight: '700px' }}>
             <iframe
-              src="https://calendly.com/doublecranchllc"
+              src="https://doublecranch.as.me/groupridinglesson"
               width="100%"
               height="700"
               frameBorder="0"

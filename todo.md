@@ -17,3 +17,6 @@
 
 ### Bug Fixes
 - [x] Fix delete button in Lesson Slot Management (parameter mismatch)
+
+### Bug Fix
+- [x] Remove Calendly from "Schedule a Lesson" page and replace with Acuity
