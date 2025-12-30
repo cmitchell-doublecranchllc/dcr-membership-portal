@@ -51,7 +51,7 @@ export default function Schedule() {
               <p className="text-muted-foreground">View your upcoming riding lessons and appointments</p>
             </div>
             <Button variant="outline" asChild>
-              <a href="https://doublecrancch.as.me/" target="_blank" rel="noopener noreferrer">
+              <a href="https://doublecranch.as.me/groupridinglesson" target="_blank" rel="noopener noreferrer">
                 <ExternalLink className="mr-2 h-4 w-4" />
                 Book on Acuity
               </a>
@@ -81,7 +81,7 @@ export default function Schedule() {
                 <p className="mb-2">No upcoming lessons scheduled</p>
                 <p className="text-sm">Book your next lesson through Acuity Scheduling</p>
                 <Button variant="outline" className="mt-4" asChild>
-                  <a href="https://doublecrancch.as.me/" target="_blank" rel="noopener noreferrer">
+                  <a href="https://doublecranch.as.me/groupridinglesson" target="_blank" rel="noopener noreferrer">
                     <ExternalLink className="mr-2 h-4 w-4" />
                     Book Now
                   </a>

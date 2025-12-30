@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { toast } from "sonner";
 import { format } from "date-fns";
-import { Calendar, Clock, MapPin, AlertTriangle, RefreshCw, CheckCircle, XCircle, User } from "lucide-react";
+import { Calendar, Clock, MapPin, AlertTriangle, RefreshCw, CheckCircle, XCircle, User, ExternalLink } from "lucide-react";
 import { Link } from "wouter";
 import PageHeader from "@/components/PageHeader";
 
@@ -123,6 +123,32 @@ export default function MyLessons() {
           backLink="/"
           backLabel="Back to Home"
         />
+
+        {/* Acuity Scheduling Link */}
+        <Card className="mb-6 border-primary/50 bg-primary/5">
+          <CardContent className="py-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="font-semibold mb-1">Book or Reschedule Lessons</h3>
+                <p className="text-sm text-muted-foreground">
+                  Use our scheduling system to book new lessons or reschedule existing appointments
+                </p>
+              </div>
+              <a 
+                href="https://doublecranch.as.me/groupridinglesson" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="inline-flex"
+              >
+                <Button>
+                  <Calendar className="mr-2 h-4 w-4" />
+                  Open Scheduler
+                  <ExternalLink className="ml-2 h-4 w-4" />
+                </Button>
+              </a>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* 24-Hour Rule Notice */}
         <Alert className="mb-6">
