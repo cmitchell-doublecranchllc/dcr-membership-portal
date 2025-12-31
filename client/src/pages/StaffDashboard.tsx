@@ -11,7 +11,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { trpc } from "@/lib/trpc";
-import { Users, Calendar, CheckCircle, CheckCircle2, Clock, RefreshCw } from "lucide-react";
+import { Users, Calendar, CheckCircle, CheckCircle2, Clock, RefreshCw, Settings } from "lucide-react";
 import { Link } from "wouter";
 import PageHeader from "@/components/PageHeader";
 
@@ -147,7 +147,7 @@ export default function StaffDashboard() {
         <Card className="mb-8">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <QrCode className="h-5 w-5" />
+              <Settings className="h-5 w-5" />
               Staff Tools
             </CardTitle>
             <CardDescription>

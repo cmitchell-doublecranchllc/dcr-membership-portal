@@ -114,4 +114,5 @@
 - [x] Ensure check-ins are immediately visible to students after submission (pending status)
 - [x] Fix CHECK IN button 404 error
 - [x] Add on-site confirmation prompt to CHECK IN button
+- [ ] Fix all TypeScript errors to achieve exit code 0 (REQUIRED)
 - [ ] Test end-to-end: student check-in → pending → staff approve → attendance visible

@@ -314,15 +314,6 @@ export const appRouter = router({
         await db.updateCheckInStatus(input.checkInId, 'rejected', ctx.user.id, input.reason);
         return { success: true };
       }),
-
-    // Student: Get my own check-ins
-    getMyCheckIns: protectedProcedure.query(async ({ ctx }) => {
-      const member = await db.getMemberByUserId(ctx.user.id);
-      if (!member) {
-        throw new TRPCError({ code: 'NOT_FOUND', message: 'Member profile not found' });
-      }
-      return await db.getCheckInsByMemberId(member.id);
-    }),
   }),
 
   contracts: router({

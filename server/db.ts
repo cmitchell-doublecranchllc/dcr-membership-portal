@@ -218,17 +218,10 @@ export async function getRecentCheckIns(limit: number = 50) {
       verifiedBy: checkIns.verifiedBy,
       verifiedAt: checkIns.verifiedAt,
       notes: checkIns.notes,
-      member: {
-        id: members.id,
-        user: {
-          id: users.id,
-          name: users.name,
-        },
-      },
-      verifier: {
-        id: sql<number | null>`verifier.id`,
-        name: sql<string | null>`verifier.name`,
-      },
+      memberUserId: users.id,
+      memberUserName: users.name,
+      verifierId: sql<number | null>`verifier.id`,
+      verifierName: sql<string | null>`verifier.name`,
     })
     .from(checkIns)
     .innerJoin(members, eq(checkIns.memberId, members.id))

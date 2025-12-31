@@ -128,7 +128,7 @@ export default function StaffAttendance() {
                     {recentCheckIns.map((checkIn: any) => (
                       <TableRow key={checkIn.id}>
                         <TableCell className="font-medium">
-                          {checkIn.member?.user?.name || "Unknown"}
+                          {checkIn.memberUserName || "Unknown"}
                         </TableCell>
                         <TableCell>
                           {new Date(checkIn.checkInTime).toLocaleString()}
@@ -149,7 +149,7 @@ export default function StaffAttendance() {
                         <TableCell>
                           {checkIn.verifiedBy ? (
                             <span className="text-sm">
-                              {checkIn.verifier?.name || `User #${checkIn.verifiedBy}`}
+                              {checkIn.verifierName || `User #${checkIn.verifiedBy}`}
                             </span>
                           ) : (
                             <span className="text-muted-foreground text-sm">-</span>
