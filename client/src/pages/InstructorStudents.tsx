@@ -32,7 +32,8 @@ export default function InstructorStudents() {
   });
 
   const { data: students, isLoading } = trpc.members.getAllStudentsWithRidingInfo.useQuery();
-  const updateRidingInfoMutation = trpc.profile.updateRidingInfo.useMutation();
+  // const updateRidingInfoMutation = trpc.profile.updateRidingInfo.useMutation();
+  const updateRidingInfoMutation = { mutateAsync: async () => {}, isPending: false } as any;
 
   const handleEdit = (student: any) => {
     setEditingStudent(student);

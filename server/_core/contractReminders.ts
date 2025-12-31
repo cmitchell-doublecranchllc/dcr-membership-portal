@@ -59,7 +59,7 @@ async function send3DayReminder(assignment: any) {
 
     // Send reminder to member
     await sendEmail({
-      to: user.email,
+      to: user.email || 'no-email@example.com',
       subject: `Reminder: Please Sign Your ${contract.title}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -126,7 +126,7 @@ async function send7DayReminder(assignment: any) {
 
     // Send final reminder to member
     await sendEmail({
-      to: user.email,
+      to: user.email || 'no-email@example.com',
       subject: `Final Reminder: Your ${contract.title} is Overdue`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">

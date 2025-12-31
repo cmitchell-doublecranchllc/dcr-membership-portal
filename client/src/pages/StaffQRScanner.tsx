@@ -20,8 +20,8 @@ export default function StaffQRScanner() {
     onSuccess: (data) => {
       setLastScan({
         success: true,
-        studentName: data.user.name,
-        message: `${data.user.name} checked in successfully!`,
+        studentName: data.user.name || 'Student',
+        message: `${data.user.name || 'Student'} checked in successfully!`,
       });
       // Auto-clear after 3 seconds
       setTimeout(() => setLastScan(null), 3000);

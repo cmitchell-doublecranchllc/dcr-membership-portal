@@ -137,7 +137,7 @@ export const appRouter = router({
       .input(z.object({
         membershipTier: z.enum(["bronze", "silver", "gold"]).optional(),
         phone: z.string().optional(),
-        emergencyContact: z.string().optional(),
+        emergencyContactName: z.string().optional(),
         acuityClientId: z.string().optional(),
         dateOfBirth: z.number().optional(), // Unix timestamp
       }))
@@ -155,7 +155,7 @@ export const appRouter = router({
             userId: ctx.user.id,
             membershipTier: input.membershipTier || "bronze",
             phone: input.phone,
-            emergencyContact: input.emergencyContact,
+            emergencyContactName: input.emergencyContactName,
             acuityClientId: input.acuityClientId,
             dateOfBirth: input.dateOfBirth ? new Date(input.dateOfBirth) : undefined,
             isChild: false,
@@ -176,7 +176,7 @@ export const appRouter = router({
       .input(z.object({
         name: z.string(),
         dateOfBirth: z.number().optional(),
-        emergencyContact: z.string().optional(),
+        emergencyContactName: z.string().optional(),
       }))
       .mutation(async ({ ctx, input }) => {
         const parentMember = await db.getMemberByUserId(ctx.user.id);
@@ -192,7 +192,7 @@ export const appRouter = router({
           parentId: parentMember.id,
           isChild: true,
           dateOfBirth: input.dateOfBirth ? new Date(input.dateOfBirth) : undefined,
-          emergencyContact: input.emergencyContact,
+          emergencyContactName: input.emergencyContactName,
           membershipTier: parentMember.membershipTier, // Inherit parent's tier
         });
 
@@ -227,6 +227,8 @@ export const appRouter = router({
       .input(z.object({
         memberId: z.number().optional(), // If parent is checking in a child
         notes: z.string().optional(),
+        checkInType: z.enum(['lesson', 'event', 'other']).default('lesson'),
+        program: z.enum(['lesson', 'horse_management', 'camp', 'pony_club', 'event', 'other']).default('lesson'),
       }))
       .mutation(async ({ ctx, input }) => {
         const member = await db.getMemberByUserId(ctx.user.id);
@@ -244,10 +246,28 @@ export const appRouter = router({
           }
         }
 
+        // Duplicate check-in protection (15 minute window)
+        const DUPLICATE_WINDOW_MS = 15 * 60 * 1000; // 15 minutes
+        const recentCheckIns = await db.getCheckInsByMemberId(targetMemberId);
+        const recentCheckIn = recentCheckIns.find(
+          (ci) => ci.checkInTime > Date.now() - DUPLICATE_WINDOW_MS
+        );
+        
+        if (recentCheckIn) {
+          const minutesAgo = Math.floor((Date.now() - recentCheckIn.checkInTime) / 60000);
+          throw new TRPCError({ 
+            code: 'BAD_REQUEST', 
+            message: `Already checked in ${minutesAgo} minute(s) ago` 
+          });
+        }
+
         await db.createCheckIn({
           memberId: targetMemberId,
           checkedInBy: ctx.user.id,
           checkInTime: Date.now(),
+          checkInType: input.checkInType,
+          source: 'student_self',
+          program: input.program,
           notes: input.notes,
         });
 
@@ -1002,13 +1022,13 @@ export const appRouter = router({
             endTime: new Date(lessonSlot.endTime),
             instructorName: lessonSlot.instructorName,
             location: lessonSlot.location,
-            studentEmail: ctx.user.email,
-            studentName: ctx.user.name,
+            studentEmail: ctx.user.email || 'no-email@example.com',
+            studentName: ctx.user.name || 'Student',
           });
 
           // Send confirmation email to student with calendar file
           await sendGmailEmail({
-            to: ctx.user.email,
+            to: ctx.user.email || 'no-email@example.com',
             subject: 'Lesson Booking Confirmed - Double C Ranch',
             html: `
               <h2>Lesson Booking Confirmed!</h2>
@@ -1611,20 +1631,43 @@ export const appRouter = router({
 
     // Get member by QR code (for scanning)
     scan: protectedProcedure
-      .input(z.object({ qrCode: z.string() }))
-      .mutation(async ({ input }) => {
+      .input(z.object({ 
+        qrCode: z.string(),
+        checkInType: z.enum(['lesson', 'event', 'other']).default('lesson'),
+        program: z.enum(['lesson', 'horse_management', 'camp', 'pony_club', 'event', 'other']).default('lesson'),
+        notes: z.string().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
         const result = await db.getMemberByQRCode(input.qrCode);
         
         if (!result) {
           throw new TRPCError({ code: 'NOT_FOUND', message: 'Invalid QR code' });
         }
 
+        // Duplicate check-in protection (15 minute window)
+        const DUPLICATE_WINDOW_MS = 15 * 60 * 1000; // 15 minutes
+        const recentCheckIns = await db.getCheckInsByMemberId(result.members.id);
+        const recentCheckIn = recentCheckIns.find(
+          (ci) => ci.checkInTime > Date.now() - DUPLICATE_WINDOW_MS
+        );
+        
+        if (recentCheckIn) {
+          const minutesAgo = Math.floor((Date.now() - recentCheckIn.checkInTime) / 60000);
+          throw new TRPCError({ 
+            code: 'BAD_REQUEST', 
+            message: `${result.users.name} already checked in ${minutesAgo} minute(s) ago` 
+          });
+        }
+
         // Create check-in record
         await db.createCheckIn({
           memberId: result.members.id,
+          checkedInBy: ctx.user.id,
           checkInTime: Date.now(),
-          checkInType: 'lesson',
-          notes: 'QR code check-in',
+          checkInType: input.checkInType,
+          source: 'staff_scanner',
+          program: input.program,
+          notes: input.notes || 'QR code check-in',
         });
 
         return {
@@ -1647,8 +1690,8 @@ export const appRouter = router({
         let generated = 0;
         
         for (const memberData of allMembers) {
-          if (!memberData.members.qrCode) {
-            await db.generateMemberQRCode(memberData.members.id);
+          if (!memberData.qrCode) {
+            await db.generateMemberQRCode(memberData.id);
             generated++;
           }
         }

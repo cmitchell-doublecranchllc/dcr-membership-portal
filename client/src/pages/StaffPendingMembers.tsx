@@ -169,7 +169,7 @@ export default function StaffPendingMembers() {
                         Reject
                       </Button>
                       <Button
-                        onClick={() => handleDelete(pendingUser.id, pendingUser.name)}
+                        onClick={() => handleDelete(pendingUser.id, pendingUser.name || 'User')}
                         disabled={deleteMutation.isPending}
                         variant="outline"
                         className="border-red-200 text-red-600 hover:bg-red-50"

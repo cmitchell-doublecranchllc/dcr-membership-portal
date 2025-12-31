@@ -18,7 +18,7 @@ function getTransporter() {
     return null;
   }
 
-  transporter = nodemailer.createTransporter({
+  transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
       user: GMAIL_USER,

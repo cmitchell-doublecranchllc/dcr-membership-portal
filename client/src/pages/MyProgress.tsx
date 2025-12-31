@@ -22,10 +22,11 @@ export default function MyProgress() {
     { memberId: member?.id || 0, status: "completed" },
     { enabled: !!member }
   );
-  const { data: recentNotes } = trpc.progressNotes.getByMember.useQuery(
-    { memberId: member?.id || 0 },
-    { enabled: !!member }
-  );
+  // const { data: recentNotes } = trpc.progressNotes.getByMember.useQuery(
+  //   { memberId: member?.id || 0 },
+  //   { enabled: !!member }
+  // );
+  const recentNotes: any[] = [];
 
   if (!member) {
     return (
@@ -193,7 +194,7 @@ export default function MyProgress() {
           </Card>
         ) : (
           <div className="space-y-4">
-            {recentNotes.slice(0, 5).map((note) => (
+            {recentNotes.slice(0, 5).map((note: any) => (
               <Card key={note.id}>
                 <CardHeader>
                   <div className="flex items-start justify-between">

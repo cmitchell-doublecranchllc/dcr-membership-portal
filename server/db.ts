@@ -1,4 +1,4 @@
-import { eq, and, or, desc, gte, lte } from "drizzle-orm";
+import { eq, and, or, desc, gte, lte, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import { 
   InsertUser, users,
@@ -186,6 +186,7 @@ export async function getAllMembers() {
       userId: members.userId,
       membershipTier: members.membershipTier,
       phone: members.phone,
+      qrCode: members.qrCode,
       user: users,
     })
     .from(members)
@@ -927,9 +928,10 @@ export async function getAllStudentsWithRidingInfo() {
       userId: members.userId,
       membershipTier: members.membershipTier,
       phone: members.phone,
-      emergencyContact: members.emergencyContact,
-      ridingExperienceLevel: members.ridingExperienceLevel,
-      certifications: members.certifications,
+      emergencyContactName: members.emergencyContactName,
+      emergencyContactPhone: members.emergencyContactPhone,
+      horseManagementLevel: members.horseManagementLevel,
+      ridingCertifications: members.ridingCertifications,
       ridingGoals: members.ridingGoals,
       medicalNotes: members.medicalNotes,
       dateOfBirth: members.dateOfBirth,
@@ -981,7 +983,7 @@ export async function getAttendanceStatsByStudent(startDate?: Date, endDate?: Da
   // Get user names
   const statsWithNames = await Promise.all(
     stats.map(async (stat) => {
-      const user = await getUserById(stat.userId);
+      const user = await getUserById(stat.userId || 0);
       return {
         ...stat,
         memberName: user?.name || "Unknown",
@@ -1030,10 +1032,10 @@ export async function getOverallAttendanceStats(startDate?: Date, endDate?: Date
   let whereConditions = [eq(lessonBookings.status, "confirmed")];
   
   if (startDate) {
-    whereConditions.push(sql`${lessonBookings.startTime} >= ${startDate.getTime()}`);
+    whereConditions.push(sql`${lessonSlots.startTime} >= ${startDate.getTime()}`);
   }
   if (endDate) {
-    whereConditions.push(sql`${lessonBookings.startTime} <= ${endDate.getTime()}`);
+    whereConditions.push(sql`${lessonSlots.startTime} <= ${endDate.getTime()}`);
   }
   
   const result = await db
@@ -1047,6 +1049,7 @@ export async function getOverallAttendanceStats(startDate?: Date, endDate?: Date
       noShowRate: sql<number>`ROUND((SUM(CASE WHEN ${lessonBookings.attendanceStatus} = 'absent' THEN 1 ELSE 0 END) * 100.0) / COUNT(${lessonBookings.id}), 2)`,
     })
     .from(lessonBookings)
+    .leftJoin(lessonSlots, eq(lessonBookings.slotId, lessonSlots.id))
     .where(and(...whereConditions));
   
   return result[0] || null;
@@ -1059,10 +1062,10 @@ export async function getDetailedAttendanceRecords(startDate?: Date, endDate?: D
   let whereConditions = [eq(lessonBookings.status, "confirmed")];
   
   if (startDate) {
-    whereConditions.push(sql`${lessonBookings.startTime} >= ${startDate.getTime()}`);
+    whereConditions.push(sql`${lessonSlots.startTime} >= ${startDate.getTime()}`);
   }
   if (endDate) {
-    whereConditions.push(sql`${lessonBookings.startTime} <= ${endDate.getTime()}`);
+    whereConditions.push(sql`${lessonSlots.startTime} <= ${endDate.getTime()}`);
   }
   
   const records = await db
@@ -1071,27 +1074,28 @@ export async function getDetailedAttendanceRecords(startDate?: Date, endDate?: D
       memberId: lessonBookings.memberId,
       userId: members.userId,
       slotId: lessonBookings.slotId,
-      startTime: lessonBookings.startTime,
-      endTime: lessonBookings.endTime,
+      startTime: lessonSlots.startTime,
+      endTime: lessonSlots.endTime,
       attendanceStatus: lessonBookings.attendanceStatus,
       attendanceMarkedAt: lessonBookings.attendanceMarkedAt,
       attendanceNotes: lessonBookings.attendanceNotes,
     })
     .from(lessonBookings)
     .leftJoin(members, eq(lessonBookings.memberId, members.id))
+    .leftJoin(lessonSlots, eq(lessonBookings.slotId, lessonSlots.id))
     .where(and(...whereConditions))
-    .orderBy(desc(lessonBookings.startTime));
+    .orderBy(desc(lessonSlots.startTime));
   
   // Get user names and slot details
   const recordsWithDetails = await Promise.all(
     records.map(async (record) => {
-      const user = await getUserById(record.userId);
-      const slot = await getLessonSlotById(record.slotId);
+      const user = await getUserById(record.userId || 0);
+      const slot = await getLessonSlotById(record.slotId || 0);
       return {
         ...record,
         memberName: user?.name || "Unknown",
         userEmail: user?.email || "",
-        slotTitle: slot?.title || "Lesson",
+        slotTitle: slot?.lessonType || "Lesson",
       };
     })
   );
@@ -1276,6 +1280,15 @@ export async function updateGoalProgress(
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   
+  // Get current goal to capture previous progress
+  const currentGoal = await db.select().from(studentGoals).where(eq(studentGoals.id, goalId)).limit(1);
+  if (!currentGoal || currentGoal.length === 0) {
+    throw new Error("Goal not found");
+  }
+  
+  const previousProgress = currentGoal[0].progressPercentage;
+  const progressChange = progressPercentage - previousProgress;
+  
   // Update the goal
   const updates: any = { progressPercentage };
   if (progressPercentage >= 100) {
@@ -1285,11 +1298,13 @@ export async function updateGoalProgress(
   
   await db.update(studentGoals).set(updates).where(eq(studentGoals.id, goalId));
   
-  // Record the progress update
+  // Record the progress update with audit trail
   await db.insert(goalProgressUpdates).values({
     goalId,
     updatedBy,
-    progressPercentage,
+    previousProgress,
+    newProgress: progressPercentage,
+    progressChange,
     notes,
     updateDate: Date.now(),
   });

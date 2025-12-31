@@ -39,7 +39,7 @@ export default function Profile() {
   useEffect(() => {
     if (member) {
       setPhone(member.phone || "");
-      setEmergencyContact(member.emergencyContact || "");
+      setEmergencyContact(member.emergencyContactName || "");
       setMembershipTier(member.membershipTier);
       setHorseManagementLevel(member.horseManagementLevel || "");
       setRidingCertifications(member.ridingCertifications || "");
@@ -54,7 +54,7 @@ export default function Profile() {
     try {
       await upsertMutation.mutateAsync({
         phone,
-        emergencyContact,
+        emergencyContactName: emergencyContact,
         membershipTier,
       });
       await refetch();

@@ -36,7 +36,7 @@ export default function StaffQRGenerator() {
         
         return {
           memberId: member.members.id,
-          memberName: member.users.name,
+          memberName: member.users.name || 'Unknown',
           qrCode: member.members.qrCode!,
           qrImageUrl,
         };

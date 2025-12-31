@@ -1,4 +1,4 @@
-import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, boolean, bigint } from "drizzle-orm/mysql-core";
+import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, boolean, bigint, index } from "drizzle-orm/mysql-core";
 
 /**
  * Core user table backing auth flow.
@@ -55,7 +55,7 @@ export const members = mysqlTable("members", {
   otherCertifications: text("otherCertifications"), // Other non-Pony Club certifications
   ridingGoals: text("ridingGoals"),
   medicalNotes: text("medicalNotes"),
-  qrCode: varchar("qrCode", { length: 128 }), // Unique QR code for check-in
+  qrCode: varchar("qrCode", { length: 128 }).unique(), // Unique QR code for check-in
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
@@ -66,12 +66,20 @@ export const members = mysqlTable("members", {
 export const checkIns = mysqlTable("checkIns", {
   id: int("id").autoincrement().primaryKey(),
   memberId: int("memberId").notNull(),
-  checkedInBy: int("checkedInBy").notNull(), // User ID who checked in
+  checkedInBy: int("checkedInBy").notNull(), // User ID who checked in (renamed from createdByUserId for consistency)
   checkInTime: bigint("checkInTime", { mode: "number" }).notNull(), // Unix timestamp in milliseconds
+  checkInType: mysqlEnum("checkInType", ["lesson", "event", "other"]).default("lesson").notNull(),
+  source: mysqlEnum("source", ["staff_scanner", "student_self", "manual_entry"]).default("staff_scanner").notNull(),
+  program: mysqlEnum("program", ["lesson", "horse_management", "camp", "pony_club", "event", "other"]).default("lesson").notNull(),
+  appointmentId: varchar("appointmentId", { length: 128 }), // For Acuity integration
   lessonDate: timestamp("lessonDate"),
   notes: text("notes"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
-});
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  memberTimeIdx: index("idx_checkins_member_time").on(table.memberId, table.checkInTime),
+  qrCodeIdx: index("idx_members_qrcode").on(table.memberId),
+}));
 
 /**
  * Contract templates and assignments
@@ -428,7 +436,9 @@ export const studentGoals = mysqlTable("studentGoals", {
   createdBy: int("createdBy").notNull(), // User who created (student or parent)
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-});
+}, (table) => ({
+  memberStatusIdx: index("idx_goals_member_status").on(table.memberId, table.status),
+}));
 
 /**
  * Progress updates on student goals from instructors
@@ -437,11 +447,15 @@ export const goalProgressUpdates = mysqlTable("goalProgressUpdates", {
   id: int("id").autoincrement().primaryKey(),
   goalId: int("goalId").notNull(), // Reference to studentGoals
   updatedBy: int("updatedBy").notNull(), // Instructor/staff who made the update
-  progressPercentage: int("progressPercentage").notNull(), // New progress value
+  previousProgress: int("previousProgress").notNull(), // Progress before update (for audit trail)
+  newProgress: int("newProgress").notNull(), // Progress after update
+  progressChange: int("progressChange").notNull(), // Calculated: newProgress - previousProgress
   notes: text("notes"), // Instructor notes about progress
   updateDate: bigint("updateDate", { mode: "number" }).notNull(), // Unix timestamp
   createdAt: timestamp("createdAt").defaultNow().notNull(),
-});
+}, (table) => ({
+  goalDateIdx: index("idx_progress_goal_date").on(table.goalId, table.updateDate),
+}));
 
 export type StudentGoal = typeof studentGoals.$inferSelect;
 export type InsertStudentGoal = typeof studentGoals.$inferInsert;
