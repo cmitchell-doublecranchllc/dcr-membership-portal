@@ -36,3 +36,6 @@
 
 ## Add Rescheduling Instructions
 - [x] Add informational card/banner about rescheduling via Acuity email
+
+## Fix Check-In Button Visibility
+- [x] Change check-in button to show for all authenticated users (not just complete profiles)

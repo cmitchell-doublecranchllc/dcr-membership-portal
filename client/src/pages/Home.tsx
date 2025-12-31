@@ -204,8 +204,8 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Big Check-In Button - Only for members */}
-        {member && (
+        {/* Big Check-In Button - For all authenticated users */}
+        {isAuthenticated && (
           <Card className="mb-8 border-2 border-primary/20 bg-gradient-to-br from-card to-primary/5">
             <CardContent className="p-8 text-center">
               <h2 className="text-2xl font-bold mb-4">Ready for your lesson?</h2>
@@ -223,7 +223,7 @@ export default function Home() {
         )}
 
         {/* Lesson Rescheduling Info */}
-        {member && (
+        {isAuthenticated && (
           <Card className="mb-8 border-2 border-blue-200 bg-blue-50/50">
             <CardContent className="p-6">
               <h3 className="font-semibold text-lg mb-2 flex items-center gap-2">
