@@ -33,3 +33,6 @@
 - [x] Remove BookLesson page and route
 - [x] Remove BrowseLessons page and route
 - [x] Remove Schedule page and route (if not needed)
+
+## Add Rescheduling Instructions
+- [x] Add informational card/banner about rescheduling via Acuity email

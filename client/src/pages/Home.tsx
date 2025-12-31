@@ -222,6 +222,24 @@ export default function Home() {
           </Card>
         )}
 
+        {/* Lesson Rescheduling Info */}
+        {member && (
+          <Card className="mb-8 border-2 border-blue-200 bg-blue-50/50">
+            <CardContent className="p-6">
+              <h3 className="font-semibold text-lg mb-2 flex items-center gap-2">
+                <Calendar className="h-5 w-5 text-blue-600" />
+                Need to Reschedule a Lesson?
+              </h3>
+              <p className="text-sm text-muted-foreground mb-2">
+                You can reschedule or cancel your lessons up to 24 hours in advance.
+              </p>
+              <p className="text-sm font-medium text-blue-900">
+                📧 Check your lesson confirmation email - it contains a direct link to reschedule or cancel your appointment.
+              </p>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Alerts and Notifications */}
         <div className="grid md:grid-cols-2 gap-6 mb-8">
           {/* Unsigned Contracts */}
