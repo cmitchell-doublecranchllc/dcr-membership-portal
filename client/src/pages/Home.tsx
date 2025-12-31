@@ -22,7 +22,10 @@ export default function Home() {
   const handleCheckIn = async () => {
     setIsCheckingIn(true);
     try {
-      await checkInMutation.mutateAsync({});
+      await checkInMutation.mutateAsync({
+        checkInType: 'lesson',
+        program: 'lesson',
+      });
       toast.success("Checked in successfully! ✓", {
         description: `Welcome to your lesson, ${user?.name || 'rider'}!`,
       });

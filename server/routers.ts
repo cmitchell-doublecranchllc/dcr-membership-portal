@@ -1629,7 +1629,7 @@ export const appRouter = router({
         return { qrCode };
       }),
 
-    // Get member by QR code (for scanning)
+    // Get member by QR code (for scanning - staff use)
     scan: protectedProcedure
       .input(z.object({ 
         qrCode: z.string(),
@@ -1668,6 +1668,50 @@ export const appRouter = router({
           source: 'staff_scanner',
           program: input.program,
           notes: input.notes || 'QR code check-in',
+        });
+
+        return {
+          member: result.members,
+          user: result.users,
+        };
+      }),
+
+    // Public QR code check-in (for phone scans)
+    publicCheckIn: publicProcedure
+      .input(z.object({ 
+        qrCode: z.string(),
+      }))
+      .mutation(async ({ input }) => {
+        const result = await db.getMemberByQRCode(input.qrCode);
+        
+        if (!result) {
+          throw new TRPCError({ code: 'NOT_FOUND', message: 'Invalid QR code' });
+        }
+
+        // Duplicate check-in protection (15 minute window)
+        const DUPLICATE_WINDOW_MS = 15 * 60 * 1000; // 15 minutes
+        const recentCheckIns = await db.getCheckInsByMemberId(result.members.id);
+        const recentCheckIn = recentCheckIns.find(
+          (ci) => ci.checkInTime > Date.now() - DUPLICATE_WINDOW_MS
+        );
+        
+        if (recentCheckIn) {
+          const minutesAgo = Math.floor((Date.now() - recentCheckIn.checkInTime) / 60000);
+          throw new TRPCError({ 
+            code: 'BAD_REQUEST', 
+            message: `${result.users.name} already checked in ${minutesAgo} minute(s) ago` 
+          });
+        }
+
+        // Create check-in record (self check-in via QR)
+        await db.createCheckIn({
+          memberId: result.members.id,
+          checkedInBy: result.users.id, // Self check-in
+          checkInTime: Date.now(),
+          checkInType: 'lesson',
+          source: 'qr_self',
+          program: 'lesson',
+          notes: 'QR code self check-in',
         });
 
         return {

@@ -85,3 +85,17 @@
 - [x] Add social media links to footer (Facebook, Instagram)
 - [x] Test favicon display in browser tabs
 - [x] Verify social links work correctly
+
+## Bug: Check-In Button Failing
+- [x] Investigate check-in button error on homepage
+- [x] Fix check-in mutation/API endpoint
+- [ ] Test check-in button successfully creates record
+- [ ] Verify check-in appears in attendance log
+
+## Bug: QR Code System Not Working End-to-End
+- [x] Change QR codes to encode portal URLs (https://memberdoubleranchllc.com/qr/<token>)
+- [x] Create /qr/<token> route that auto-checks in members
+- [x] Fix manual CHECK IN button (currently returns 404)
+- [ ] Test: Generate QR → Scan with phone → Check-in created
+- [ ] Verify check-in appears in Staff Attendance Log
+- [ ] Verify check-in appears in Student My Progress page

@@ -29,7 +29,9 @@ export default function StaffQRGenerator() {
 
     const codes = await Promise.all(
       membersWithQR.map(async (member) => {
-        const qrImageUrl = await QRCode.toDataURL(member.members.qrCode!, {
+        // Encode full portal URL for QR code
+        const qrUrl = `${window.location.origin}/qr/${member.members.qrCode}`;
+        const qrImageUrl = await QRCode.toDataURL(qrUrl, {
           width: 300,
           margin: 2,
         });

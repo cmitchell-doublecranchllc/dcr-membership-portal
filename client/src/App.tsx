@@ -30,6 +30,7 @@ import StaffQRScanner from "./pages/StaffQRScanner";
 import StaffQRGenerator from "./pages/StaffQRGenerator";
 import MyGoals from "./pages/MyGoals";
 import MyProgress from "./pages/MyProgress";
+import QRCheckIn from "./pages/QRCheckIn";
 
 
 
@@ -64,6 +65,7 @@ function Router() {
       <Route path="/my-goals" component={MyGoals} />
       <Route path="/staff/qr-scanner" component={StaffQRScanner} />
       <Route path="/staff/qr-generator" component={StaffQRGenerator} />
+      <Route path="/qr/:token" component={QRCheckIn} />
       <Route path="/pending-approval" component={PendingApproval} />
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}
