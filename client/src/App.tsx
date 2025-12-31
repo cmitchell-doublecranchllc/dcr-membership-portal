@@ -17,7 +17,7 @@ import EventDetails from "./pages/EventDetails";
 import AdminEvents from "./pages/AdminEvents";
 import AdminRecurringEvents from "./pages/AdminRecurringEvents";
 import StaffLessons from "./pages/StaffLessons";
-import MyLessons from "./pages/MyLessons";
+
 import StaffAttendance from "./pages/StaffAttendance";
 import StaffProgressNotes from "./pages/StaffProgressNotes";
 import MyProgressNotes from "./pages/MyProgressNotes";
@@ -52,7 +52,7 @@ function Router() {
       <Route path="/staff/progress-notes" component={StaffProgressNotes} />
       <Route path="/staff/students" component={InstructorStudents} />
       <Route path="/staff/pending-members" component={StaffPendingMembers} />
-      <Route path="/my-lessons" component={MyLessons} />
+
       <Route path="/book-lesson" component={BookLesson} />
       <Route path="/browse-lessons" component={BrowseLessons} />
       <Route path="/my-progress" component={MyProgressNotes} />

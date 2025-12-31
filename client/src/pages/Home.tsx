@@ -271,16 +271,6 @@ export default function Home() {
 
         {/* Quick Links */}
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <Link href="/my-lessons">
-            <Card className="hover:border-primary transition-colors cursor-pointer h-full">
-              <CardHeader>
-                <Calendar className="h-8 w-8 text-primary mb-2" />
-                <CardTitle>My Lessons</CardTitle>
-                <CardDescription>View and reschedule lessons</CardDescription>
-              </CardHeader>
-            </Card>
-          </Link>
-
           <Link href="/book-lesson">
             <Card className="hover:border-primary transition-colors cursor-pointer h-full">
               <CardHeader>
