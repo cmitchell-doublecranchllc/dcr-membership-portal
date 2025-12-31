@@ -20,11 +20,6 @@ export default function Home() {
   const checkInMutation = trpc.checkIns.checkIn.useMutation();
 
   const handleCheckIn = async () => {
-    if (!member) {
-      toast.error("Please complete your profile first");
-      return;
-    }
-
     setIsCheckingIn(true);
     try {
       await checkInMutation.mutateAsync({});

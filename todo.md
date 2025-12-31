@@ -39,3 +39,7 @@
 
 ## Fix Check-In Button Visibility
 - [x] Change check-in button to show for all authenticated users (not just complete profiles)
+
+## Fix Check-In Validation Issue
+- [x] Investigate check-in handler that incorrectly requires complete profile
+- [x] Remove or fix overly strict profile validation in check-in
