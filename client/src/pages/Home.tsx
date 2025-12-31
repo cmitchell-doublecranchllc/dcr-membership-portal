@@ -91,7 +91,9 @@ export default function Home() {
           </div>
 
           {/* Features Grid */}
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mt-20 max-w-6xl mx-auto">
+          <div className="mt-20 max-w-6xl mx-auto">
+            <h2 className="text-3xl font-bold text-center mb-12">Portal Features</h2>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             <Card className="border-2 hover:border-primary/50 transition-colors">
               <CardHeader>
                 <CheckCircle2 className="h-10 w-10 text-primary mb-2" />
@@ -151,6 +153,7 @@ export default function Home() {
                 </CardDescription>
               </CardHeader>
             </Card>
+          </div>
           </div>
         </div>
       </div>
