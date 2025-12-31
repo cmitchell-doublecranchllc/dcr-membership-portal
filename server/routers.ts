@@ -268,6 +268,7 @@ export const appRouter = router({
           checkInType: input.checkInType,
           source: 'student_self',
           program: input.program,
+          status: 'pending', // Requires staff verification
           notes: input.notes,
         });
 
@@ -292,6 +293,36 @@ export const appRouter = router({
       .query(async ({ input }) => {
         return await db.getRecentCheckIns(input.limit);
       }),
+
+    // Staff: Get pending check-ins for verification
+    getPendingCheckIns: adminProcedure.query(async () => {
+      return await db.getPendingCheckIns();
+    }),
+
+    // Staff: Approve a pending check-in
+    approveCheckIn: adminProcedure
+      .input(z.object({ checkInId: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        await db.updateCheckInStatus(input.checkInId, 'approved', ctx.user.id);
+        return { success: true };
+      }),
+
+    // Staff: Reject a pending check-in
+    rejectCheckIn: adminProcedure
+      .input(z.object({ checkInId: z.number(), reason: z.string().optional() }))
+      .mutation(async ({ ctx, input }) => {
+        await db.updateCheckInStatus(input.checkInId, 'rejected', ctx.user.id, input.reason);
+        return { success: true };
+      }),
+
+    // Student: Get my own check-ins
+    getMyCheckIns: protectedProcedure.query(async ({ ctx }) => {
+      const member = await db.getMemberByUserId(ctx.user.id);
+      if (!member) {
+        throw new TRPCError({ code: 'NOT_FOUND', message: 'Member profile not found' });
+      }
+      return await db.getCheckInsByMemberId(member.id);
+    }),
   }),
 
   contracts: router({

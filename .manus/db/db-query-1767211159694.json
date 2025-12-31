@@ -1,0 +1,106 @@
+{
+  "query": "DESCRIBE checkIns;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2HuJQ2ACAAzqLGn.root --database SMbEjvRKS9YWLQQQ74RCcL --execute DESCRIBE checkIns;",
+  "rows": [
+    {
+      "Field": "id",
+      "Type": "int(11)",
+      "Null": "NO",
+      "Key": "PRI",
+      "Default": "NULL",
+      "Extra": "auto_increment"
+    },
+    {
+      "Field": "memberId",
+      "Type": "int(11)",
+      "Null": "NO",
+      "Key": "MUL",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "checkedInBy",
+      "Type": "int(11)",
+      "Null": "NO",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "checkInTime",
+      "Type": "bigint(20)",
+      "Null": "NO",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "lessonDate",
+      "Type": "timestamp",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "notes",
+      "Type": "text",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "createdAt",
+      "Type": "timestamp",
+      "Null": "NO",
+      "Key": "",
+      "Default": "CURRENT_TIMESTAMP",
+      "Extra": ""
+    },
+    {
+      "Field": "checkInType",
+      "Type": "enum('lesson','event','other')",
+      "Null": "NO",
+      "Key": "",
+      "Default": "lesson",
+      "Extra": ""
+    },
+    {
+      "Field": "source",
+      "Type": "enum('staff_scanner','student_self','manual_entry')",
+      "Null": "NO",
+      "Key": "",
+      "Default": "staff_scanner",
+      "Extra": ""
+    },
+    {
+      "Field": "program",
+      "Type": "enum('lesson','horse_management','camp','pony_club','event','other')",
+      "Null": "NO",
+      "Key": "",
+      "Default": "lesson",
+      "Extra": ""
+    },
+    {
+      "Field": "appointmentId",
+      "Type": "varchar(128)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "updatedAt",
+      "Type": "timestamp",
+      "Null": "YES",
+      "Key": "",
+      "Default": "CURRENT_TIMESTAMP",
+      "Extra": "DEFAULT_GENERATED on update CURRENT_TIMESTAMP"
+    }
+  ],
+  "messages": [],
+  "stdout": "Field\tType\tNull\tKey\tDefault\tExtra\nid\tint(11)\tNO\tPRI\tNULL\tauto_increment\nmemberId\tint(11)\tNO\tMUL\tNULL\t\ncheckedInBy\tint(11)\tNO\t\tNULL\t\ncheckInTime\tbigint(20)\tNO\t\tNULL\t\nlessonDate\ttimestamp\tYES\t\tNULL\t\nnotes\ttext\tYES\t\tNULL\t\ncreatedAt\ttimestamp\tNO\t\tCURRENT_TIMESTAMP\t\ncheckInType\tenum('lesson','event','other')\tNO\t\tlesson\t\nsource\tenum('staff_scanner','student_self','manual_entry')\tNO\t\tstaff_scanner\t\nprogram\tenum('lesson','horse_management','camp','pony_club','event','other')\tNO\t\tlesson\t\nappointmentId\tvarchar(128)\tYES\t\tNULL\t\nupdatedAt\ttimestamp\tYES\t\tCURRENT_TIMESTAMP\tDEFAULT_GENERATED on update CURRENT_TIMESTAMP\n",
+  "stderr": "",
+  "execution_time_ms": 59
+}

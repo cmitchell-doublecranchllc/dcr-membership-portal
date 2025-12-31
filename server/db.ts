@@ -224,6 +224,46 @@ export async function getTodayCheckIns() {
   return await db.select().from(checkIns).where(gte(checkIns.checkInTime, todayStartMs)).orderBy(desc(checkIns.checkInTime));
 }
 
+export async function getPendingCheckIns() {
+  const db = await getDb();
+  if (!db) return [];
+  return await db
+    .select({
+      checkIn: checkIns,
+      member: members,
+      user: users,
+    })
+    .from(checkIns)
+    .innerJoin(members, eq(checkIns.memberId, members.id))
+    .innerJoin(users, eq(members.userId, users.id))
+    .where(eq(checkIns.status, 'pending'))
+    .orderBy(desc(checkIns.checkInTime));
+}
+
+export async function updateCheckInStatus(
+  checkInId: number,
+  status: 'approved' | 'rejected',
+  verifiedBy: number,
+  notes?: string
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const updateData: any = {
+    status,
+    verifiedBy,
+    verifiedAt: new Date(),
+  };
+  
+  if (notes) {
+    updateData.notes = notes;
+  }
+  
+  await db.update(checkIns)
+    .set(updateData)
+    .where(eq(checkIns.id, checkInId));
+}
+
 // ============ Contract Functions ============
 
 export async function createContract(contract: InsertContract) {

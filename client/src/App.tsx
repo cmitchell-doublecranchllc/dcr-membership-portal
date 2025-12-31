@@ -24,13 +24,13 @@ import MyProgressNotes from "./pages/MyProgressNotes";
 import InstructorStudents from "./pages/InstructorStudents";
 import PendingApproval from "./pages/PendingApproval";
 import StaffPendingMembers from "./pages/StaffPendingMembers";
+import StaffPendingCheckIns from "./pages/StaffPendingCheckIns";
 import Signup from "./pages/Signup";
 import Documents from "./pages/Documents";
-import StaffQRScanner from "./pages/StaffQRScanner";
-import StaffQRGenerator from "./pages/StaffQRGenerator";
+
 import MyGoals from "./pages/MyGoals";
 import MyProgress from "./pages/MyProgress";
-import QRCheckIn from "./pages/QRCheckIn";
+
 
 
 
@@ -57,15 +57,14 @@ function Router() {
       <Route path="/staff/progress-notes" component={StaffProgressNotes} />
       <Route path="/staff/students" component={InstructorStudents} />
       <Route path="/staff/pending-members" component={StaffPendingMembers} />
+      <Route path="/staff/pending-checkins" component={StaffPendingCheckIns} />
 
 
 
       <Route path="/my-progress-notes" component={MyProgressNotes} />
       <Route path="/my-progress" component={MyProgress} />
       <Route path="/my-goals" component={MyGoals} />
-      <Route path="/staff/qr-scanner" component={StaffQRScanner} />
-      <Route path="/staff/qr-generator" component={StaffQRGenerator} />
-      <Route path="/qr/:token" component={QRCheckIn} />
+
       <Route path="/pending-approval" component={PendingApproval} />
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}

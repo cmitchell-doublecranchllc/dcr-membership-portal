@@ -1,0 +1,9 @@
+{
+  "query": "ALTER TABLE checkIns MODIFY COLUMN source ENUM('staff_scanner', 'student_self', 'manual_entry', 'qr_self') NOT NULL DEFAULT 'staff_scanner';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2HuJQ2ACAAzqLGn.root --database SMbEjvRKS9YWLQQQ74RCcL --execute ALTER TABLE checkIns MODIFY COLUMN source ENUM('staff_scanner', 'student_self', 'manual_entry', 'qr_self') NOT NULL DEFAULT 'staff_scanner';",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 251
+}

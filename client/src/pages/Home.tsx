@@ -20,18 +20,27 @@ export default function Home() {
   const checkInMutation = trpc.checkIns.checkIn.useMutation();
 
   const handleCheckIn = async () => {
+    // Confirm the user is on-site
+    const confirmed = window.confirm(
+      "Are you currently at the facility?\n\nPlease only check in if you are physically present on-site. Your check-in will be pending until verified by staff."
+    );
+    
+    if (!confirmed) {
+      return;
+    }
+    
     setIsCheckingIn(true);
     try {
       await checkInMutation.mutateAsync({
         checkInType: 'lesson',
         program: 'lesson',
       });
-      toast.success("Checked in successfully! ✓", {
-        description: `Welcome to your lesson, ${user?.name || 'rider'}!`,
+      toast.success("Check-in submitted! ✓", {
+        description: "Your check-in is pending staff verification.",
       });
-    } catch (error) {
+    } catch (error: any) {
       toast.error("Failed to check in", {
-        description: "Please try again or contact staff",
+        description: error?.message || "Please try again or contact staff",
       });
     } finally {
       setIsCheckingIn(false);

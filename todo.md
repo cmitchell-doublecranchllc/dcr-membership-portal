@@ -99,3 +99,16 @@
 - [ ] Test: Generate QR → Scan with phone → Check-in created
 - [ ] Verify check-in appears in Staff Attendance Log
 - [ ] Verify check-in appears in Student My Progress page
+
+## Check-In Verification Workflow (Critical)
+- [x] Update checkIns schema: add status (pending/approved/rejected), verifiedBy, verifiedAt fields
+- [x] Complete database migration (pnpm db:push)
+- [x] Remove QR code generation and scanning features (no longer needed)
+- [x] Update checkIn endpoint to create pending check-ins for students
+- [x] Create Pending Check-Ins view for staff (/staff/pending-checkins)
+- [x] Add approve/reject actions in Pending Check-Ins view
+- [ ] Update Staff Attendance Log to show status and filter by approved
+- [ ] Update Student My Progress to show only approved check-ins
+- [x] Fix CHECK IN button 404 error
+- [x] Add on-site confirmation prompt to CHECK IN button
+- [ ] Test end-to-end: student check-in → pending → staff approve → attendance visible

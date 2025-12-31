@@ -1,0 +1,8 @@
+{
+  "query": "ALTER TABLE checkIns \nADD COLUMN status ENUM('pending', 'approved', 'rejected') NOT NULL DEFAULT 'pending' AFTER program,\nADD COLUMN verifiedBy INT AFTER status,\nADD COLUMN verifiedAt TIMESTAMP NULL AFTER verifiedBy;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2HuJQ2ACAAzqLGn.root --database SMbEjvRKS9YWLQQQ74RCcL --execute ALTER TABLE checkIns \nADD COLUMN status ENUM('pending', 'approved', 'rejected') NOT NULL DEFAULT 'pending' AFTER program,\nADD COLUMN verifiedBy INT AFTER status,\nADD COLUMN verifiedAt TIMESTAMP NULL AFTER verifiedBy;",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1054 (42S22) at line 1: Unknown column 'status' in 'checkIns'"
+  ]
+}

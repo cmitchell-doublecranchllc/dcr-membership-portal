@@ -11,7 +11,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { trpc } from "@/lib/trpc";
-import { Users, Calendar, CheckCircle, CheckCircle2, Clock, RefreshCw, QrCode } from "lucide-react";
+import { Users, Calendar, CheckCircle, CheckCircle2, Clock, RefreshCw } from "lucide-react";
 import { Link } from "wouter";
 import PageHeader from "@/components/PageHeader";
 
@@ -89,16 +89,10 @@ export default function StaffDashboard() {
               <Link href="/staff/pending-members">
                 <Button variant="default" className="bg-yellow-600 hover:bg-yellow-700">Pending Members</Button>
               </Link>
-              <Link href="/staff/qr-scanner">
-                <Button variant="default" className="bg-blue-600 hover:bg-blue-700">
-                  <QrCode className="mr-2 h-4 w-4" />
-                  QR Scanner
-                </Button>
-              </Link>
-              <Link href="/staff/qr-generator">
-                <Button variant="outline">
-                  <QrCode className="mr-2 h-4 w-4" />
-                  QR Generator
+              <Link href="/staff/pending-checkins">
+                <Button variant="default" className="bg-orange-600 hover:bg-orange-700">
+                  <Clock className="mr-2 h-4 w-4" />
+                  Pending Check-Ins
                 </Button>
               </Link>
             </div>
@@ -161,19 +155,12 @@ export default function StaffDashboard() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid gap-4 md:grid-cols-3">
-              <Link href="/staff/qr-scanner">
-                <Button className="w-full h-24 flex flex-col gap-2 bg-blue-600 hover:bg-blue-700">
-                  <QrCode className="h-8 w-8" />
-                  <span className="text-lg font-semibold">QR Scanner</span>
-                  <span className="text-xs opacity-90">Scan student check-ins</span>
-                </Button>
-              </Link>
-              <Link href="/staff/qr-generator">
-                <Button className="w-full h-24 flex flex-col gap-2" variant="outline">
-                  <QrCode className="h-8 w-8" />
-                  <span className="text-lg font-semibold">QR Generator</span>
-                  <span className="text-xs opacity-90">Print student QR codes</span>
+            <div className="grid gap-4 md:grid-cols-2">
+              <Link href="/staff/pending-checkins">
+                <Button className="w-full h-24 flex flex-col gap-2 bg-orange-600 hover:bg-orange-700">
+                  <Clock className="h-8 w-8" />
+                  <span className="text-lg font-semibold">Pending Check-Ins</span>
+                  <span className="text-xs opacity-90">Review and approve student check-ins</span>
                 </Button>
               </Link>
               <Link href="/staff/attendance">

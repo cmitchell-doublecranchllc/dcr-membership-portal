@@ -69,8 +69,11 @@ export const checkIns = mysqlTable("checkIns", {
   checkedInBy: int("checkedInBy").notNull(), // User ID who checked in (renamed from createdByUserId for consistency)
   checkInTime: bigint("checkInTime", { mode: "number" }).notNull(), // Unix timestamp in milliseconds
   checkInType: mysqlEnum("checkInType", ["lesson", "event", "other"]).default("lesson").notNull(),
-  source: mysqlEnum("source", ["staff_scanner", "student_self", "manual_entry"]).default("staff_scanner").notNull(),
+  source: mysqlEnum("source", ["staff_scanner", "student_self", "manual_entry", "qr_self"]).default("staff_scanner").notNull(),
   program: mysqlEnum("program", ["lesson", "horse_management", "camp", "pony_club", "event", "other"]).default("lesson").notNull(),
+  status: mysqlEnum("status", ["pending", "approved", "rejected"]).default("pending").notNull(),
+  verifiedBy: int("verifiedBy"), // Staff user ID who approved/rejected
+  verifiedAt: timestamp("verifiedAt"), // When the check-in was verified
   appointmentId: varchar("appointmentId", { length: 128 }), // For Acuity integration
   lessonDate: timestamp("lessonDate"),
   notes: text("notes"),
