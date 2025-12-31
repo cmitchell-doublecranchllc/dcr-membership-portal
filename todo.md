@@ -72,3 +72,9 @@
 - [x] Add meta keywords
 - [x] Add H2 headings to homepage content
 - [x] Verify SEO improvements
+
+## Shareable Link Preview Customization
+- [x] Add Open Graph meta tags for social media sharing
+- [x] Set custom preview image (Double C Ranch + German flag + Pony Club logos)
+- [x] Customize title and description for link previews
+- [x] Test link preview on social media platforms
