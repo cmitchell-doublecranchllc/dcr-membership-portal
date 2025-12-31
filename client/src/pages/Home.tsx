@@ -226,10 +226,10 @@ export default function Home() {
                 Need to Reschedule a Lesson?
               </h3>
               <p className="text-sm text-muted-foreground mb-2">
-                You can reschedule or cancel your lessons up to 24 hours in advance.
+                You can reschedule your lessons up to 24 hours in advance.
               </p>
               <p className="text-sm font-medium text-blue-900">
-                📧 Check your lesson confirmation email - it contains a direct link to reschedule or cancel your appointment.
+                📧 Check your lesson confirmation email - it contains a direct link to reschedule your appointment.
               </p>
             </CardContent>
           </Card>

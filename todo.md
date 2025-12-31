@@ -43,3 +43,6 @@
 ## Fix Check-In Validation Issue
 - [x] Investigate check-in handler that incorrectly requires complete profile
 - [x] Remove or fix overly strict profile validation in check-in
+
+## Update Rescheduling Instructions
+- [x] Remove "cancel your appointment" text from rescheduling card
