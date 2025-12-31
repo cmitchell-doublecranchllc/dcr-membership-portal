@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { getLoginUrl } from "@/const";
 import { trpc } from "@/lib/trpc";
-import { CheckCircle2, Calendar, FileText, MessageSquare, Users, LogIn, Target, TrendingUp } from "lucide-react";
+import { CheckCircle2, Calendar, FileText, MessageSquare, Users, LogIn, Target, TrendingUp, Facebook, Instagram } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Link } from "wouter";
@@ -380,6 +380,40 @@ export default function Home() {
           </Card>
         )}
       </div>
+
+      {/* Footer with Social Media Links */}
+      <footer className="mt-16 border-t bg-muted/30">
+        <div className="container py-8">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+            <div className="text-center md:text-left">
+              <p className="text-sm text-muted-foreground">
+                © {new Date().getFullYear()} Double C Ranch Pony Club. All rights reserved.
+              </p>
+            </div>
+            <div className="flex items-center gap-4">
+              <span className="text-sm text-muted-foreground">Follow us:</span>
+              <a
+                href="https://www.facebook.com/doublecranchllccville"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-muted-foreground hover:text-primary transition-colors"
+                aria-label="Visit our Facebook page"
+              >
+                <Facebook className="h-5 w-5" />
+              </a>
+              <a
+                href="https://www.instagram.com/doublecranch2015/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-muted-foreground hover:text-primary transition-colors"
+                aria-label="Visit our Instagram profile"
+              >
+                <Instagram className="h-5 w-5" />
+              </a>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

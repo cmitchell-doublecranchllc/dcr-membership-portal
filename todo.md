@@ -78,3 +78,10 @@
 - [x] Set custom preview image (Double C Ranch + German flag + Pony Club logos)
 - [x] Customize title and description for link previews
 - [x] Test link preview on social media platforms
+
+## Favicon and Social Media Links
+- [x] Create favicon from branding image (16x16, 32x32, 180x180)
+- [x] Add favicon to index.html
+- [x] Add social media links to footer (Facebook, Instagram)
+- [x] Test favicon display in browser tabs
+- [x] Verify social links work correctly
