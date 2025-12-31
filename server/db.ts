@@ -206,7 +206,36 @@ export async function createCheckIn(checkIn: InsertCheckIn) {
 export async function getRecentCheckIns(limit: number = 50) {
   const db = await getDb();
   if (!db) return [];
-  return await db.select().from(checkIns).orderBy(desc(checkIns.checkInTime)).limit(limit);
+  return await db
+    .select({
+      id: checkIns.id,
+      memberId: checkIns.memberId,
+      checkInTime: checkIns.checkInTime,
+      checkInType: checkIns.checkInType,
+      source: checkIns.source,
+      program: checkIns.program,
+      status: checkIns.status,
+      verifiedBy: checkIns.verifiedBy,
+      verifiedAt: checkIns.verifiedAt,
+      notes: checkIns.notes,
+      member: {
+        id: members.id,
+        user: {
+          id: users.id,
+          name: users.name,
+        },
+      },
+      verifier: {
+        id: sql<number | null>`verifier.id`,
+        name: sql<string | null>`verifier.name`,
+      },
+    })
+    .from(checkIns)
+    .innerJoin(members, eq(checkIns.memberId, members.id))
+    .innerJoin(users, eq(members.userId, users.id))
+    .leftJoin(sql`${users} AS verifier`, sql`${checkIns.verifiedBy} = verifier.id`)
+    .orderBy(desc(checkIns.checkInTime))
+    .limit(limit);
 }
 
 export async function getCheckInsByMemberId(memberId: number) {
@@ -1377,11 +1406,14 @@ export async function getStudentAttendanceStats(memberId: number) {
   const db = await getDb();
   if (!db) return { total: 0, thisMonth: 0, streak: 0 };
   
-  // Total check-ins
+  // Total check-ins (approved only)
   const totalResult = await db
     .select({ count: sql`COUNT(*)` })
     .from(checkIns)
-    .where(eq(checkIns.memberId, memberId));
+    .where(and(
+      eq(checkIns.memberId, memberId),
+      eq(checkIns.status, 'approved')
+    ));
   
   const total = Number(totalResult[0]?.count || 0);
   
@@ -1393,6 +1425,7 @@ export async function getStudentAttendanceStats(memberId: number) {
     .from(checkIns)
     .where(and(
       eq(checkIns.memberId, memberId),
+      eq(checkIns.status, 'approved'),
       gte(checkIns.checkInTime, monthStart)
     ));
   
@@ -1402,7 +1435,10 @@ export async function getStudentAttendanceStats(memberId: number) {
   const recentCheckIns = await db
     .select()
     .from(checkIns)
-    .where(eq(checkIns.memberId, memberId))
+    .where(and(
+      eq(checkIns.memberId, memberId),
+      eq(checkIns.status, 'approved')
+    ))
     .orderBy(desc(checkIns.checkInTime))
     .limit(100);
   

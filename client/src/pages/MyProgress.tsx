@@ -3,7 +3,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, TrendingUp, Award, Target, Flame, Loader2 } from "lucide-react";
+import { Calendar, TrendingUp, Award, Target, Flame, Loader2, CheckCircle, Clock, XCircle } from "lucide-react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 
@@ -20,6 +20,10 @@ export default function MyProgress() {
   );
   const { data: completedGoals } = trpc.goals.getByMember.useQuery(
     { memberId: member?.id || 0, status: "completed" },
+    { enabled: !!member }
+  );
+  const { data: myCheckIns } = trpc.checkIns.getMyCheckIns.useQuery(
+    undefined,
     { enabled: !!member }
   );
   // const { data: recentNotes } = trpc.progressNotes.getByMember.useQuery(
@@ -180,6 +184,60 @@ export default function MyProgress() {
               </Card>
             ))}
           </div>
+        )}
+      </div>
+
+      {/* Check-In History */}
+      <div>
+        <h2 className="text-2xl font-semibold mb-4 flex items-center gap-2">
+          <Calendar className="h-6 w-6" />
+          Check-In History
+        </h2>
+        {!myCheckIns || myCheckIns.length === 0 ? (
+          <Card>
+            <CardContent className="py-8 text-center text-muted-foreground">
+              No check-ins yet. Use the CHECK IN button on the home page to record your attendance.
+            </CardContent>
+          </Card>
+        ) : (
+          <Card>
+            <CardContent className="pt-6">
+              <div className="space-y-3">
+                {myCheckIns.slice(0, 10).map((checkIn: any) => (
+                  <div key={checkIn.id} className="flex items-center justify-between p-3 border rounded-lg">
+                    <div className="flex-1">
+                      <p className="font-medium">
+                        {new Date(checkIn.checkInTime).toLocaleString()}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        {checkIn.program} - {checkIn.checkInType}
+                      </p>
+                    </div>
+                    <div>
+                      {checkIn.status === 'approved' && (
+                        <Badge className="bg-green-600">
+                          <CheckCircle className="mr-1 h-3 w-3" />
+                          Approved
+                        </Badge>
+                      )}
+                      {checkIn.status === 'pending' && (
+                        <Badge className="bg-orange-600">
+                          <Clock className="mr-1 h-3 w-3" />
+                          Pending
+                        </Badge>
+                      )}
+                      {checkIn.status === 'rejected' && (
+                        <Badge variant="destructive">
+                          <XCircle className="mr-1 h-3 w-3" />
+                          Rejected
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
         )}
       </div>
 

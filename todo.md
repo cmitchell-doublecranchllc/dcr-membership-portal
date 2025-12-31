@@ -107,8 +107,11 @@
 - [x] Update checkIn endpoint to create pending check-ins for students
 - [x] Create Pending Check-Ins view for staff (/staff/pending-checkins)
 - [x] Add approve/reject actions in Pending Check-Ins view
-- [ ] Update Staff Attendance Log to show status and filter by approved
-- [ ] Update Student My Progress to show only approved check-ins
+- [x] Rewrite Staff Attendance Log to show check-in records (not lesson bookings)
+- [x] Staff Attendance Log must show: status badges, timestamps, student name, verifiedBy/verifiedAt
+- [x] Add check-in history section to My Progress showing all check-ins with status
+- [x] Update My Progress stats to count ONLY approved check-ins (pending/rejected don't count)
+- [x] Ensure check-ins are immediately visible to students after submission (pending status)
 - [x] Fix CHECK IN button 404 error
 - [x] Add on-site confirmation prompt to CHECK IN button
 - [ ] Test end-to-end: student check-in → pending → staff approve → attendance visible

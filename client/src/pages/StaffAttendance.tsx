@@ -10,50 +10,21 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { trpc } from "@/lib/trpc";
-import { CheckCircle2, XCircle, Clock, Calendar } from "lucide-react";
+import { CheckCircle, Clock, XCircle, RefreshCw, Calendar } from "lucide-react";
 import { Link } from "wouter";
-import { useState } from "react";
+import PageHeader from "@/components/PageHeader";
+
 export default function StaffAttendance() {
   const { user, isAuthenticated } = useAuth();
-  const [selectedBooking, setSelectedBooking] = useState<any>(null);
-  const [attendanceStatus, setAttendanceStatus] = useState<"present" | "absent" | "late">("present");
-  const [attendanceNotes, setAttendanceNotes] = useState("");
-
-  const { data: allSlots, refetch } = trpc.lessons.getAllSlots.useQuery(
-    undefined,
-    { enabled: isAuthenticated && (user?.role === 'admin' || user?.role === 'staff') }
+  
+  const { data: recentCheckIns, refetch } = trpc.checkIns.getRecentCheckIns.useQuery(
+    { limit: 100 },
+    { 
+      enabled: isAuthenticated && (user?.role === 'admin' || user?.role === 'staff'),
+      refetchInterval: 30000, // Auto-refresh every 30 seconds
+    }
   );
-
-  const markAttendanceMutation = trpc.lessons.markAttendance.useMutation({
-    onSuccess: () => {
-      alert("Attendance marked successfully!");
-      setSelectedBooking(null);
-      setAttendanceNotes("");
-      setAttendanceStatus("present");
-      refetch();
-    },
-    onError: (error) => {
-      alert("Error marking attendance: " + error.message);
-    },
-  });
 
   const isStaffOrAdmin = user?.role === 'admin' || user?.role === 'staff';
 
@@ -77,208 +48,174 @@ export default function StaffAttendance() {
     );
   }
 
-  // Filter past lessons that need attendance marking
-  const now = Date.now();
-  const pastLessons = allSlots?.filter(slot => slot.endTime < now && slot.currentStudents > 0) || [];
-
-  const handleMarkAttendance = () => {
-    if (!selectedBooking) return;
-
-    markAttendanceMutation.mutate({
-      bookingId: selectedBooking.id,
-      attendanceStatus,
-      notes: attendanceNotes || undefined,
-    });
-  };
-
-  const getAttendanceBadge = (status: string) => {
+  const getStatusBadge = (status: string) => {
     switch (status) {
-      case "present":
-        return <Badge className="bg-green-500"><CheckCircle2 className="mr-1 h-3 w-3" />Present</Badge>;
-      case "absent":
-        return <Badge variant="destructive"><XCircle className="mr-1 h-3 w-3" />Absent</Badge>;
-      case "late":
-        return <Badge variant="secondary"><Clock className="mr-1 h-3 w-3" />Late</Badge>;
+      case "approved":
+        return (
+          <Badge className="bg-green-600">
+            <CheckCircle className="mr-1 h-3 w-3" />
+            Approved
+          </Badge>
+        );
+      case "pending":
+        return (
+          <Badge className="bg-orange-600">
+            <Clock className="mr-1 h-3 w-3" />
+            Pending
+          </Badge>
+        );
+      case "rejected":
+        return (
+          <Badge variant="destructive">
+            <XCircle className="mr-1 h-3 w-3" />
+            Rejected
+          </Badge>
+        );
       default:
-        return <Badge variant="outline">Pending</Badge>;
+        return <Badge variant="secondary">{status}</Badge>;
     }
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20">
       <div className="container py-8">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between flex-wrap gap-4">
-            <div>
-              <h1 className="text-3xl md:text-4xl font-bold mb-2">Lesson Attendance</h1>
-              <p className="text-muted-foreground">Mark attendance for completed lessons</p>
-            </div>
-            <div className="flex gap-2">
-              <Link href="/staff">
-                <Button variant="outline">Back to Dashboard</Button>
-              </Link>
-            </div>
-          </div>
-        </div>
+        <PageHeader 
+          title="Attendance Log"
+          description="View all student check-in records"
+          backLink="/staff"
+          backLabel="Back to Staff Dashboard"
+          action={
+            <Button variant="outline" onClick={() => refetch()}>
+              <RefreshCw className="mr-2 h-4 w-4" />
+              Refresh
+            </Button>
+          }
+        />
 
-        {/* Past Lessons Needing Attendance */}
-        <Card>
+        <Card className="mt-6">
           <CardHeader>
-            <CardTitle>Recent Lessons</CardTitle>
+            <CardTitle className="flex items-center gap-2">
+              <Calendar className="h-5 w-5" />
+              Check-In Records
+            </CardTitle>
             <CardDescription>
-              Mark attendance for lessons that have already occurred
+              Complete history of student check-ins with verification status
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {pastLessons.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground">
-                <Calendar className="mx-auto h-12 w-12 mb-4 opacity-50" />
-                <p>No recent lessons requiring attendance</p>
+            {!recentCheckIns || recentCheckIns.length === 0 ? (
+              <div className="text-center py-12 text-muted-foreground">
+                <Calendar className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                <p className="text-lg font-medium">No check-in records</p>
+                <p className="text-sm">Check-ins will appear here once students start checking in</p>
               </div>
             ) : (
-              <div className="space-y-6">
-                {pastLessons.map((slot) => (
-                  <div key={slot.id} className="border rounded-lg p-4">
-                    <div className="flex items-start justify-between mb-4">
-                      <div>
-                        <h3 className="font-semibold text-lg">
-                          {slot.lessonType.charAt(0).toUpperCase() + slot.lessonType.slice(1)} Lesson
-                        </h3>
-                        <p className="text-sm text-muted-foreground">
-                          {new Date(slot.startTime).toLocaleString("en-US", {
-                            weekday: "short",
-                            month: "short",
-                            day: "numeric",
-                            hour: "numeric",
-                            minute: "2-digit",
-                          })}
-                        </p>
-                        {slot.instructorName && (
-                          <p className="text-sm text-muted-foreground">
-                            Instructor: {slot.instructorName}
-                          </p>
-                        )}
-                      </div>
-                      <Badge variant="secondary">
-                        {slot.currentStudents} student{slot.currentStudents !== 1 ? 's' : ''}
-                      </Badge>
-                    </div>
-
-                    {/* Show bookings for this slot */}
-                    <LessonBookings
-                      slotId={slot.id}
-                      onMarkAttendance={(booking) => {
-                        setSelectedBooking(booking);
-                        setAttendanceStatus(booking.attendanceStatus === "pending" ? "present" : booking.attendanceStatus);
-                      }}
-                      getAttendanceBadge={getAttendanceBadge}
-                    />
-                  </div>
-                ))}
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Student</TableHead>
+                      <TableHead>Check-In Time</TableHead>
+                      <TableHead>Type</TableHead>
+                      <TableHead>Program</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Verified By</TableHead>
+                      <TableHead>Verified At</TableHead>
+                      <TableHead>Notes</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {recentCheckIns.map((checkIn: any) => (
+                      <TableRow key={checkIn.id}>
+                        <TableCell className="font-medium">
+                          {checkIn.member?.user?.name || "Unknown"}
+                        </TableCell>
+                        <TableCell>
+                          {new Date(checkIn.checkInTime).toLocaleString()}
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="outline">
+                            {checkIn.checkInType}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="secondary">
+                            {checkIn.program}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          {getStatusBadge(checkIn.status || 'pending')}
+                        </TableCell>
+                        <TableCell>
+                          {checkIn.verifiedBy ? (
+                            <span className="text-sm">
+                              {checkIn.verifier?.name || `User #${checkIn.verifiedBy}`}
+                            </span>
+                          ) : (
+                            <span className="text-muted-foreground text-sm">-</span>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {checkIn.verifiedAt ? (
+                            <span className="text-sm">
+                              {new Date(checkIn.verifiedAt).toLocaleString()}
+                            </span>
+                          ) : (
+                            <span className="text-muted-foreground text-sm">-</span>
+                          )}
+                        </TableCell>
+                        <TableCell className="max-w-xs truncate">
+                          {checkIn.notes || "-"}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
               </div>
             )}
           </CardContent>
         </Card>
 
-        {/* Mark Attendance Dialog */}
-        <Dialog open={!!selectedBooking} onOpenChange={(open) => !open && setSelectedBooking(null)}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Mark Attendance</DialogTitle>
-              <DialogDescription>
-                Record attendance for {selectedBooking?.user?.name || "this student"}
-              </DialogDescription>
-            </DialogHeader>
+        {/* Summary Stats */}
+        <div className="grid gap-4 md:grid-cols-3 mt-6">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total Check-Ins</CardTitle>
+              <Calendar className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{recentCheckIns?.length || 0}</div>
+              <p className="text-xs text-muted-foreground">Recent records</p>
+            </CardContent>
+          </Card>
 
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="status">Attendance Status</Label>
-                <Select value={attendanceStatus} onValueChange={(value: any) => setAttendanceStatus(value)}>
-                  <SelectTrigger id="status">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="present">Present</SelectItem>
-                    <SelectItem value="late">Late</SelectItem>
-                    <SelectItem value="absent">Absent</SelectItem>
-                  </SelectContent>
-                </Select>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Approved</CardTitle>
+              <CheckCircle className="h-4 w-4 text-green-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-green-600">
+                {recentCheckIns?.filter((ci: any) => ci.status === 'approved').length || 0}
               </div>
+              <p className="text-xs text-muted-foreground">Verified check-ins</p>
+            </CardContent>
+          </Card>
 
-              <div className="space-y-2">
-                <Label htmlFor="notes">Notes (optional)</Label>
-                <Textarea
-                  id="notes"
-                  placeholder="Add any notes about this lesson..."
-                  value={attendanceNotes}
-                  onChange={(e) => setAttendanceNotes(e.target.value)}
-                  rows={3}
-                />
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Pending</CardTitle>
+              <Clock className="h-4 w-4 text-orange-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-orange-600">
+                {recentCheckIns?.filter((ci: any) => ci.status === 'pending').length || 0}
               </div>
-            </div>
-
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setSelectedBooking(null)}>
-                Cancel
-              </Button>
-              <Button onClick={handleMarkAttendance} disabled={markAttendanceMutation.isPending}>
-                {markAttendanceMutation.isPending ? "Saving..." : "Save Attendance"}
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+              <p className="text-xs text-muted-foreground">Awaiting verification</p>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
-  );
-}
-
-// Component to fetch and display bookings for a slot
-function LessonBookings({ 
-  slotId, 
-  onMarkAttendance, 
-  getAttendanceBadge 
-}: { 
-  slotId: number; 
-  onMarkAttendance: (booking: any) => void;
-  getAttendanceBadge: (status: string) => React.ReactNode;
-}) {
-  const { data: bookings } = trpc.lessons.getSlotBookings.useQuery({ slotId });
-
-  if (!bookings || bookings.length === 0) {
-    return <p className="text-sm text-muted-foreground">No students booked</p>;
-  }
-
-  return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Student</TableHead>
-          <TableHead>Status</TableHead>
-          <TableHead className="text-right">Action</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {bookings.map((booking) => (
-          <TableRow key={booking.id}>
-            <TableCell className="font-medium">
-              {booking.user?.name || "Unknown Student"}
-            </TableCell>
-            <TableCell>
-              {getAttendanceBadge(booking.attendanceStatus)}
-            </TableCell>
-            <TableCell className="text-right">
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => onMarkAttendance(booking)}
-              >
-                {booking.attendanceStatus === "pending" ? "Mark" : "Update"}
-              </Button>
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
   );
 }
