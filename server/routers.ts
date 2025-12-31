@@ -1598,6 +1598,142 @@ export const appRouter = router({
         return { success: true };
       }),
   }),
+
+  // QR Code Check-In System
+  qrCode: router({
+    // Generate QR code for a member (admin only)
+    generate: adminProcedure
+      .input(z.object({ memberId: z.number() }))
+      .mutation(async ({ input }) => {
+        const qrCode = await db.generateMemberQRCode(input.memberId);
+        return { qrCode };
+      }),
+
+    // Get member by QR code (for scanning)
+    scan: protectedProcedure
+      .input(z.object({ qrCode: z.string() }))
+      .mutation(async ({ input }) => {
+        const result = await db.getMemberByQRCode(input.qrCode);
+        
+        if (!result) {
+          throw new TRPCError({ code: 'NOT_FOUND', message: 'Invalid QR code' });
+        }
+
+        // Create check-in record
+        await db.createCheckIn({
+          memberId: result.members.id,
+          checkInTime: Date.now(),
+          checkInType: 'lesson',
+          notes: 'QR code check-in',
+        });
+
+        return {
+          member: result.members,
+          user: result.users,
+        };
+      }),
+
+    // Get all members with QR codes (for printing)
+    getAllWithQR: adminProcedure
+      .query(async () => {
+        const members = await db.getAllMembersWithQRCodes();
+        return members;
+      }),
+
+    // Generate QR codes for all members without one
+    generateAll: adminProcedure
+      .mutation(async () => {
+        const allMembers = await db.getAllMembers();
+        let generated = 0;
+        
+        for (const memberData of allMembers) {
+          if (!memberData.members.qrCode) {
+            await db.generateMemberQRCode(memberData.members.id);
+            generated++;
+          }
+        }
+        
+        return { generated };
+      }),
+  }),
+
+  // Student Goals System
+  goals: router({
+    // Create a new goal
+    create: protectedProcedure
+      .input(z.object({
+        memberId: z.number(),
+        goalTitle: z.string(),
+        goalDescription: z.string().optional(),
+        category: z.enum(["riding_skill", "horse_care", "competition", "certification", "other"]).optional(),
+        targetDate: z.string().optional(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const goalId = await db.createStudentGoal({
+          ...input,
+          targetDate: input.targetDate ? new Date(input.targetDate) : undefined,
+          createdBy: ctx.user.id,
+        });
+        
+        return { goalId };
+      }),
+
+    // Get goals for a student
+    getByMember: protectedProcedure
+      .input(z.object({
+        memberId: z.number(),
+        status: z.enum(["active", "completed", "archived"]).optional(),
+      }))
+      .query(async ({ input }) => {
+        const goals = await db.getStudentGoals(input.memberId, input.status);
+        return goals;
+      }),
+
+    // Update goal progress (instructors)
+    updateProgress: protectedProcedure
+      .input(z.object({
+        goalId: z.number(),
+        progressPercentage: z.number().min(0).max(100),
+        notes: z.string().optional(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        await db.updateGoalProgress(
+          input.goalId,
+          input.progressPercentage,
+          ctx.user.id,
+          input.notes
+        );
+        
+        return { success: true };
+      }),
+
+    // Get progress history for a goal
+    getProgressHistory: protectedProcedure
+      .input(z.object({ goalId: z.number() }))
+      .query(async ({ input }) => {
+        const history = await db.getGoalProgressHistory(input.goalId);
+        return history;
+      }),
+
+    // Delete a goal
+    delete: protectedProcedure
+      .input(z.object({ goalId: z.number() }))
+      .mutation(async ({ input }) => {
+        await db.deleteStudentGoal(input.goalId);
+        return { success: true };
+      }),
+  }),
+
+  // Student Dashboard Stats
+  studentStats: router({
+    // Get attendance stats for a student
+    getAttendance: protectedProcedure
+      .input(z.object({ memberId: z.number() }))
+      .query(async ({ input }) => {
+        const stats = await db.getStudentAttendanceStats(input.memberId);
+        return stats;
+      }),
+  }),
 });
 
 export type AppRouter = typeof appRouter;

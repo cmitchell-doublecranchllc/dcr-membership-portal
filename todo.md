@@ -1,48 +1,40 @@
 # Pony Club Portal TODO
 
-## Current Work
+## QR Code Check-In & Progress Tracking System
 
-### Acuity Direct Scheduling Integration
-- [x] Add Acuity scheduling link to member dashboard
-- [x] Update "My Lessons" page with booking/rescheduling link
-- [x] Test member experience
+### Database Schema
+- [x] Add QR code field to members table
+- [x] Create goals table (student goals with progress tracking)
+- [x] Update check-ins table to support QR code scanning
+- [x] Add achievements/milestones table (using goals with completed status)
+
+### Backend API
+- [x] Create tRPC endpoints for QR code generation
+- [x] Create tRPC endpoints for QR code scanning
+- [x] Create tRPC endpoints for goals management
+- [x] Create tRPC endpoints for progress tracking
+- [x] Create tRPC endpoints for attendance statistics
+
+### Frontend Pages
+- [x] Build staff QR scanner page (camera-based)
+- [x] Build QR code generator page (printable cards)
+- [x] Build student goals management page
+- [x] Build student dashboard (attendance stats + goals)
+- [x] Add navigation links to new pages
+
+### Testing
+- [ ] Test QR code generation and printing
+- [ ] Test QR code scanning and check-in
+- [ ] Test goals creation and progress tracking
+- [ ] Test student dashboard displays
+- [ ] Print and laminate test QR codes
 
 ## Completed Features
-
-### Acuity Scheduling Integration
+- [x] Acuity scheduling integration
 - [x] Remove Calendly integration
-- [x] Embed Acuity scheduling page (https://doublecrancch.as.me/)
-- [x] Update "Schedule a Lesson" page with Acuity links
-- [x] Test Acuity scheduling in portal
+- [x] Rescheduling instructions card
+- [x] Remove cancellation text
+- [x] Fix check-in button visibility
+- [x] Fix check-in validation
+- [x] Delete button fix for lesson slots
 
-### Bug Fixes
-- [x] Fix delete button in Lesson Slot Management (parameter mismatch)
-
-### Bug Fix
-- [x] Remove Calendly from "Schedule a Lesson" page and replace with Acuity
-
-## Simplify Portal - Use Acuity Exclusively
-- [x] Remove "My Lessons" page from portal
-- [x] Remove "My Lessons" from home page navigation
-- [x] Update "Schedule a Lesson" to be the primary booking page
-- [x] Remove internal lesson booking/management features
-- [x] Clean up unused lesson-related routes
-
-## Remove Schedule a Lesson Page
-- [x] Remove "Schedule a Lesson" card from home page
-- [x] Remove BookLesson page and route
-- [x] Remove BrowseLessons page and route
-- [x] Remove Schedule page and route (if not needed)
-
-## Add Rescheduling Instructions
-- [x] Add informational card/banner about rescheduling via Acuity email
-
-## Fix Check-In Button Visibility
-- [x] Change check-in button to show for all authenticated users (not just complete profiles)
-
-## Fix Check-In Validation Issue
-- [x] Investigate check-in handler that incorrectly requires complete profile
-- [x] Remove or fix overly strict profile validation in check-in
-
-## Update Rescheduling Instructions
-- [x] Remove "cancel your appointment" text from rescheduling card

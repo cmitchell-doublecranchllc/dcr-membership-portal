@@ -55,6 +55,7 @@ export const members = mysqlTable("members", {
   otherCertifications: text("otherCertifications"), // Other non-Pony Club certifications
   ridingGoals: text("ridingGoals"),
   medicalNotes: text("medicalNotes"),
+  qrCode: varchar("qrCode", { length: 128 }), // Unique QR code for check-in
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
@@ -410,3 +411,40 @@ export const onboardingChecklist = mysqlTable("onboardingChecklist", {
 
 export type OnboardingChecklistItem = typeof onboardingChecklist.$inferSelect;
 export type InsertOnboardingChecklistItem = typeof onboardingChecklist.$inferInsert;
+
+/**
+ * Student riding goals with progress tracking
+ */
+export const studentGoals = mysqlTable("studentGoals", {
+  id: int("id").autoincrement().primaryKey(),
+  memberId: int("memberId").notNull(), // Student who set the goal
+  goalTitle: varchar("goalTitle", { length: 255 }).notNull(),
+  goalDescription: text("goalDescription"),
+  category: mysqlEnum("category", ["riding_skill", "horse_care", "competition", "certification", "other"]).default("riding_skill").notNull(),
+  targetDate: timestamp("targetDate"), // Optional target completion date
+  progressPercentage: int("progressPercentage").default(0).notNull(), // 0-100
+  status: mysqlEnum("status", ["active", "completed", "archived"]).default("active").notNull(),
+  completedAt: bigint("completedAt", { mode: "number" }), // Unix timestamp when completed
+  createdBy: int("createdBy").notNull(), // User who created (student or parent)
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+/**
+ * Progress updates on student goals from instructors
+ */
+export const goalProgressUpdates = mysqlTable("goalProgressUpdates", {
+  id: int("id").autoincrement().primaryKey(),
+  goalId: int("goalId").notNull(), // Reference to studentGoals
+  updatedBy: int("updatedBy").notNull(), // Instructor/staff who made the update
+  progressPercentage: int("progressPercentage").notNull(), // New progress value
+  notes: text("notes"), // Instructor notes about progress
+  updateDate: bigint("updateDate", { mode: "number" }).notNull(), // Unix timestamp
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type StudentGoal = typeof studentGoals.$inferSelect;
+export type InsertStudentGoal = typeof studentGoals.$inferInsert;
+
+export type GoalProgressUpdate = typeof goalProgressUpdates.$inferSelect;
+export type InsertGoalProgressUpdate = typeof goalProgressUpdates.$inferInsert;

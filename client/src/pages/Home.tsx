@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { getLoginUrl } from "@/const";
 import { trpc } from "@/lib/trpc";
-import { CheckCircle2, Calendar, FileText, MessageSquare, Users, LogIn } from "lucide-react";
+import { CheckCircle2, Calendar, FileText, MessageSquare, Users, LogIn, Target, TrendingUp } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Link } from "wouter";
@@ -310,6 +310,26 @@ export default function Home() {
                 <Calendar className="h-10 w-10 text-primary mb-2" />
                 <CardTitle>Events</CardTitle>
                 <CardDescription>Competitions & activities</CardDescription>
+              </CardHeader>
+            </Card>
+          </Link>
+
+          <Link href="/my-progress">
+            <Card className="hover:border-primary transition-colors cursor-pointer h-full">
+              <CardHeader>
+                <TrendingUp className="h-8 w-8 text-primary mb-2" />
+                <CardTitle>My Progress</CardTitle>
+                <CardDescription>View attendance & achievements</CardDescription>
+              </CardHeader>
+            </Card>
+          </Link>
+
+          <Link href="/my-goals">
+            <Card className="hover:border-primary transition-colors cursor-pointer h-full">
+              <CardHeader>
+                <Target className="h-8 w-8 text-primary mb-2" />
+                <CardTitle>My Goals</CardTitle>
+                <CardDescription>Track your riding goals</CardDescription>
               </CardHeader>
             </Card>
           </Link>

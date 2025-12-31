@@ -17,7 +17,9 @@ import {
   lessonBookings, InsertLessonBooking,
   progressNotes, InsertProgressNote,
   horses, InsertHorse,
-  memberDocuments
+  memberDocuments,
+  studentGoals,
+  goalProgressUpdates
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
@@ -1182,4 +1184,188 @@ export async function getMemberDocumentById(documentId: number) {
     .where(eq(memberDocuments.id, documentId))
     .limit(1);
   return result.length > 0 ? result[0] : undefined;
+}
+
+// ============ QR Code Functions ============
+
+export async function generateMemberQRCode(memberId: number): Promise<string> {
+  // Generate unique QR code string
+  const qrCode = `PONY-${memberId}-${Date.now().toString(36).toUpperCase()}`;
+  
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  // Update member with QR code
+  await db.update(members).set({ qrCode }).where(eq(members.id, memberId));
+  
+  return qrCode;
+}
+
+export async function getMemberByQRCode(qrCode: string) {
+  const db = await getDb();
+  if (!db) return undefined;
+  
+  const result = await db
+    .select()
+    .from(members)
+    .innerJoin(users, eq(members.userId, users.id))
+    .where(eq(members.qrCode, qrCode))
+    .limit(1);
+  
+  return result[0];
+}
+
+export async function getAllMembersWithQRCodes() {
+  const db = await getDb();
+  if (!db) return [];
+  
+  const result = await db
+    .select()
+    .from(members)
+    .innerJoin(users, eq(members.userId, users.id))
+    .where(sql`${members.qrCode} IS NOT NULL`)
+    .orderBy(users.name);
+  
+  return result;
+}
+
+// ============ Student Goals Functions ============
+
+export async function createStudentGoal(goal: {
+  memberId: number;
+  goalTitle: string;
+  goalDescription?: string;
+  category?: "riding_skill" | "horse_care" | "competition" | "certification" | "other";
+  targetDate?: Date;
+  createdBy: number;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const result = await db.insert(studentGoals).values({
+    ...goal,
+    progressPercentage: 0,
+    status: "active",
+  });
+  
+  return result[0].insertId;
+}
+
+export async function getStudentGoals(memberId: number, status?: "active" | "completed" | "archived") {
+  const db = await getDb();
+  if (!db) return [];
+  
+  const conditions = [eq(studentGoals.memberId, memberId)];
+  if (status) {
+    conditions.push(eq(studentGoals.status, status));
+  }
+  
+  return await db
+    .select()
+    .from(studentGoals)
+    .where(and(...conditions))
+    .orderBy(desc(studentGoals.createdAt));
+}
+
+export async function updateGoalProgress(
+  goalId: number,
+  progressPercentage: number,
+  updatedBy: number,
+  notes?: string
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  // Update the goal
+  const updates: any = { progressPercentage };
+  if (progressPercentage >= 100) {
+    updates.status = "completed";
+    updates.completedAt = Date.now();
+  }
+  
+  await db.update(studentGoals).set(updates).where(eq(studentGoals.id, goalId));
+  
+  // Record the progress update
+  await db.insert(goalProgressUpdates).values({
+    goalId,
+    updatedBy,
+    progressPercentage,
+    notes,
+    updateDate: Date.now(),
+  });
+}
+
+export async function getGoalProgressHistory(goalId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return await db
+    .select()
+    .from(goalProgressUpdates)
+    .innerJoin(users, eq(goalProgressUpdates.updatedBy, users.id))
+    .where(eq(goalProgressUpdates.goalId, goalId))
+    .orderBy(desc(goalProgressUpdates.updateDate));
+}
+
+export async function deleteStudentGoal(goalId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  // Delete progress updates first
+  await db.delete(goalProgressUpdates).where(eq(goalProgressUpdates.goalId, goalId));
+  
+  // Delete the goal
+  await db.delete(studentGoals).where(eq(studentGoals.id, goalId));
+}
+
+export async function getStudentAttendanceStats(memberId: number) {
+  const db = await getDb();
+  if (!db) return { total: 0, thisMonth: 0, streak: 0 };
+  
+  // Total check-ins
+  const totalResult = await db
+    .select({ count: sql`COUNT(*)` })
+    .from(checkIns)
+    .where(eq(checkIns.memberId, memberId));
+  
+  const total = Number(totalResult[0]?.count || 0);
+  
+  // This month check-ins
+  const now = new Date();
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+  const monthResult = await db
+    .select({ count: sql`COUNT(*)` })
+    .from(checkIns)
+    .where(and(
+      eq(checkIns.memberId, memberId),
+      gte(checkIns.checkInTime, monthStart)
+    ));
+  
+  const thisMonth = Number(monthResult[0]?.count || 0);
+  
+  // Calculate streak (consecutive weeks with at least one check-in)
+  const recentCheckIns = await db
+    .select()
+    .from(checkIns)
+    .where(eq(checkIns.memberId, memberId))
+    .orderBy(desc(checkIns.checkInTime))
+    .limit(100);
+  
+  let streak = 0;
+  const weekMs = 7 * 24 * 60 * 60 * 1000;
+  let currentWeekStart = new Date(now.getFullYear(), now.getMonth(), now.getDate() - now.getDay()).getTime();
+  
+  for (const checkIn of recentCheckIns) {
+    const checkInWeekStart = new Date(new Date(checkIn.checkInTime).setHours(0, 0, 0, 0));
+    checkInWeekStart.setDate(checkInWeekStart.getDate() - checkInWeekStart.getDay());
+    
+    if (checkInWeekStart.getTime() === currentWeekStart) {
+      streak++;
+      currentWeekStart -= weekMs;
+    } else if (checkInWeekStart.getTime() < currentWeekStart) {
+      break;
+    }
+  }
+  
+  return { total, thisMonth, streak };
 }
