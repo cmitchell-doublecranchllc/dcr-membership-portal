@@ -27,3 +27,9 @@
 - [x] Update "Schedule a Lesson" to be the primary booking page
 - [x] Remove internal lesson booking/management features
 - [x] Clean up unused lesson-related routes
+
+## Remove Schedule a Lesson Page
+- [x] Remove "Schedule a Lesson" card from home page
+- [x] Remove BookLesson page and route
+- [x] Remove BrowseLessons page and route
+- [x] Remove Schedule page and route (if not needed)
