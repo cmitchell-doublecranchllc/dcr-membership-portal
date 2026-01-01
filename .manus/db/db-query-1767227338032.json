@@ -1,0 +1,30 @@
+{
+  "query": "SELECT \n  u.id as user_id, \n  u.name as user_name, \n  u.email, \n  u.role,\n  u.accountStatus,\n  m.id as member_id, \n  m.membershipTier,\n  m.userId as member_userId\nFROM users u \nLEFT JOIN members m ON u.id = m.userId \nWHERE u.name = 'doublecranch2015' OR u.email LIKE '%doublecranch2015%';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2HuJQ2ACAAzqLGn.root --database SMbEjvRKS9YWLQQQ74RCcL --execute SELECT \n  u.id as user_id, \n  u.name as user_name, \n  u.email, \n  u.role,\n  u.accountStatus,\n  m.id as member_id, \n  m.membershipTier,\n  m.userId as member_userId\nFROM users u \nLEFT JOIN members m ON u.id = m.userId \nWHERE u.name = 'doublecranch2015' OR u.email LIKE '%doublecranch2015%';",
+  "rows": [
+    {
+      "user_id": "240107",
+      "user_name": "Test Test ",
+      "email": "doublecranch2015@gmail.com",
+      "role": "user",
+      "accountStatus": "approved",
+      "member_id": "90001",
+      "membershipTier": "gold",
+      "member_userId": "240107"
+    },
+    {
+      "user_id": "240122",
+      "user_name": "doublecranch2015",
+      "email": "doublecranch2015@gmail.com",
+      "role": "user",
+      "accountStatus": "approved",
+      "member_id": "NULL",
+      "membershipTier": "NULL",
+      "member_userId": "NULL"
+    }
+  ],
+  "messages": [],
+  "stdout": "user_id\tuser_name\temail\trole\taccountStatus\tmember_id\tmembershipTier\tmember_userId\n240107\tTest Test \tdoublecranch2015@gmail.com\tuser\tapproved\t90001\tgold\t240107\n240122\tdoublecranch2015\tdoublecranch2015@gmail.com\tuser\tapproved\tNULL\tNULL\tNULL\n",
+  "stderr": "",
+  "execution_time_ms": 58
+}

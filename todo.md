@@ -116,3 +116,11 @@
 - [x] Add on-site confirmation prompt to CHECK IN button
 - [ ] Fix all TypeScript errors to achieve exit code 0 (REQUIRED)
 - [ ] Test end-to-end: student check-in → pending → staff approve → attendance visible
+
+## User Management
+- [x] Add User Management page to Staff Dashboard
+- [x] List all users with name, email, role, account status
+- [x] Add delete button for each user
+- [x] Backend endpoint to delete user and all related data
+- [x] Confirmation dialog before deletion
+- [x] Add delete button to Student Profiles page (/staff/students)

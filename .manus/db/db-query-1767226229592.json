@@ -1,0 +1,58 @@
+{
+  "query": "SELECT u.id, u.name, u.email, u.role, m.id as member_id, m.membershipTier \nFROM users u \nLEFT JOIN members m ON u.id = m.userId \nORDER BY u.createdAt DESC \nLIMIT 10;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2HuJQ2ACAAzqLGn.root --database SMbEjvRKS9YWLQQQ74RCcL --execute SELECT u.id, u.name, u.email, u.role, m.id as member_id, m.membershipTier \nFROM users u \nLEFT JOIN members m ON u.id = m.userId \nORDER BY u.createdAt DESC \nLIMIT 10;",
+  "rows": [
+    {
+      "id": "540008",
+      "name": "CHRISTINE MITCHELL",
+      "email": "support@doublecranchllc.com",
+      "role": "user",
+      "member_id": "NULL",
+      "membershipTier": "NULL"
+    },
+    {
+      "id": "270122",
+      "name": "bettiegford",
+      "email": "bettiegford@gmail.com",
+      "role": "user",
+      "member_id": "NULL",
+      "membershipTier": "NULL"
+    },
+    {
+      "id": "270100",
+      "name": "Ava Winter",
+      "email": "bettiegford@gmail.com",
+      "role": "user",
+      "member_id": "120001",
+      "membershipTier": "gold"
+    },
+    {
+      "id": "240122",
+      "name": "doublecranch2015",
+      "email": "doublecranch2015@gmail.com",
+      "role": "user",
+      "member_id": "NULL",
+      "membershipTier": "NULL"
+    },
+    {
+      "id": "240107",
+      "name": "Test Test ",
+      "email": "doublecranch2015@gmail.com",
+      "role": "user",
+      "member_id": "90001",
+      "membershipTier": "gold"
+    },
+    {
+      "id": "1",
+      "name": "Christine Mitchell",
+      "email": "c.mitchell@doublecranchllc.com",
+      "role": "admin",
+      "member_id": "NULL",
+      "membershipTier": "NULL"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\temail\trole\tmember_id\tmembershipTier\n540008\tCHRISTINE MITCHELL\tsupport@doublecranchllc.com\tuser\tNULL\tNULL\n270122\tbettiegford\tbettiegford@gmail.com\tuser\tNULL\tNULL\n270100\tAva Winter\tbettiegford@gmail.com\tuser\t120001\tgold\n240122\tdoublecranch2015\tdoublecranch2015@gmail.com\tuser\tNULL\tNULL\n240107\tTest Test \tdoublecranch2015@gmail.com\tuser\t90001\tgold\n1\tChristine Mitchell\tc.mitchell@doublecranchllc.com\tadmin\tNULL\tNULL\n",
+  "stderr": "",
+  "execution_time_ms": 113
+}

@@ -18,8 +18,11 @@ export default function Home() {
   
   const [isCheckingIn, setIsCheckingIn] = useState(false);
   const checkInMutation = trpc.checkIns.checkIn.useMutation();
+  const { data: eligibility } = trpc.checkIns.checkEligibility.useQuery(undefined, { enabled: isAuthenticated });
 
   const handleCheckIn = async () => {
+    console.log('[CHECK-IN] Eligibility check:', eligibility);
+    
     // Confirm the user is on-site
     const confirmed = window.confirm(
       "Are you currently at the facility?\n\nPlease only check in if you are physically present on-site. Your check-in will be pending until verified by staff."
@@ -39,8 +42,10 @@ export default function Home() {
         description: "Your check-in is pending staff verification.",
       });
     } catch (error: any) {
+      console.error('[CHECK-IN ERROR]', error);
+      const errorMessage = error?.message || error?.data?.message || error?.shape?.message || "Unknown error";
       toast.error("Failed to check in", {
-        description: error?.message || "Please try again or contact staff",
+        description: errorMessage,
       });
     } finally {
       setIsCheckingIn(false);
@@ -128,30 +133,10 @@ export default function Home() {
 
             <Card className="border-2 hover:border-primary/50 transition-colors">
               <CardHeader>
-                <Calendar className="h-10 w-10 text-primary mb-2" />
-                <CardTitle>Lesson Schedule</CardTitle>
-                <CardDescription>
-                  View your upcoming lessons and appointments
-                </CardDescription>
-              </CardHeader>
-            </Card>
-
-            <Card className="border-2 hover:border-primary/50 transition-colors">
-              <CardHeader>
                 <MessageSquare className="h-10 w-10 text-primary mb-2" />
                 <CardTitle>Communication</CardTitle>
                 <CardDescription>
                   Message staff and receive important announcements
-                </CardDescription>
-              </CardHeader>
-            </Card>
-
-            <Card className="border-2 hover:border-primary/50 transition-colors">
-              <CardHeader>
-                <Users className="h-10 w-10 text-primary mb-2" />
-                <CardTitle>Family Management</CardTitle>
-                <CardDescription>
-                  Manage profiles for all family members
                 </CardDescription>
               </CardHeader>
             </Card>

@@ -1,0 +1,30 @@
+{
+  "query": "SELECT u.id, u.openId, u.name, u.email, u.accountStatus, u.role, m.id as member_id, m.membershipTier\nFROM users u \nLEFT JOIN members m ON u.id = m.userId \nWHERE u.email LIKE 'support@%';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2HuJQ2ACAAzqLGn.root --database SMbEjvRKS9YWLQQQ74RCcL --execute SELECT u.id, u.openId, u.name, u.email, u.accountStatus, u.role, m.id as member_id, m.membershipTier\nFROM users u \nLEFT JOIN members m ON u.id = m.userId \nWHERE u.email LIKE 'support@%';",
+  "rows": [
+    {
+      "id": "600811",
+      "openId": "signup_1767229206092_1elxxfffs",
+      "name": "Christine Mitchell",
+      "email": "support@doublecranchllc.com",
+      "accountStatus": "approved",
+      "role": "user",
+      "member_id": "150003",
+      "membershipTier": "bronze"
+    },
+    {
+      "id": "600806",
+      "openId": "98jzaWtETmm4dQ9SHyJRk6",
+      "name": "CHRISTINE MITCHELL",
+      "email": "support@doublecranchllc.com",
+      "accountStatus": "approved",
+      "role": "user",
+      "member_id": "NULL",
+      "membershipTier": "NULL"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\topenId\tname\temail\taccountStatus\trole\tmember_id\tmembershipTier\n600811\tsignup_1767229206092_1elxxfffs\tChristine Mitchell\tsupport@doublecranchllc.com\tapproved\tuser\t150003\tbronze\n600806\t98jzaWtETmm4dQ9SHyJRk6\tCHRISTINE MITCHELL\tsupport@doublecranchllc.com\tapproved\tuser\tNULL\tNULL\n",
+  "stderr": "",
+  "execution_time_ms": 56
+}

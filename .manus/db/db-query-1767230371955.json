@@ -1,0 +1,9 @@
+{
+  "query": "INSERT INTO members (userId, membershipTier)\nSELECT u.id, 'bronze'\nFROM users u\nLEFT JOIN members m ON u.id = m.userId\nWHERE u.email LIKE 'support@%' AND m.id IS NULL;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2HuJQ2ACAAzqLGn.root --database SMbEjvRKS9YWLQQQ74RCcL --execute INSERT INTO members (userId, membershipTier)\nSELECT u.id, 'bronze'\nFROM users u\nLEFT JOIN members m ON u.id = m.userId\nWHERE u.email LIKE 'support@%' AND m.id IS NULL;",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 51
+}

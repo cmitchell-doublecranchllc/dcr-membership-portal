@@ -1,0 +1,31 @@
+{
+  "query": "SELECT u.id, u.name, u.email, m.id as member_id, m.membershipTier FROM users u LEFT JOIN members m ON u.id = m.userId WHERE u.name = 'doublecranch2015' OR u.email LIKE '%doublecranch%';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2HuJQ2ACAAzqLGn.root --database SMbEjvRKS9YWLQQQ74RCcL --execute SELECT u.id, u.name, u.email, m.id as member_id, m.membershipTier FROM users u LEFT JOIN members m ON u.id = m.userId WHERE u.name = 'doublecranch2015' OR u.email LIKE '%doublecranch%';",
+  "rows": [
+    {
+      "id": "1",
+      "name": "Christine Mitchell",
+      "email": "c.mitchell@doublecranchllc.com",
+      "member_id": "150004",
+      "membershipTier": "bronze"
+    },
+    {
+      "id": "600990",
+      "name": "Christine Mitchell",
+      "email": "doublecranch2015@gmail.com",
+      "member_id": "150010",
+      "membershipTier": "gold"
+    },
+    {
+      "id": "600991",
+      "name": "doublecranch2015",
+      "email": "doublecranch2015@gmail.com",
+      "member_id": "NULL",
+      "membershipTier": "NULL"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\temail\tmember_id\tmembershipTier\n1\tChristine Mitchell\tc.mitchell@doublecranchllc.com\t150004\tbronze\n600990\tChristine Mitchell\tdoublecranch2015@gmail.com\t150010\tgold\n600991\tdoublecranch2015\tdoublecranch2015@gmail.com\tNULL\tNULL\n",
+  "stderr": "",
+  "execution_time_ms": 52
+}

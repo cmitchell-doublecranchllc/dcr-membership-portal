@@ -95,6 +95,12 @@ export default function StaffDashboard() {
                   Pending Check-Ins
                 </Button>
               </Link>
+              <Link href="/staff/users">
+                <Button variant="outline">
+                  <Settings className="mr-2 h-4 w-4" />
+                  User Management
+                </Button>
+              </Link>
             </div>
           }
         />
@@ -155,7 +161,7 @@ export default function StaffDashboard() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid gap-4 md:grid-cols-3">
               <Link href="/staff/pending-checkins">
                 <Button className="w-full h-24 flex flex-col gap-2 bg-orange-600 hover:bg-orange-700">
                   <Clock className="h-8 w-8" />
@@ -168,6 +174,13 @@ export default function StaffDashboard() {
                   <CheckCircle className="h-8 w-8" />
                   <span className="text-lg font-semibold">Attendance Log</span>
                   <span className="text-xs opacity-90">View attendance history</span>
+                </Button>
+              </Link>
+              <Link href="/staff/users">
+                <Button className="w-full h-24 flex flex-col gap-2" variant="outline">
+                  <Users className="h-8 w-8" />
+                  <span className="text-lg font-semibold">User Management</span>
+                  <span className="text-xs opacity-90">Manage users and profiles</span>
                 </Button>
               </Link>
             </div>

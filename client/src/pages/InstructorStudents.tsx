@@ -16,13 +16,16 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search, Award, FileText, Target, Heart, Phone, Calendar, ArrowLeft } from "lucide-react";
+import { Search, Award, FileText, Target, Heart, Phone, Calendar, ArrowLeft, Trash2 } from "lucide-react";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
 import { Link } from "wouter";
 
 export default function InstructorStudents() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedStudent, setSelectedStudent] = useState<any>(null);
   const [editingStudent, setEditingStudent] = useState<any>(null);
+  const [userToDelete, setUserToDelete] = useState<number | null>(null);
   const [editForm, setEditForm] = useState({
     horseManagementLevel: "" as "d1" | "d2" | "d3" | "c1" | "c2" | "c3" | "hb" | "ha" | "",
     ridingCertifications: "",
@@ -31,9 +34,10 @@ export default function InstructorStudents() {
     medicalNotes: "",
   });
 
-  const { data: students, isLoading } = trpc.members.getAllStudentsWithRidingInfo.useQuery();
+  const { data: students, isLoading, refetch } = trpc.members.getAllStudentsWithRidingInfo.useQuery();
   // const updateRidingInfoMutation = trpc.profile.updateRidingInfo.useMutation();
   const updateRidingInfoMutation = { mutateAsync: async () => {}, isPending: false } as any;
+  const deleteUserMutation = trpc.admin.deleteUser.useMutation();
 
   const handleEdit = (student: any) => {
     setEditingStudent(student);
@@ -44,6 +48,19 @@ export default function InstructorStudents() {
       ridingGoals: student.ridingGoals || "",
       medicalNotes: student.medicalNotes || "",
     });
+  };
+
+  const handleDelete = async () => {
+    if (!userToDelete) return;
+
+    try {
+      await deleteUserMutation.mutateAsync({ userId: userToDelete });
+      toast.success('User deleted successfully');
+      refetch();
+      setUserToDelete(null);
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to delete user');
+    }
   };
 
   const handleSave = async () => {
@@ -227,6 +244,14 @@ export default function InstructorStudents() {
                             onClick={() => handleEdit(student)}
                           >
                             Edit
+                          </Button>
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => setUserToDelete(student.userId)}
+                            disabled={deleteUserMutation.isPending}
+                          >
+                            <Trash2 className="w-4 h-4" />
                           </Button>
                         </div>
                       </TableCell>
@@ -475,6 +500,33 @@ export default function InstructorStudents() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={userToDelete !== null} onOpenChange={() => setUserToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the user account
+              and all associated data including:
+              <ul className="list-disc list-inside mt-2 space-y-1">
+                <li>Member profile</li>
+                <li>Check-in history</li>
+                <li>All related records</li>
+              </ul>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete User
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

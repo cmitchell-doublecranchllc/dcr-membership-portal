@@ -1,0 +1,16 @@
+{
+  "query": "SELECT u.id as user_id, u.name, m.id as member_id, m.membershipTier \nFROM users u \nLEFT JOIN members m ON u.id = m.userId \nWHERE u.name = 'doublecranch2015';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2HuJQ2ACAAzqLGn.root --database SMbEjvRKS9YWLQQQ74RCcL --execute SELECT u.id as user_id, u.name, m.id as member_id, m.membershipTier \nFROM users u \nLEFT JOIN members m ON u.id = m.userId \nWHERE u.name = 'doublecranch2015';",
+  "rows": [
+    {
+      "user_id": "240122",
+      "name": "doublecranch2015",
+      "member_id": "150001",
+      "membershipTier": "bronze"
+    }
+  ],
+  "messages": [],
+  "stdout": "user_id\tname\tmember_id\tmembershipTier\n240122\tdoublecranch2015\t150001\tbronze\n",
+  "stderr": "",
+  "execution_time_ms": 57
+}

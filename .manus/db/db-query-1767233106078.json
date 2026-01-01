@@ -1,0 +1,24 @@
+{
+  "query": "SELECT id, email, name, accountStatus, createdAt\nFROM users\nWHERE email IN (\n  SELECT email \n  FROM users \n  WHERE email IS NOT NULL\n  GROUP BY email \n  HAVING COUNT(*) > 1\n)\nORDER BY email, createdAt;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2HuJQ2ACAAzqLGn.root --database SMbEjvRKS9YWLQQQ74RCcL --execute SELECT id, email, name, accountStatus, createdAt\nFROM users\nWHERE email IN (\n  SELECT email \n  FROM users \n  WHERE email IS NOT NULL\n  GROUP BY email \n  HAVING COUNT(*) > 1\n)\nORDER BY email, createdAt;",
+  "rows": [
+    {
+      "id": "270100",
+      "email": "bettiegford@gmail.com",
+      "name": "Ava Winter",
+      "accountStatus": "approved",
+      "createdAt": "2025-12-28 00:45:41"
+    },
+    {
+      "id": "270122",
+      "email": "bettiegford@gmail.com",
+      "name": "bettiegford",
+      "accountStatus": "approved",
+      "createdAt": "2025-12-28 00:47:26"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\temail\tname\taccountStatus\tcreatedAt\n270100\tbettiegford@gmail.com\tAva Winter\tapproved\t2025-12-28 00:45:41\n270122\tbettiegford@gmail.com\tbettiegford\tapproved\t2025-12-28 00:47:26\n",
+  "stderr": "",
+  "execution_time_ms": 61
+}

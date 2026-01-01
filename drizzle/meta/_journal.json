@@ -64,6 +64,13 @@
       "when": 1767211086405,
       "tag": "0008_fixed_jackpot",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "5",
+      "when": 1767233121783,
+      "tag": "0009_cute_wolverine",
+      "breakpoints": true
     }
   ]
 }

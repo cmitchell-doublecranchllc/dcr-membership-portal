@@ -1,0 +1,9 @@
+{
+  "query": "INSERT INTO members (userId, membershipTier, isChild, photoConsent, smsConsent, liabilityWaiverSigned) SELECT u.id, 'bronze', false, false, false, false FROM users u LEFT JOIN members m ON u.id = m.userId WHERE (u.name = 'doublecranch2015' OR u.email LIKE '%doublecranch%') AND m.id IS NULL;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2HuJQ2ACAAzqLGn.root --database SMbEjvRKS9YWLQQQ74RCcL --execute INSERT INTO members (userId, membershipTier, isChild, photoConsent, smsConsent, liabilityWaiverSigned) SELECT u.id, 'bronze', false, false, false, false FROM users u LEFT JOIN members m ON u.id = m.userId WHERE (u.name = 'doublecranch2015' OR u.email LIKE '%doublecranch%') AND m.id IS NULL;",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 59
+}

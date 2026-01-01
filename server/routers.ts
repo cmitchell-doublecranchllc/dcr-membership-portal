@@ -222,6 +222,25 @@ export const appRouter = router({
   }),
 
   checkIns: router({
+    // Diagnostic: Check if user can check in
+    checkEligibility: protectedProcedure.query(async ({ ctx }) => {
+      try {
+        const member = await db.getMemberByUserId(ctx.user.id);
+        return {
+          canCheckIn: !!member,
+          user: { id: ctx.user.id, name: ctx.user.name, email: ctx.user.email, role: ctx.user.role },
+          member: member ? { id: member.id, tier: member.membershipTier } : null,
+          message: member ? 'Ready to check in' : 'No member profile found'
+        };
+      } catch (error: any) {
+        return {
+          canCheckIn: false,
+          error: error.message,
+          stack: error.stack
+        };
+      }
+    }),
+
     // Member checks in
     checkIn: protectedProcedure
       .input(z.object({
@@ -231,48 +250,103 @@ export const appRouter = router({
         program: z.enum(['lesson', 'horse_management', 'camp', 'pony_club', 'event', 'other']).default('lesson'),
       }))
       .mutation(async ({ ctx, input }) => {
-        const member = await db.getMemberByUserId(ctx.user.id);
-        if (!member) {
-          throw new TRPCError({ code: 'NOT_FOUND', message: 'Member profile not found' });
-        }
+        const requestId = `CHK-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        try {
+          console.log(`[${requestId}] ========== NEW CHECK-IN ATTEMPT ==========`);
+          console.log(`[${requestId}] Session user:`, { userId: ctx.user.id, name: ctx.user.name, email: ctx.user.email });
+          console.log(`[${requestId}] Input payload:`, JSON.stringify(input));
+          
+          console.log(`[${requestId}] Calling db.getMemberByUserId(${ctx.user.id})`);
+          let member = await db.getMemberByUserId(ctx.user.id);
+          console.log(`[${requestId}] Member lookup result:`, member ? { memberId: member.id, tier: member.membershipTier, userId: member.userId } : 'NULL');
+          
+          // Auto-create basic member profile if missing
+          if (!member) {
+            console.log(`[${requestId}] AUTO-CREATE: Starting for userId=${ctx.user.id}`);
+            try {
+              const memberId = await db.createMember({
+                userId: ctx.user.id,
+                membershipTier: 'bronze',
+                // Let database defaults handle: isChild, photoConsent, smsConsent, liabilityWaiverSigned
+                // Optional fields can be null/undefined
+              });
+              console.log(`[${requestId}] AUTO-CREATE: db.createMember returned memberId=${memberId}`);
+              member = await db.getMemberById(memberId);
+              console.log(`[${requestId}] AUTO-CREATE: db.getMemberById returned:`, member);
+            } catch (createError: any) {
+              console.error(`[${requestId}] AUTO-CREATE FAILED:`, createError.message, createError.stack);
+              throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: `Failed to create member profile: ${createError.message}. RequestID: ${requestId}` });
+            }
+          }
+          
+          if (!member) {
+            console.error(`[${requestId}] FATAL: member is still null after auto-create attempt`);
+            throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: `Member profile could not be created. RequestID: ${requestId}` });
+          }
 
-        const targetMemberId = input.memberId || member.id;
+          const targetMemberId = input.memberId || member.id;
+          console.log(`[${requestId}] Target memberId: ${targetMemberId}`);
+          
+          // Verify parent can check in this child
+          if (input.memberId) {
+            console.log(`[${requestId}] Parent check-in: verifying child memberId=${input.memberId}`);
+            const child = await db.getMemberById(input.memberId);
+            if (!child || child.parentId !== member.id) {
+              throw new TRPCError({ code: 'FORBIDDEN', message: `Cannot check in this member. RequestID: ${requestId}` });
+            }
+          }
+
+          // Duplicate check-in protection (15 minute window)
+          console.log(`[${requestId}] Checking for duplicate check-ins`);
+          const DUPLICATE_WINDOW_MS = 15 * 60 * 1000;
+          const recentCheckIns = await db.getCheckInsByMemberId(targetMemberId);
+          console.log(`[${requestId}] Found ${recentCheckIns.length} recent check-ins`);
+          const recentCheckIn = recentCheckIns.find(
+            (ci) => ci.checkInTime > Date.now() - DUPLICATE_WINDOW_MS
+          );
+          
+          if (recentCheckIn) {
+            const minutesAgo = Math.floor((Date.now() - recentCheckIn.checkInTime) / 60000);
+            throw new TRPCError({ 
+              code: 'BAD_REQUEST', 
+              message: `Already checked in ${minutesAgo} minute(s) ago. RequestID: ${requestId}` 
+            });
+          }
+
+          const checkInData = {
+            memberId: targetMemberId,
+            checkedInBy: ctx.user.id,
+            checkInTime: Date.now(),
+            checkInType: input.checkInType,
+            source: 'student_self' as const,
+            program: input.program,
+            status: 'pending' as const,
+            notes: input.notes,
+          };
+          console.log(`[${requestId}] Calling db.createCheckIn with:`, JSON.stringify(checkInData));
+          
+          await db.createCheckIn(checkInData);
+          console.log(`[${requestId}] ✓ Check-in created successfully`);
+
+          return { success: true, checkInTime: Date.now() };
+      } catch (error: any) {
+        console.error(`[${requestId}] ========== ERROR ==========`);
+        console.error(`[${requestId}] Error type:`, error.constructor.name);
+        console.error(`[${requestId}] Error message:`, error.message);
+        console.error(`[${requestId}] Error code:`, error.code);
+        console.error(`[${requestId}] Error stack:`, error.stack);
         
-        // Verify parent can check in this child
-        if (input.memberId) {
-          const child = await db.getMemberById(input.memberId);
-          if (!child || child.parentId !== member.id) {
-            throw new TRPCError({ code: 'FORBIDDEN', message: 'Cannot check in this member' });
+        // Re-throw with requestId if not already included
+        if (error instanceof TRPCError) {
+          if (!error.message.includes('RequestID')) {
+            throw new TRPCError({ 
+              code: error.code, 
+              message: `${error.message}. RequestID: ${requestId}` 
+            });
           }
         }
-
-        // Duplicate check-in protection (15 minute window)
-        const DUPLICATE_WINDOW_MS = 15 * 60 * 1000; // 15 minutes
-        const recentCheckIns = await db.getCheckInsByMemberId(targetMemberId);
-        const recentCheckIn = recentCheckIns.find(
-          (ci) => ci.checkInTime > Date.now() - DUPLICATE_WINDOW_MS
-        );
-        
-        if (recentCheckIn) {
-          const minutesAgo = Math.floor((Date.now() - recentCheckIn.checkInTime) / 60000);
-          throw new TRPCError({ 
-            code: 'BAD_REQUEST', 
-            message: `Already checked in ${minutesAgo} minute(s) ago` 
-          });
-        }
-
-        await db.createCheckIn({
-          memberId: targetMemberId,
-          checkedInBy: ctx.user.id,
-          checkInTime: Date.now(),
-          checkInType: input.checkInType,
-          source: 'student_self',
-          program: input.program,
-          status: 'pending', // Requires staff verification
-          notes: input.notes,
-        });
-
-        return { success: true, checkInTime: Date.now() };
+        throw error;
+      }
       }),
 
     // Get my check-in history
@@ -1623,6 +1697,12 @@ export const appRouter = router({
         return { success: true };
       }),
 
+    // Get all users
+    getAllUsers: adminProcedure.query(async () => {
+      const users = await db.getAllUsers();
+      return users;
+    }),
+
     // Delete a user (and their member profile)
     deleteUser: adminProcedure
       .input(z.object({
@@ -1635,9 +1715,36 @@ export const appRouter = router({
         }
 
         // Delete user and member records
-        await db.deleteUserAndMember(input.userId);
+        await db.deleteUser(input.userId);
 
         return { success: true };
+      }),
+
+    // Create member profile for a user
+    createMemberProfile: adminProcedure
+      .input(z.object({
+        userId: z.number(),
+        membershipTier: z.enum(['bronze', 'silver', 'gold']).default('bronze'),
+      }))
+      .mutation(async ({ input }) => {
+        const user = await db.getUserById(input.userId);
+        if (!user) {
+          throw new TRPCError({ code: 'NOT_FOUND', message: 'User not found' });
+        }
+
+        // Check if member profile already exists
+        const existingMember = await db.getMemberByUserId(input.userId);
+        if (existingMember) {
+          throw new TRPCError({ code: 'CONFLICT', message: 'Member profile already exists' });
+        }
+
+        // Create member profile
+        const memberId = await db.createMember({
+          userId: input.userId,
+          membershipTier: input.membershipTier,
+        });
+
+        return { success: true, memberId };
       }),
   }),
 

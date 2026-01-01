@@ -25,6 +25,7 @@ import InstructorStudents from "./pages/InstructorStudents";
 import PendingApproval from "./pages/PendingApproval";
 import StaffPendingMembers from "./pages/StaffPendingMembers";
 import StaffPendingCheckIns from "./pages/StaffPendingCheckIns";
+import StaffUserManagement from "./pages/StaffUserManagement";
 import Signup from "./pages/Signup";
 import Documents from "./pages/Documents";
 
@@ -58,6 +59,7 @@ function Router() {
       <Route path="/staff/students" component={InstructorStudents} />
       <Route path="/staff/pending-members" component={StaffPendingMembers} />
       <Route path="/staff/pending-checkins" component={StaffPendingCheckIns} />
+      <Route path="/staff/users" component={StaffUserManagement} />
 
 
 

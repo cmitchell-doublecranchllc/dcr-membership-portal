@@ -1,0 +1,9 @@
+{
+  "query": "DELETE members FROM members \nINNER JOIN users ON members.userId = users.id \nWHERE users.name = 'doublecranch2015' OR users.email = 'support@doublecranchllc.com';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2HuJQ2ACAAzqLGn.root --database SMbEjvRKS9YWLQQQ74RCcL --execute DELETE members FROM members \nINNER JOIN users ON members.userId = users.id \nWHERE users.name = 'doublecranch2015' OR users.email = 'support@doublecranchllc.com';",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 68
+}

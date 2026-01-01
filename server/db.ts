@@ -101,6 +101,28 @@ export async function upsertUser(user: InsertUser): Promise<void> {
     await db.insert(users).values(values).onDuplicateKeyUpdate({
       set: updateSet,
     });
+
+    // Auto-create member profile if it doesn't exist
+    console.log(`[upsertUser] Checking for member profile for openId: ${user.openId}`);
+    const userRecord = await getUserByOpenId(user.openId);
+    console.log(`[upsertUser] User record found:`, userRecord ? `id=${userRecord.id}` : 'null');
+    if (userRecord) {
+      const existingMember = await getMemberByUserId(userRecord.id);
+      console.log(`[upsertUser] Existing member:`, existingMember ? `id=${existingMember.id}` : 'null');
+      if (!existingMember) {
+        console.log(`[upsertUser] AUTO-CREATE TRIGGERED for user ${userRecord.id}`);
+        try {
+          await createMember({
+            userId: userRecord.id,
+            membershipTier: 'bronze',
+          });
+          console.log(`[upsertUser] ✅ Member profile created successfully for user ${userRecord.id}`);
+        } catch (memberError) {
+          console.error(`[upsertUser] ❌ Failed to auto-create member profile:`, memberError);
+          // Don't throw - user creation succeeded, member creation is optional
+        }
+      }
+    }
   } catch (error) {
     console.error("[Database] Failed to upsert user:", error);
     throw error;
@@ -123,6 +145,25 @@ export async function getUserById(id: number) {
   if (!db) return undefined;
   const result = await db.select().from(users).where(eq(users.id, id)).limit(1);
   return result.length > 0 ? result[0] : undefined;
+}
+
+export async function getAllUsers() {
+  const db = await getDb();
+  if (!db) return [];
+  const result = await db.select().from(users).orderBy(users.createdAt);
+  return result;
+}
+
+export async function deleteUser(userId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  // Delete in order: member-related data first, then member, then user
+  await db.delete(checkIns).where(eq(checkIns.memberId, userId));
+  await db.delete(members).where(eq(members.userId, userId));
+  await db.delete(users).where(eq(users.id, userId));
+  
+  return { success: true };
 }
 
 export async function createUser(user: { email: string; name: string; accountStatus: string; role: string }) {

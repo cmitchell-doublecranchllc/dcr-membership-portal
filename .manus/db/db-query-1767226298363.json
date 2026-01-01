@@ -1,0 +1,50 @@
+{
+  "query": "SELECT u.id, u.name, u.email, u.role, u.accountStatus, m.id as member_id, m.membershipTier, m.userId \nFROM users u \nLEFT JOIN members m ON u.id = m.userId \nWHERE u.name LIKE '%doublecranch%' OR u.email LIKE '%doublecranch%';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2HuJQ2ACAAzqLGn.root --database SMbEjvRKS9YWLQQQ74RCcL --execute SELECT u.id, u.name, u.email, u.role, u.accountStatus, m.id as member_id, m.membershipTier, m.userId \nFROM users u \nLEFT JOIN members m ON u.id = m.userId \nWHERE u.name LIKE '%doublecranch%' OR u.email LIKE '%doublecranch%';",
+  "rows": [
+    {
+      "id": "1",
+      "name": "Christine Mitchell",
+      "email": "c.mitchell@doublecranchllc.com",
+      "role": "admin",
+      "accountStatus": "approved",
+      "member_id": "NULL",
+      "membershipTier": "NULL",
+      "userId": "NULL"
+    },
+    {
+      "id": "240107",
+      "name": "Test Test ",
+      "email": "doublecranch2015@gmail.com",
+      "role": "user",
+      "accountStatus": "approved",
+      "member_id": "90001",
+      "membershipTier": "gold",
+      "userId": "240107"
+    },
+    {
+      "id": "240122",
+      "name": "doublecranch2015",
+      "email": "doublecranch2015@gmail.com",
+      "role": "user",
+      "accountStatus": "approved",
+      "member_id": "NULL",
+      "membershipTier": "NULL",
+      "userId": "NULL"
+    },
+    {
+      "id": "540008",
+      "name": "CHRISTINE MITCHELL",
+      "email": "support@doublecranchllc.com",
+      "role": "user",
+      "accountStatus": "rejected",
+      "member_id": "NULL",
+      "membershipTier": "NULL",
+      "userId": "NULL"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\temail\trole\taccountStatus\tmember_id\tmembershipTier\tuserId\n1\tChristine Mitchell\tc.mitchell@doublecranchllc.com\tadmin\tapproved\tNULL\tNULL\tNULL\n240107\tTest Test \tdoublecranch2015@gmail.com\tuser\tapproved\t90001\tgold\t240107\n240122\tdoublecranch2015\tdoublecranch2015@gmail.com\tuser\tapproved\tNULL\tNULL\tNULL\n540008\tCHRISTINE MITCHELL\tsupport@doublecranchllc.com\tuser\trejected\tNULL\tNULL\tNULL\n",
+  "stderr": "",
+  "execution_time_ms": 60
+}

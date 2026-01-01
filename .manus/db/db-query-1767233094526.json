@@ -1,0 +1,14 @@
+{
+  "query": "SELECT email, COUNT(*) as count \nFROM users \nWHERE email IS NOT NULL\nGROUP BY email \nHAVING count > 1;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2HuJQ2ACAAzqLGn.root --database SMbEjvRKS9YWLQQQ74RCcL --execute SELECT email, COUNT(*) as count \nFROM users \nWHERE email IS NOT NULL\nGROUP BY email \nHAVING count > 1;",
+  "rows": [
+    {
+      "email": "bettiegford@gmail.com",
+      "count": "2"
+    }
+  ],
+  "messages": [],
+  "stdout": "email\tcount\nbettiegford@gmail.com\t2\n",
+  "stderr": "",
+  "execution_time_ms": 84
+}

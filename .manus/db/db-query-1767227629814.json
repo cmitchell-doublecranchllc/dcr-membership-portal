@@ -1,0 +1,17 @@
+{
+  "query": "SELECT u.id, u.name, u.email, m.id as member_id, m.userId \nFROM users u \nLEFT JOIN members m ON u.id = m.userId \nWHERE u.name = 'doublecranch2015' \nLIMIT 5;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2HuJQ2ACAAzqLGn.root --database SMbEjvRKS9YWLQQQ74RCcL --execute SELECT u.id, u.name, u.email, m.id as member_id, m.userId \nFROM users u \nLEFT JOIN members m ON u.id = m.userId \nWHERE u.name = 'doublecranch2015' \nLIMIT 5;",
+  "rows": [
+    {
+      "id": "240122",
+      "name": "doublecranch2015",
+      "email": "doublecranch2015@gmail.com",
+      "member_id": "NULL",
+      "userId": "NULL"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\temail\tmember_id\tuserId\n240122\tdoublecranch2015\tdoublecranch2015@gmail.com\tNULL\tNULL\n",
+  "stderr": "",
+  "execution_time_ms": 55
+}
