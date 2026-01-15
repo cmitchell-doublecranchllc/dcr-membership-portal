@@ -12,16 +12,15 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Search, Award, FileText, Target, Heart, Phone, Calendar, ArrowLeft, Trash2 } from "lucide-react";
+import { Search, ArrowLeft, Trash2, Edit2 } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 
 export default function InstructorStudents() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedStudent, setSelectedStudent] = useState<any>(null);
   const [userToDelete, setUserToDelete] = useState<number | null>(null);
+  const [, setLocation] = useLocation();
 
   const { data: students, isLoading, refetch } = trpc.members.getAllStudentsWithRidingInfo.useQuery();
   
@@ -103,7 +102,7 @@ export default function InstructorStudents() {
         <CardHeader>
           <CardTitle>Student Riding Profiles</CardTitle>
           <CardDescription>
-            View your students' Pony Club certifications, goals, and progress
+            Manage your students' Pony Club certifications, goals, and progress
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -122,7 +121,7 @@ export default function InstructorStudents() {
           <div className="mb-4">
             <h3 className="text-lg font-semibold">All Students ({filteredStudents.length})</h3>
             <p className="text-sm text-muted-foreground">
-              Click on a student to view detailed Pony Club certification information
+              Click Edit to modify student certifications and riding information
             </p>
           </div>
 
@@ -147,11 +146,7 @@ export default function InstructorStudents() {
                   </TableRow>
                 ) : (
                   filteredStudents.map((student) => (
-                    <TableRow
-                      key={student.userId}
-                      className="cursor-pointer hover:bg-muted/50"
-                      onClick={() => setSelectedStudent(student)}
-                    >
+                    <TableRow key={student.userId}>
                       <TableCell>
                         <div>
                           <p className="font-medium">{student.userName}</p>
@@ -186,13 +181,15 @@ export default function InstructorStudents() {
                         </Badge>
                       </TableCell>
                       <TableCell className="text-right">
-                        <div className="flex justify-end gap-2" onClick={(e) => e.stopPropagation()}>
+                        <div className="flex justify-end gap-2">
                           <Button
-                            variant="outline"
+                            variant="default"
                             size="sm"
-                            onClick={() => setSelectedStudent(student)}
+                            className="bg-maroon-600 hover:bg-maroon-700"
+                            onClick={() => setLocation(`/staff/students/${student.memberId}/edit`)}
                           >
-                            View Details
+                            <Edit2 className="mr-2 h-4 w-4" />
+                            Edit
                           </Button>
                           <Button
                             variant="destructive"
@@ -211,136 +208,6 @@ export default function InstructorStudents() {
           </div>
         </CardContent>
       </Card>
-
-      {/* View Details Dialog */}
-      <Dialog open={!!selectedStudent} onOpenChange={() => setSelectedStudent(null)}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>{selectedStudent?.userName}</DialogTitle>
-            <DialogDescription>{selectedStudent?.userEmail}</DialogDescription>
-          </DialogHeader>
-
-          {selectedStudent && (
-            <div className="space-y-6 mt-4">
-              {/* Membership Info */}
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground mb-1">Membership Tier</p>
-                  <Badge
-                    className={
-                      selectedStudent.membershipTier === "gold"
-                        ? "bg-yellow-100 text-yellow-800"
-                        : selectedStudent.membershipTier === "silver"
-                        ? "bg-gray-100 text-gray-800"
-                        : "bg-amber-100 text-amber-800"
-                    }
-                  >
-                    {selectedStudent.membershipTier?.toUpperCase()}
-                  </Badge>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground mb-1">Member Since</p>
-                  <p className="text-sm">
-                    {new Date(selectedStudent.createdAt).toLocaleDateString()}
-                  </p>
-                </div>
-              </div>
-
-              {/* Horse Management Level */}
-              <div>
-                <p className="text-sm font-medium text-muted-foreground mb-2 flex items-center gap-2">
-                  <Award className="h-4 w-4" />
-                  Horse Management Level
-                </p>
-                {selectedStudent.horseManagementLevel ? (
-                  <Badge className={getHMLevelBadgeColor(selectedStudent.horseManagementLevel)}>
-                    {formatHMLevel(selectedStudent.horseManagementLevel)}
-                  </Badge>
-                ) : (
-                  <p className="text-sm text-muted-foreground">Not set</p>
-                )}
-              </div>
-
-              {/* Riding Certifications */}
-              <div>
-                <p className="text-sm font-medium text-muted-foreground mb-2 flex items-center gap-2">
-                  <FileText className="h-4 w-4" />
-                  Riding Certifications
-                </p>
-                <p className="text-sm whitespace-pre-wrap">
-                  {selectedStudent.ridingCertifications || "None listed"}
-                </p>
-              </div>
-
-              {/* Other Certifications */}
-              {selectedStudent.otherCertifications && (
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground mb-2 flex items-center gap-2">
-                    <Award className="h-4 w-4" />
-                    Other Certifications & Achievements
-                  </p>
-                  <p className="text-sm whitespace-pre-wrap">{selectedStudent.otherCertifications}</p>
-                </div>
-              )}
-
-              {/* Riding Goals */}
-              <div>
-                <p className="text-sm font-medium text-muted-foreground mb-2 flex items-center gap-2">
-                  <Target className="h-4 w-4" />
-                  Riding Goals
-                </p>
-                <p className="text-sm whitespace-pre-wrap">
-                  {selectedStudent.ridingGoals || "None specified"}
-                </p>
-              </div>
-
-              {/* Medical Notes */}
-              <div>
-                <p className="text-sm font-medium text-muted-foreground mb-2 flex items-center gap-2">
-                  <Heart className="h-4 w-4" />
-                  Medical Notes
-                </p>
-                {selectedStudent.medicalNotes ? (
-                  <div className="bg-yellow-50 border border-yellow-200 rounded-md p-3">
-                    <p className="text-sm text-yellow-900 whitespace-pre-wrap">
-                      {selectedStudent.medicalNotes}
-                    </p>
-                  </div>
-                ) : (
-                  <p className="text-sm text-muted-foreground">None</p>
-                )}
-              </div>
-
-              {/* Contact Information */}
-              <div className="border-t pt-4">
-                <h4 className="font-medium mb-3">Contact Information</h4>
-                <div className="space-y-2">
-                  {selectedStudent.phone && (
-                    <div className="flex items-center gap-2">
-                      <Phone className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-sm">Phone: {selectedStudent.phone}</span>
-                    </div>
-                  )}
-                  {selectedStudent.emergencyContact && (
-                    <div className="flex items-center gap-2">
-                      <Phone className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-sm">Emergency Contact: {selectedStudent.emergencyContact}</span>
-                    </div>
-                  )}
-                  {selectedStudent.dateOfBirth && (
-                    <div className="flex items-center gap-2">
-                      <Calendar className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-sm">
-                        Date of Birth: {new Date(selectedStudent.dateOfBirth).toLocaleDateString()}
-                      </span>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={!!userToDelete} onOpenChange={() => setUserToDelete(null)}>

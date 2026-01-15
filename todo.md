@@ -138,3 +138,16 @@
 - [x] Remove edit dialog and all edit-related state/functions
 - [x] Keep only View Details functionality
 - [x] Keep Delete button for user management
+
+## Rebuild Student Profile Edit - Multiple Methods
+- [x] Create dedicated edit page at /staff/students/:id/edit
+- [x] Add inline editing capability in View Details dialog
+- [x] Add Edit Mode toggle in View Details dialog
+- [x] Implement working save functionality with proper backend calls
+- [x] Test all three editing methods work correctly
+
+## Remove View Details Dialog - Use Only Edit Page
+- [x] Remove View Details button from table
+- [x] Remove View Details dialog component
+- [x] Keep only Edit button that goes to /staff/students/:id/edit page
+- [x] Remove all dialog-related state and functions

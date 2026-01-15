@@ -22,6 +22,7 @@ import StaffAttendance from "./pages/StaffAttendance";
 import StaffProgressNotes from "./pages/StaffProgressNotes";
 import MyProgressNotes from "./pages/MyProgressNotes";
 import InstructorStudents from "./pages/InstructorStudents";
+import StaffStudentEdit from "./pages/StaffStudentEdit";
 import PendingApproval from "./pages/PendingApproval";
 import StaffPendingMembers from "./pages/StaffPendingMembers";
 import StaffPendingCheckIns from "./pages/StaffPendingCheckIns";
@@ -57,6 +58,7 @@ function Router() {
       <Route path="/staff/attendance" component={StaffAttendance} />
       <Route path="/staff/progress-notes" component={StaffProgressNotes} />
       <Route path="/staff/students" component={InstructorStudents} />
+      <Route path="/staff/students/:id/edit" component={StaffStudentEdit} />
       <Route path="/staff/pending-members" component={StaffPendingMembers} />
       <Route path="/staff/pending-checkins" component={StaffPendingCheckIns} />
       <Route path="/staff/users" component={StaffUserManagement} />
