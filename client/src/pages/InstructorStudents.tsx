@@ -13,9 +13,6 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Search, Award, FileText, Target, Heart, Phone, Calendar, ArrowLeft, Trash2 } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
@@ -24,61 +21,24 @@ import { Link } from "wouter";
 export default function InstructorStudents() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedStudent, setSelectedStudent] = useState<any>(null);
-  const [editingStudent, setEditingStudent] = useState<any>(null);
   const [userToDelete, setUserToDelete] = useState<number | null>(null);
-  const [editForm, setEditForm] = useState({
-    horseManagementLevel: "" as "d1" | "d2" | "d3" | "c1" | "c2" | "c3" | "hb" | "ha" | "",
-    ridingCertifications: "",
-    otherCertifications: "",
-    ridingGoals: "",
-    medicalNotes: "",
-  });
 
   const { data: students, isLoading, refetch } = trpc.members.getAllStudentsWithRidingInfo.useQuery();
-  // const updateRidingInfoMutation = trpc.profile.updateRidingInfo.useMutation();
-  const updateRidingInfoMutation = { mutateAsync: async () => {}, isPending: false } as any;
-  const deleteUserMutation = trpc.admin.deleteUser.useMutation();
-
-  const handleEdit = (student: any) => {
-    setEditingStudent(student);
-    setEditForm({
-      horseManagementLevel: student.horseManagementLevel || "",
-      ridingCertifications: student.ridingCertifications || "",
-      otherCertifications: student.otherCertifications || "",
-      ridingGoals: student.ridingGoals || "",
-      medicalNotes: student.medicalNotes || "",
-    });
-  };
-
-  const handleDelete = async () => {
-    if (!userToDelete) return;
-
-    try {
-      await deleteUserMutation.mutateAsync({ userId: userToDelete });
+  
+  const deleteUserMutation = trpc.admin.deleteUser.useMutation({
+    onSuccess: () => {
       toast.success('User deleted successfully');
       refetch();
       setUserToDelete(null);
-    } catch (error: any) {
+    },
+    onError: (error: any) => {
       toast.error(error.message || 'Failed to delete user');
     }
-  };
+  });
 
-  const handleSave = async () => {
-    if (!editingStudent) return;
-
-    try {
-      await updateRidingInfoMutation.mutateAsync({
-        memberId: editingStudent.memberId,
-        horseManagementLevel: editForm.horseManagementLevel || undefined,
-        ridingCertifications: editForm.ridingCertifications || undefined,
-        otherCertifications: editForm.otherCertifications || undefined,
-        ridingGoals: editForm.ridingGoals || undefined,
-        medicalNotes: editForm.medicalNotes || undefined,
-      });
-      setEditingStudent(null);
-    } catch (error) {
-      console.error("Failed to update student info:", error);
-    }
+  const handleDelete = async () => {
+    if (!userToDelete) return;
+    await deleteUserMutation.mutateAsync({ userId: userToDelete });
   };
 
   const filteredStudents =
@@ -143,7 +103,7 @@ export default function InstructorStudents() {
         <CardHeader>
           <CardTitle>Student Riding Profiles</CardTitle>
           <CardDescription>
-            View and manage your students' Pony Club certifications, goals, and progress
+            View your students' Pony Club certifications, goals, and progress
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -172,10 +132,10 @@ export default function InstructorStudents() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Student</TableHead>
-                  <TableHead>Membership</TableHead>
                   <TableHead>HM Level</TableHead>
-                  <TableHead>Riding Certifications</TableHead>
-                  <TableHead>Actions</TableHead>
+                  <TableHead>Certifications</TableHead>
+                  <TableHead>Membership</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -187,33 +147,16 @@ export default function InstructorStudents() {
                   </TableRow>
                 ) : (
                   filteredStudents.map((student) => (
-                    <TableRow key={student.memberId}>
+                    <TableRow
+                      key={student.userId}
+                      className="cursor-pointer hover:bg-muted/50"
+                      onClick={() => setSelectedStudent(student)}
+                    >
                       <TableCell>
-                        <div className="flex items-center gap-3">
-                          <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-                            <span className="text-sm font-medium text-primary">
-                              {student.userName?.charAt(0) || "?"}
-                            </span>
-                          </div>
-                          <div>
-                            <p className="font-medium">{student.userName || "Unknown"}</p>
-                            <p className="text-sm text-muted-foreground">{student.userEmail}</p>
-                          </div>
+                        <div>
+                          <p className="font-medium">{student.userName}</p>
+                          <p className="text-sm text-muted-foreground">{student.userEmail}</p>
                         </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge
-                          variant="secondary"
-                          className={
-                            student.membershipTier === "gold"
-                              ? "bg-yellow-100 text-yellow-800"
-                              : student.membershipTier === "silver"
-                              ? "bg-gray-100 text-gray-800"
-                              : "bg-amber-100 text-amber-800"
-                          }
-                        >
-                          {student.membershipTier?.toUpperCase()}
-                        </Badge>
                       </TableCell>
                       <TableCell>
                         {student.horseManagementLevel ? (
@@ -225,12 +168,25 @@ export default function InstructorStudents() {
                         )}
                       </TableCell>
                       <TableCell>
-                        <p className="text-sm max-w-xs truncate">
+                        <p className="text-sm line-clamp-2">
                           {student.ridingCertifications || "None listed"}
                         </p>
                       </TableCell>
                       <TableCell>
-                        <div className="flex gap-2">
+                        <Badge
+                          className={
+                            student.membershipTier === "gold"
+                              ? "bg-yellow-100 text-yellow-800"
+                              : student.membershipTier === "silver"
+                              ? "bg-gray-100 text-gray-800"
+                              : "bg-amber-100 text-amber-800"
+                          }
+                        >
+                          {student.membershipTier?.toUpperCase()}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex justify-end gap-2" onClick={(e) => e.stopPropagation()}>
                           <Button
                             variant="outline"
                             size="sm"
@@ -239,19 +195,11 @@ export default function InstructorStudents() {
                             View Details
                           </Button>
                           <Button
-                            variant="default"
-                            size="sm"
-                            onClick={() => handleEdit(student)}
-                          >
-                            Edit
-                          </Button>
-                          <Button
                             variant="destructive"
                             size="sm"
                             onClick={() => setUserToDelete(student.userId)}
-                            disabled={deleteUserMutation.isPending}
                           >
-                            <Trash2 className="w-4 h-4" />
+                            <Trash2 className="h-4 w-4" />
                           </Button>
                         </div>
                       </TableCell>
@@ -268,26 +216,17 @@ export default function InstructorStudents() {
       <Dialog open={!!selectedStudent} onOpenChange={() => setSelectedStudent(null)}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <div className="flex items-center gap-3">
-              <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
-                <span className="text-lg font-medium text-primary">
-                  {selectedStudent?.userName?.charAt(0) || "?"}
-                </span>
-              </div>
-              <div>
-                <DialogTitle>{selectedStudent?.userName || "Unknown Student"}</DialogTitle>
-                <DialogDescription>{selectedStudent?.userEmail}</DialogDescription>
-              </div>
-            </div>
+            <DialogTitle>{selectedStudent?.userName}</DialogTitle>
+            <DialogDescription>{selectedStudent?.userEmail}</DialogDescription>
           </DialogHeader>
 
           {selectedStudent && (
             <div className="space-y-6 mt-4">
+              {/* Membership Info */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <p className="text-sm font-medium text-muted-foreground mb-1">Membership Tier</p>
                   <Badge
-                    variant="secondary"
                     className={
                       selectedStudent.membershipTier === "gold"
                         ? "bg-yellow-100 text-yellow-800"
@@ -403,117 +342,13 @@ export default function InstructorStudents() {
         </DialogContent>
       </Dialog>
 
-      {/* Edit Dialog */}
-      <Dialog open={!!editingStudent} onOpenChange={() => setEditingStudent(null)}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Edit Student Certifications</DialogTitle>
-            <DialogDescription>
-              Update {editingStudent?.userName}'s Pony Club certifications and riding information
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="space-y-6 mt-4">
-            <div className="space-y-2">
-              <Label htmlFor="edit-hm-level">Horse Management Level</Label>
-              <Select
-                value={editForm.horseManagementLevel}
-                onValueChange={(value: "d1" | "d2" | "d3" | "c1" | "c2" | "c3" | "hb" | "ha") =>
-                  setEditForm({ ...editForm, horseManagementLevel: value })
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select HM level" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="d1">D-1</SelectItem>
-                  <SelectItem value="d2">D-2</SelectItem>
-                  <SelectItem value="d3">D-3</SelectItem>
-                  <SelectItem value="c1">C-1</SelectItem>
-                  <SelectItem value="c2">C-2</SelectItem>
-                  <SelectItem value="c3">C-3</SelectItem>
-                  <SelectItem value="hb">H-B</SelectItem>
-                  <SelectItem value="ha">H-A</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="edit-riding-certs">Riding Certifications</Label>
-              <Textarea
-                id="edit-riding-certs"
-                placeholder="e.g., D-2 Eventing, C-1 Dressage, D-3 Show Jumping"
-                value={editForm.ridingCertifications}
-                onChange={(e) =>
-                  setEditForm({ ...editForm, ridingCertifications: e.target.value })
-                }
-                rows={3}
-              />
-              <p className="text-xs text-muted-foreground">
-                List riding discipline certifications (Eventing, Dressage, Show Jumping, Hunter Seat, Western Dressage, Western)
-              </p>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="edit-other-certs">Other Certifications & Achievements</Label>
-              <Textarea
-                id="edit-other-certs"
-                placeholder="Non-Pony Club certifications (e.g., BHS, USDF medals, etc.)"
-                value={editForm.otherCertifications}
-                onChange={(e) =>
-                  setEditForm({ ...editForm, otherCertifications: e.target.value })
-                }
-                rows={3}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="edit-goals">Riding Goals</Label>
-              <Textarea
-                id="edit-goals"
-                placeholder="Student's riding goals and aspirations"
-                value={editForm.ridingGoals}
-                onChange={(e) => setEditForm({ ...editForm, ridingGoals: e.target.value })}
-                rows={3}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="edit-medical">Medical Notes</Label>
-              <Textarea
-                id="edit-medical"
-                placeholder="Important medical information, allergies, or special considerations"
-                value={editForm.medicalNotes}
-                onChange={(e) => setEditForm({ ...editForm, medicalNotes: e.target.value })}
-                rows={3}
-              />
-            </div>
-
-            <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setEditingStudent(null)}>
-                Cancel
-              </Button>
-              <Button onClick={handleSave} disabled={updateRidingInfoMutation.isPending}>
-                {updateRidingInfoMutation.isPending ? "Saving..." : "Save Changes"}
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
-
       {/* Delete Confirmation Dialog */}
-      <AlertDialog open={userToDelete !== null} onOpenChange={() => setUserToDelete(null)}>
+      <AlertDialog open={!!userToDelete} onOpenChange={() => setUserToDelete(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the user account
-              and all associated data including:
-              <ul className="list-disc list-inside mt-2 space-y-1">
-                <li>Member profile</li>
-                <li>Check-in history</li>
-                <li>All related records</li>
-              </ul>
+              This will permanently delete this user and their member profile. This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -522,7 +357,7 @@ export default function InstructorStudents() {
               onClick={handleDelete}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              Delete User
+              Delete
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

@@ -124,3 +124,17 @@
 - [x] Backend endpoint to delete user and all related data
 - [x] Confirmation dialog before deletion
 - [x] Add delete button to Student Profiles page (/staff/students)
+
+- [ ] Fix student profile edit - certification level changes not saving
+
+## Bug Fix - Student Profile Edit Not Saving
+- [ ] Remove broken edit dialog from InstructorStudents page
+- [ ] Rebuild edit functionality with proper mutation calls
+- [ ] Test that certification level changes save correctly
+- [ ] Verify changes persist in database and show in View Details
+
+## Remove Student Profile Edit Feature
+- [x] Remove Edit button from Student Riding Profiles page
+- [x] Remove edit dialog and all edit-related state/functions
+- [x] Keep only View Details functionality
+- [x] Keep Delete button for user management
