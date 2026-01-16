@@ -1,1 +1,0 @@
-ALTER TABLE `members` DROP INDEX `members_qrCode_unique`;

@@ -158,3 +158,9 @@
 - [x] Install PostgreSQL driver dependencies
 - [x] Update database connection
 - [ ] Test database operations (requires PostgreSQL DATABASE_URL)
+
+## Fix PostgreSQL Schema Syntax Errors
+- [ ] Identify syntax errors in drizzle/schema.ts causing db:push to fail
+- [ ] Fix enum declarations and table definitions
+- [ ] Test db:push locally
+- [ ] Push fix to GitHub
