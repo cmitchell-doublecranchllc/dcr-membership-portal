@@ -151,3 +151,10 @@
 - [x] Remove View Details dialog component
 - [x] Keep only Edit button that goes to /staff/students/:id/edit page
 - [x] Remove all dialog-related state and functions
+
+## Migrate from MySQL to PostgreSQL
+- [x] Update Drizzle config to use PostgreSQL
+- [x] Update schema to use PostgreSQL data types
+- [x] Install PostgreSQL driver dependencies
+- [x] Update database connection
+- [ ] Test database operations (requires PostgreSQL DATABASE_URL)

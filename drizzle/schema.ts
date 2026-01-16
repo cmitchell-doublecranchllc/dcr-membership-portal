@@ -1,35 +1,51 @@
-import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, boolean, bigint, index } from "drizzle-orm/mysql-core";
+import { pgTable, pgEnum, serial, integer, text, timestamp, varchar, boolean, bigint, index } from "drizzle-orm/pg-core";
+
+// Define all enums first (PostgreSQL requirement)
+export const roleEnum = pgEnum("role", ["user", "admin", "staff"]);
+export const accountStatusEnum = pgEnum("accountStatus", ["pending", "approved", "rejected"]);
+export const membershipTierEnum = pgEnum("membershipTier", ["bronze", "silver", "gold"]);
+export const horseManagementLevelEnum = pgEnum("horseManagementLevel", ["d1", "d2", "d3", "c1", "c2", "c3", "hb", "ha"]);
+export const checkInTypeEnum = pgEnum("checkInType", ["lesson", "event", "other"]);
+export const sourceEnum = pgEnum("source", ["staff_scanner", "student_self", "manual_entry", "qr_self"]);
+export const programEnum = pgEnum("program", ["lesson", "horse_management", "camp", "pony_club", "event", "other"]);
+export const statusEnum = pgEnum("status", ["pending", "approved", "rejected", "confirmed", "cancelled", "rescheduled", "completed", "attending", "not_attending", "maybe", "waitlist", "active", "archived"]);
+export const lessonTypeEnum = pgEnum("lessonType", ["private", "group", "horsemanship"]);
+export const attendanceStatusEnum = pgEnum("attendanceStatus", ["pending", "present", "absent", "late"]);
+export const categoryEnum = pgEnum("category", ["skill_progress", "behavior", "achievement", "goal", "concern", "general", "riding_skill", "horse_care", "competition", "certification", "other"]);
+export const genderEnum = pgEnum("gender", ["mare", "gelding", "stallion"]);
+export const eventTypeEnum = pgEnum("eventType", ["competition", "show", "clinic", "social", "riding_lesson", "horsemanship_lesson", "other"]);
+export const recurrencePatternEnum = pgEnum("recurrencePattern", ["daily", "weekly", "biweekly", "monthly"]);
 
 /**
  * Core user table backing auth flow.
  */
-export const users = mysqlTable("users", {
-  id: int("id").autoincrement().primaryKey(),
+export const users = pgTable("users", {
+  id: serial("id").primaryKey(),
   openId: varchar("openId", { length: 64 }).notNull().unique(),
   name: text("name"),
   email: varchar("email", { length: 320 }).unique(),
   loginMethod: varchar("loginMethod", { length: 64 }),
-  role: mysqlEnum("role", ["user", "admin", "staff"]).default("user").notNull(),
-  accountStatus: mysqlEnum("accountStatus", ["pending", "approved", "rejected"]).default("pending").notNull(),
+  role: roleEnum("role").default("user").notNull(),
+  accountStatus: accountStatusEnum("accountStatus").default("pending").notNull(),
   profilePhotoUrl: text("profilePhotoUrl"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().notNull(),
   lastSignedIn: timestamp("lastSignedIn").defaultNow().notNull(),
 });
 
 /**
  * Member profiles with membership tiers and parent-child relationships
  */
-export const members = mysqlTable("members", {
-  id: int("id").autoincrement().primaryKey(),
-  userId: int("userId").notNull().unique(),
-  membershipTier: mysqlEnum("membershipTier", ["bronze", "silver", "gold"]).default("bronze").notNull(),
+export const members = pgTable("members", {
+  id: serial("id").primaryKey(),
+  userId: integer("userId").notNull().unique(),
+  membershipTier: membershipTierEnum("membershipTier").default("bronze").notNull(),
   acuityClientId: varchar("acuityClientId", { length: 128 }),
   phone: varchar("phone", { length: 32 }),
   emergencyContactName: varchar("emergencyContactName", { length: 255 }),
   emergencyContactPhone: varchar("emergencyContactPhone", { length: 32 }),
   emergencyContactRelationship: varchar("emergencyContactRelationship", { length: 128 }),
-  parentId: int("parentId"), // Reference to parent member if this is a child
+  parentId: integer("parentId"), // Reference to parent member if this is a child
   isChild: boolean("isChild").default(false).notNull(),
   dateOfBirth: timestamp("dateOfBirth"),
   allergies: text("allergies"),
@@ -41,54 +57,44 @@ export const members = mysqlTable("members", {
   liabilityWaiverSignedAt: timestamp("liabilityWaiverSignedAt"),
   liabilityWaiverSignatureData: text("liabilityWaiverSignatureData"),
   // Pony Club Certifications
-  horseManagementLevel: mysqlEnum("horseManagementLevel", [
-    "d1",
-    "d2",
-    "d3",
-    "c1",
-    "c2",
-    "c3",
-    "hb",
-    "ha"
-  ]),
+  horseManagementLevel: horseManagementLevelEnum("horseManagementLevel"),
   ridingCertifications: text("ridingCertifications"), // e.g., "D-2 Eventing, C-1 Dressage"
   otherCertifications: text("otherCertifications"), // Other non-Pony Club certifications
   ridingGoals: text("ridingGoals"),
   medicalNotes: text("medicalNotes"),
   qrCode: varchar("qrCode", { length: 128 }).unique(), // Unique QR code for check-in
   createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().notNull(),
 });
 
 /**
  * Check-in logs for lesson attendance
  */
-export const checkIns = mysqlTable("checkIns", {
-  id: int("id").autoincrement().primaryKey(),
-  memberId: int("memberId").notNull(),
-  checkedInBy: int("checkedInBy").notNull(), // User ID who checked in (renamed from createdByUserId for consistency)
+export const checkIns = pgTable("checkIns", {
+  id: serial("id").primaryKey(),
+  memberId: integer("memberId").notNull(),
+  checkedInBy: integer("checkedInBy").notNull(), // User ID who checked in
   checkInTime: bigint("checkInTime", { mode: "number" }).notNull(), // Unix timestamp in milliseconds
-  checkInType: mysqlEnum("checkInType", ["lesson", "event", "other"]).default("lesson").notNull(),
-  source: mysqlEnum("source", ["staff_scanner", "student_self", "manual_entry", "qr_self"]).default("staff_scanner").notNull(),
-  program: mysqlEnum("program", ["lesson", "horse_management", "camp", "pony_club", "event", "other"]).default("lesson").notNull(),
-  status: mysqlEnum("status", ["pending", "approved", "rejected"]).default("pending").notNull(),
-  verifiedBy: int("verifiedBy"), // Staff user ID who approved/rejected
+  checkInType: checkInTypeEnum("checkInType").default("lesson").notNull(),
+  source: sourceEnum("source").default("staff_scanner").notNull(),
+  program: programEnum("program").default("lesson").notNull(),
+  status: statusEnum("status").default("pending").notNull(),
+  verifiedBy: integer("verifiedBy"), // Staff user ID who approved/rejected
   verifiedAt: timestamp("verifiedAt"), // When the check-in was verified
   appointmentId: varchar("appointmentId", { length: 128 }), // For Acuity integration
   lessonDate: timestamp("lessonDate"),
   notes: text("notes"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().notNull(),
 }, (table) => ({
   memberTimeIdx: index("idx_checkins_member_time").on(table.memberId, table.checkInTime),
-  qrCodeIdx: index("idx_members_qrcode").on(table.memberId),
 }));
 
 /**
  * Contract templates and assignments
  */
-export const contracts = mysqlTable("contracts", {
-  id: int("id").autoincrement().primaryKey(),
+export const contracts = pgTable("contracts", {
+  id: serial("id").primaryKey(),
   title: varchar("title", { length: 255 }).notNull(),
   description: text("description"),
   content: text("content"), // Full contract text content
@@ -97,17 +103,17 @@ export const contracts = mysqlTable("contracts", {
   isActive: boolean("isActive").default(true).notNull(),
   requiresSignature: boolean("requiresSignature").default(true).notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().notNull(),
 });
 
 /**
  * Contract signatures and signed documents
  */
-export const contractSignatures = mysqlTable("contractSignatures", {
-  id: int("id").autoincrement().primaryKey(),
-  contractId: int("contractId").notNull(),
-  memberId: int("memberId").notNull(),
-  signedBy: int("signedBy").notNull(), // User ID who signed
+export const contractSignatures = pgTable("contractSignatures", {
+  id: serial("id").primaryKey(),
+  contractId: integer("contractId").notNull(),
+  memberId: integer("memberId").notNull(),
+  signedBy: integer("signedBy").notNull(), // User ID who signed
   signatureData: text("signatureData"), // Base64 encoded signature image
   signedPdfUrl: text("signedPdfUrl"), // URL to signed PDF in Google Drive or S3
   signedPdfKey: varchar("signedPdfKey", { length: 512 }), // S3 key for signed PDF
@@ -120,64 +126,64 @@ export const contractSignatures = mysqlTable("contractSignatures", {
 /**
  * Contract assignments to members
  */
-export const contractAssignments = mysqlTable("contractAssignments", {
-  id: int("id").autoincrement().primaryKey(),
-  contractId: int("contractId").notNull(),
-  memberId: int("memberId").notNull(),
-  assignedBy: int("assignedBy").notNull(), // Admin/staff who assigned
+export const contractAssignments = pgTable("contractAssignments", {
+  id: serial("id").primaryKey(),
+  contractId: integer("contractId").notNull(),
+  memberId: integer("memberId").notNull(),
+  assignedBy: integer("assignedBy").notNull(), // Admin/staff who assigned
   dueDate: timestamp("dueDate"),
   isSigned: boolean("isSigned").default(false).notNull(),
   reminderSent: boolean("reminderSent").default(false).notNull(),
   firstReminderSentAt: timestamp("firstReminderSentAt"), // 3-day reminder
   finalReminderSentAt: timestamp("finalReminderSentAt"), // 7-day reminder
   createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().notNull(),
 });
 
 /**
  * Member uploaded documents (medical forms, insurance, etc.)
  */
-export const memberDocuments = mysqlTable("memberDocuments", {
-  id: int("id").autoincrement().primaryKey(),
-  memberId: int("memberId").notNull(),
+export const memberDocuments = pgTable("memberDocuments", {
+  id: serial("id").primaryKey(),
+  memberId: integer("memberId").notNull(),
   documentType: varchar("documentType", { length: 100 }).notNull(), // 'medical_form', 'insurance_certificate', 'photo_release', 'emergency_contact', 'other'
   fileName: varchar("fileName", { length: 255 }).notNull(),
   fileKey: varchar("fileKey", { length: 500 }).notNull(), // S3 key
   fileUrl: varchar("fileUrl", { length: 1000 }).notNull(), // S3 URL
-  fileSize: int("fileSize"), // in bytes
+  fileSize: integer("fileSize"), // in bytes
   mimeType: varchar("mimeType", { length: 100 }),
-  uploadedBy: int("uploadedBy").notNull(), // User who uploaded (member or admin)
+  uploadedBy: integer("uploadedBy").notNull(), // User who uploaded (member or admin)
   notes: text("notes"), // Optional notes about the document
   createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().notNull(),
 });
 
 /**
  * Announcements and news
  */
-export const announcements = mysqlTable("announcements", {
-  id: int("id").autoincrement().primaryKey(),
+export const announcements = pgTable("announcements", {
+  id: serial("id").primaryKey(),
   title: varchar("title", { length: 255 }).notNull(),
   content: text("content").notNull(),
-  authorId: int("authorId").notNull(),
+  authorId: integer("authorId").notNull(),
   targetTiers: text("targetTiers"), // JSON array of tiers: ["bronze", "silver", "gold"]
   isPublished: boolean("isPublished").default(false).notNull(),
   publishedAt: timestamp("publishedAt"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().notNull(),
 });
 
 /**
  * Messages between parents and staff
  */
-export const messages = mysqlTable("messages", {
-  id: int("id").autoincrement().primaryKey(),
-  senderId: int("senderId").notNull(),
-  recipientId: int("recipientId").notNull(),
+export const messages = pgTable("messages", {
+  id: serial("id").primaryKey(),
+  senderId: integer("senderId").notNull(),
+  recipientId: integer("recipientId").notNull(),
   subject: varchar("subject", { length: 255 }),
   content: text("content").notNull(),
   isRead: boolean("isRead").default(false).notNull(),
-  parentMessageId: int("parentMessageId"), // For threading replies
+  parentMessageId: integer("parentMessageId"), // For threading replies
   sentAt: bigint("sentAt", { mode: "number" }).notNull(), // Unix timestamp in milliseconds
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
@@ -185,9 +191,9 @@ export const messages = mysqlTable("messages", {
 /**
  * Acuity appointments cache
  */
-export const appointments = mysqlTable("appointments", {
-  id: int("id").autoincrement().primaryKey(),
-  memberId: int("memberId").notNull(),
+export const appointments = pgTable("appointments", {
+  id: serial("id").primaryKey(),
+  memberId: integer("memberId").notNull(),
   acuityAppointmentId: varchar("acuityAppointmentId", { length: 128 }).notNull(),
   appointmentType: varchar("appointmentType", { length: 255 }),
   startTime: bigint("startTime", { mode: "number" }).notNull(), // Unix timestamp in milliseconds
@@ -196,272 +202,162 @@ export const appointments = mysqlTable("appointments", {
   notes: text("notes"),
   syncedAt: timestamp("syncedAt").defaultNow().notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().notNull(),
 });
 
 /**
  * Lesson time slots available for booking
- * Staff creates these slots manually, students book them
  */
-export const lessonSlots = mysqlTable("lessonSlots", {
-  id: int("id").autoincrement().primaryKey(),
+export const lessonSlots = pgTable("lessonSlots", {
+  id: serial("id").primaryKey(),
   startTime: bigint("startTime", { mode: "number" }).notNull(), // Unix timestamp in milliseconds
   endTime: bigint("endTime", { mode: "number" }).notNull(), // Unix timestamp in milliseconds
-  lessonType: mysqlEnum("lessonType", ["private", "group", "horsemanship"]).notNull(),
-  maxStudents: int("maxStudents").default(1).notNull(), // 1 for private, 4 for group
-  currentStudents: int("currentStudents").default(0).notNull(), // Track how many booked
+  lessonType: lessonTypeEnum("lessonType").notNull(),
+  maxStudents: integer("maxStudents").default(1).notNull(), // 1 for private, 4 for group
+  currentStudents: integer("currentStudents").default(0).notNull(), // Track how many booked
   instructorName: varchar("instructorName", { length: 255 }),
   location: varchar("location", { length: 255 }),
   notes: text("notes"),
   isRecurring: boolean("isRecurring").default(false).notNull(), // For Sunday horsemanship
-  recurringSeriesId: int("recurringSeriesId"), // Link to recurring series if applicable
+  recurringSeriesId: integer("recurringSeriesId"), // Link to recurring series if applicable
   googleCalendarEventId: varchar("googleCalendarEventId", { length: 255 }), // For future Google Calendar sync
-  createdBy: int("createdBy").notNull(), // Staff user who created the slot
+  createdBy: integer("createdBy").notNull(), // Staff user who created the slot
   createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().notNull(),
 });
 
 /**
  * Student lesson bookings - links students to lesson slots
  */
-export const lessonBookings = mysqlTable("lessonBookings", {
-  id: int("id").autoincrement().primaryKey(),
-  slotId: int("slotId").notNull(), // Reference to lessonSlots
-  memberId: int("memberId").notNull(), // Student who booked
-  bookedBy: int("bookedBy").notNull(), // User ID who made the booking (parent or student)
-  status: mysqlEnum("status", ["confirmed", "cancelled", "rescheduled", "completed"]).default("confirmed").notNull(),
-  rescheduledFromSlotId: int("rescheduledFromSlotId"), // Original slot if this was rescheduled
-  rescheduledToSlotId: int("rescheduledToSlotId"), // New slot if this was rescheduled
-  rescheduleCount: int("rescheduleCount").default(0).notNull(), // Track how many times rescheduled
-  notes: text("notes"),
+export const lessonBookings = pgTable("lessonBookings", {
+  id: serial("id").primaryKey(),
+  slotId: integer("slotId").notNull(),
+  memberId: integer("memberId").notNull(),
+  status: statusEnum("status").default("confirmed").notNull(),
+  attendanceStatus: attendanceStatusEnum("attendanceStatus").default("pending").notNull(),
   bookedAt: bigint("bookedAt", { mode: "number" }).notNull(), // Unix timestamp in milliseconds
-  cancelledAt: bigint("cancelledAt", { mode: "number" }), // Unix timestamp if cancelled
-  
-  // Attendance tracking
-  attendanceStatus: mysqlEnum("attendanceStatus", ["pending", "present", "absent", "late"]).default("pending").notNull(),
-  attendanceMarkedBy: int("attendanceMarkedBy"), // Staff user who marked attendance
-  attendanceMarkedAt: bigint("attendanceMarkedAt", { mode: "number" }), // Unix timestamp when marked
-  attendanceNotes: text("attendanceNotes"), // Staff notes about attendance
-  
+  cancelledAt: bigint("cancelledAt", { mode: "number" }), // Unix timestamp in milliseconds
+  cancellationReason: text("cancellationReason"),
+  notes: text("notes"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().notNull(),
 });
 
 /**
- * Student progress notes - instructor documentation of student achievements and skill progression
+ * Progress notes from instructors about students
  */
-export const progressNotes = mysqlTable("progressNotes", {
-  id: int("id").autoincrement().primaryKey(),
-  memberId: int("memberId").notNull(), // Student this note is about
-  lessonBookingId: int("lessonBookingId"), // Optional link to specific lesson
-  createdBy: int("createdBy").notNull(), // Instructor/staff who wrote the note
-  noteDate: bigint("noteDate", { mode: "number" }).notNull(), // Unix timestamp of when note was written
-  category: mysqlEnum("category", ["skill_progress", "behavior", "achievement", "goal", "concern", "general"]).default("general").notNull(),
+export const progressNotes = pgTable("progressNotes", {
+  id: serial("id").primaryKey(),
+  memberId: integer("memberId").notNull(),
+  authorId: integer("authorId").notNull(), // Staff/instructor who wrote the note
+  category: categoryEnum("category").default("general").notNull(),
   title: varchar("title", { length: 255 }).notNull(),
-  content: text("content").notNull(), // The actual note content
-  isVisibleToParent: boolean("isVisibleToParent").default(true).notNull(), // Control visibility to parents
+  content: text("content").notNull(),
+  isPrivate: boolean("isPrivate").default(false).notNull(), // If true, only visible to staff
+  linkedLessonId: integer("linkedLessonId"), // Optional link to a specific lesson
   createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().notNull(),
 });
 
 /**
- * Horse ownership tracking - members can register their horses
+ * Horse profiles
  */
-export const horses = mysqlTable("horses", {
-  id: int("id").autoincrement().primaryKey(),
-  ownerId: int("ownerId").notNull(), // Member ID who owns the horse
+export const horses = pgTable("horses", {
+  id: serial("id").primaryKey(),
   name: varchar("name", { length: 255 }).notNull(),
   breed: varchar("breed", { length: 255 }),
-  age: int("age"),
+  age: integer("age"),
+  gender: genderEnum("gender"),
   color: varchar("color", { length: 100 }),
-  gender: mysqlEnum("gender", ["mare", "gelding", "stallion"]),
   height: varchar("height", { length: 50 }), // e.g., "15.2 hands"
   temperament: text("temperament"),
   specialNeeds: text("specialNeeds"),
-  vetInfo: text("vetInfo"), // Vet contact and medical info
+  isAvailableForLessons: boolean("isAvailableForLessons").default(true).notNull(),
   photoUrl: text("photoUrl"),
-  isBoarded: boolean("isBoarded").default(false).notNull(), // Boarded at the facility
   createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().notNull(),
 });
 
-export type User = typeof users.$inferSelect;
-export type InsertUser = typeof users.$inferInsert;
-
-export type Member = typeof members.$inferSelect;
-export type InsertMember = typeof members.$inferInsert;
-
-export type CheckIn = typeof checkIns.$inferSelect;
-export type InsertCheckIn = typeof checkIns.$inferInsert;
-
-export type LessonSlot = typeof lessonSlots.$inferSelect;
-export type InsertLessonSlot = typeof lessonSlots.$inferInsert;
-
-export type LessonBooking = typeof lessonBookings.$inferSelect;
-export type InsertLessonBooking = typeof lessonBookings.$inferInsert;
-
-export type ProgressNote = typeof progressNotes.$inferSelect;
-export type InsertProgressNote = typeof progressNotes.$inferInsert;
-
-export type Horse = typeof horses.$inferSelect;
-export type InsertHorse = typeof horses.$inferInsert;
-
-export type Contract = typeof contracts.$inferSelect;
-export type InsertContract = typeof contracts.$inferInsert;
-
-export type ContractSignature = typeof contractSignatures.$inferSelect;
-export type InsertContractSignature = typeof contractSignatures.$inferInsert;
-
-export type ContractAssignment = typeof contractAssignments.$inferSelect;
-export type InsertContractAssignment = typeof contractAssignments.$inferInsert;
-
-export type Announcement = typeof announcements.$inferSelect;
-export type InsertAnnouncement = typeof announcements.$inferInsert;
-
-export type Message = typeof messages.$inferSelect;
-export type InsertMessage = typeof messages.$inferInsert;
-
-export type Appointment = typeof appointments.$inferSelect;
-export type InsertAppointment = typeof appointments.$inferInsert;
-
 /**
- * Events and competitions
+ * Horse assignments to lessons
  */
-/**
- * Recurring event series - defines the pattern for recurring events
- */
-export const recurringEventSeries = mysqlTable("recurring_event_series", {
-  id: int("id").autoincrement().primaryKey(),
-  title: varchar("title", { length: 255 }).notNull(),
-  description: text("description"),
-  eventType: mysqlEnum("eventType", ["competition", "show", "clinic", "social", "riding_lesson", "horsemanship_lesson", "other"]).default("other").notNull(),
-  location: varchar("location", { length: 255 }),
-  capacity: int("capacity"),
-  requiresRsvp: boolean("requiresRsvp").default(false).notNull(),
-  
-  // Recurrence pattern
-  recurrencePattern: mysqlEnum("recurrencePattern", ["daily", "weekly", "biweekly", "monthly"]).notNull(),
-  daysOfWeek: varchar("daysOfWeek", { length: 50 }), // Comma-separated: "1,3,5" for Mon,Wed,Fri
-  
-  // Time for each occurrence
-  startTimeOfDay: varchar("startTimeOfDay", { length: 8 }).notNull(), // "09:00:00"
-  durationMinutes: int("durationMinutes").notNull(), // Duration in minutes
-  
-  // Series bounds
-  seriesStartDate: bigint("seriesStartDate", { mode: "number" }).notNull(), // First occurrence date
-  seriesEndDate: bigint("seriesEndDate", { mode: "number" }), // Last occurrence date (null = ongoing)
-  maxOccurrences: int("maxOccurrences"), // Alternative to end date
-  
-  createdBy: int("createdBy").notNull(),
+export const horseAssignments = pgTable("horseAssignments", {
+  id: serial("id").primaryKey(),
+  horseId: integer("horseId").notNull(),
+  lessonId: integer("lessonId").notNull(),
+  memberId: integer("memberId").notNull(),
+  assignedBy: integer("assignedBy").notNull(), // Staff who made the assignment
+  notes: text("notes"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-  isActive: boolean("isActive").default(true).notNull(), // Can deactivate series
 });
 
-export const events = mysqlTable("events", {
-  id: int("id").autoincrement().primaryKey(),
+/**
+ * Events (competitions, shows, clinics, social events)
+ */
+export const events = pgTable("events", {
+  id: serial("id").primaryKey(),
   title: varchar("title", { length: 255 }).notNull(),
   description: text("description"),
-  eventType: mysqlEnum("eventType", ["competition", "show", "clinic", "social", "riding_lesson", "horsemanship_lesson", "other"]).default("other").notNull(),
-  location: varchar("location", { length: 255 }),
+  eventType: eventTypeEnum("eventType").default("other").notNull(),
   startTime: bigint("startTime", { mode: "number" }).notNull(), // Unix timestamp in milliseconds
   endTime: bigint("endTime", { mode: "number" }).notNull(), // Unix timestamp in milliseconds
-  capacity: int("capacity"), // Max attendees, null = unlimited
-  
-  // Recurring event linkage
-  recurringSeriesId: int("recurringSeriesId"), // Links to recurring_event_series if part of series
-  recurrenceException: boolean("recurrenceException").default(false).notNull(), // true if this occurrence was modified
-  requiresRsvp: boolean("requiresRsvp").default(true).notNull(),
-  isPublished: boolean("isPublished").default(false).notNull(),
-  createdBy: int("createdBy").notNull(),
-  imageUrl: text("imageUrl"),
+  location: varchar("location", { length: 500 }),
+  maxParticipants: integer("maxParticipants"),
+  currentParticipants: integer("currentParticipants").default(0).notNull(),
+  isRecurring: boolean("isRecurring").default(false).notNull(),
+  recurrencePattern: recurrencePatternEnum("recurrencePattern"),
+  recurrenceEndDate: bigint("recurrenceEndDate", { mode: "number" }), // Unix timestamp in milliseconds
+  createdBy: integer("createdBy").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().notNull(),
 });
 
 /**
- * Event RSVPs
+ * Event registrations
  */
-export const eventRsvps = mysqlTable("eventRsvps", {
-  id: int("id").autoincrement().primaryKey(),
-  eventId: int("eventId").notNull(),
-  memberId: int("memberId").notNull(),
-  userId: int("userId").notNull(),
-  status: mysqlEnum("status", ["attending", "not_attending", "maybe", "waitlist"]).default("attending").notNull(),
-  guestCount: int("guestCount").default(0).notNull(), // Number of additional guests
+export const eventRegistrations = pgTable("eventRegistrations", {
+  id: serial("id").primaryKey(),
+  eventId: integer("eventId").notNull(),
+  memberId: integer("memberId").notNull(),
+  status: statusEnum("status").default("attending").notNull(),
+  registeredAt: bigint("registeredAt", { mode: "number" }).notNull(), // Unix timestamp in milliseconds
   notes: text("notes"),
-  rsvpedAt: bigint("rsvpedAt", { mode: "number" }).notNull(), // Unix timestamp in milliseconds
   createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().notNull(),
 });
 
-export type RecurringEventSeries = typeof recurringEventSeries.$inferSelect;
-export type InsertRecurringEventSeries = typeof recurringEventSeries.$inferInsert;
-
-export type Event = typeof events.$inferSelect;
-export type InsertEvent = typeof events.$inferInsert;
-
-export type EventRsvp = typeof eventRsvps.$inferSelect;
-export type InsertEventRsvp = typeof eventRsvps.$inferInsert;
-
 /**
- * Onboarding checklist for new members
+ * Student goals for Pony Club certifications and skills
  */
-export const onboardingChecklist = mysqlTable("onboardingChecklist", {
-  id: int("id").autoincrement().primaryKey(),
-  userId: int("userId").notNull(),
-  itemKey: varchar("itemKey", { length: 128 }).notNull(), // e.g., "upload_profile_photo", "review_facility_rules"
-  itemTitle: varchar("itemTitle", { length: 255 }).notNull(),
-  itemDescription: text("itemDescription"),
-  isCompleted: boolean("isCompleted").default(false).notNull(),
-  completedAt: timestamp("completedAt"),
-  sortOrder: int("sortOrder").default(0).notNull(),
+export const studentGoals = pgTable("studentGoals", {
+  id: serial("id").primaryKey(),
+  memberId: integer("memberId").notNull(),
+  category: categoryEnum("category").default("riding_skill").notNull(),
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description"),
+  targetDate: bigint("targetDate", { mode: "number" }), // Unix timestamp in milliseconds
+  progress: integer("progress").default(0).notNull(), // 0-100 percentage
+  status: statusEnum("status").default("active").notNull(),
+  createdBy: integer("createdBy").notNull(), // Student or staff who created the goal
   createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-});
-
-export type OnboardingChecklistItem = typeof onboardingChecklist.$inferSelect;
-export type InsertOnboardingChecklistItem = typeof onboardingChecklist.$inferInsert;
-
-/**
- * Student riding goals with progress tracking
- */
-export const studentGoals = mysqlTable("studentGoals", {
-  id: int("id").autoincrement().primaryKey(),
-  memberId: int("memberId").notNull(), // Student who set the goal
-  goalTitle: varchar("goalTitle", { length: 255 }).notNull(),
-  goalDescription: text("goalDescription"),
-  category: mysqlEnum("category", ["riding_skill", "horse_care", "competition", "certification", "other"]).default("riding_skill").notNull(),
-  targetDate: timestamp("targetDate"), // Optional target completion date
-  progressPercentage: int("progressPercentage").default(0).notNull(), // 0-100
-  status: mysqlEnum("status", ["active", "completed", "archived"]).default("active").notNull(),
-  completedAt: bigint("completedAt", { mode: "number" }), // Unix timestamp when completed
-  createdBy: int("createdBy").notNull(), // User who created (student or parent)
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().notNull(),
 }, (table) => ({
   memberStatusIdx: index("idx_goals_member_status").on(table.memberId, table.status),
 }));
 
 /**
- * Progress updates on student goals from instructors
+ * Goal progress updates and audit trail
  */
-export const goalProgressUpdates = mysqlTable("goalProgressUpdates", {
-  id: int("id").autoincrement().primaryKey(),
-  goalId: int("goalId").notNull(), // Reference to studentGoals
-  updatedBy: int("updatedBy").notNull(), // Instructor/staff who made the update
-  previousProgress: int("previousProgress").notNull(), // Progress before update (for audit trail)
-  newProgress: int("newProgress").notNull(), // Progress after update
-  progressChange: int("progressChange").notNull(), // Calculated: newProgress - previousProgress
-  notes: text("notes"), // Instructor notes about progress
-  updateDate: bigint("updateDate", { mode: "number" }).notNull(), // Unix timestamp
+export const goalProgressUpdates = pgTable("goalProgressUpdates", {
+  id: serial("id").primaryKey(),
+  goalId: integer("goalId").notNull(),
+  updatedBy: integer("updatedBy").notNull(), // Staff or student who updated
+  previousProgress: integer("previousProgress").notNull(),
+  newProgress: integer("newProgress").notNull(),
+  progressChange: integer("progressChange").notNull(), // Calculated: newProgress - previousProgress
+  notes: text("notes"),
+  updateDate: bigint("updateDate", { mode: "number" }).notNull(), // Unix timestamp in milliseconds
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 }, (table) => ({
   goalDateIdx: index("idx_progress_goal_date").on(table.goalId, table.updateDate),
 }));
-
-export type StudentGoal = typeof studentGoals.$inferSelect;
-export type InsertStudentGoal = typeof studentGoals.$inferInsert;
-
-export type GoalProgressUpdate = typeof goalProgressUpdates.$inferSelect;
-export type InsertGoalProgressUpdate = typeof goalProgressUpdates.$inferInsert;
