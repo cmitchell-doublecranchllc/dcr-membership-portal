@@ -292,6 +292,37 @@ export const horseAssignments = pgTable("horseAssignments", {
 });
 
 /**
+ * Recurring event series - defines the pattern for recurring events
+ */
+export const recurringEventSeries = pgTable("recurring_event_series", {
+  id: serial("id").primaryKey(),
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description"),
+  eventType: eventTypeEnum("eventType").default("other").notNull(),
+  location: varchar("location", { length: 255 }),
+  capacity: integer("capacity"),
+  requiresRsvp: boolean("requiresRsvp").default(false).notNull(),
+  
+  // Recurrence pattern
+  recurrencePattern: recurrencePatternEnum("recurrencePattern").notNull(),
+  daysOfWeek: varchar("daysOfWeek", { length: 50 }), // Comma-separated: "1,3,5" for Mon,Wed,Fri
+  
+  // Time for each occurrence
+  startTimeOfDay: varchar("startTimeOfDay", { length: 8 }).notNull(), // "09:00:00"
+  durationMinutes: integer("durationMinutes").notNull(), // Duration in minutes
+  
+  // Series bounds
+  seriesStartDate: bigint("seriesStartDate", { mode: "number" }).notNull(), // First occurrence date
+  seriesEndDate: bigint("seriesEndDate", { mode: "number" }), // Last occurrence date (null = ongoing)
+  maxOccurrences: integer("maxOccurrences"), // Alternative to end date
+  
+  createdBy: integer("createdBy").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().notNull(),
+  isActive: boolean("isActive").default(true).notNull(), // Can deactivate series
+});
+
+/**
  * Events (competitions, shows, clinics, social events)
  */
 export const events = pgTable("events", {
@@ -299,15 +330,34 @@ export const events = pgTable("events", {
   title: varchar("title", { length: 255 }).notNull(),
   description: text("description"),
   eventType: eventTypeEnum("eventType").default("other").notNull(),
+  location: varchar("location", { length: 255 }),
   startTime: bigint("startTime", { mode: "number" }).notNull(), // Unix timestamp in milliseconds
   endTime: bigint("endTime", { mode: "number" }).notNull(), // Unix timestamp in milliseconds
-  location: varchar("location", { length: 500 }),
-  maxParticipants: integer("maxParticipants"),
-  currentParticipants: integer("currentParticipants").default(0).notNull(),
-  isRecurring: boolean("isRecurring").default(false).notNull(),
-  recurrencePattern: recurrencePatternEnum("recurrencePattern"),
-  recurrenceEndDate: bigint("recurrenceEndDate", { mode: "number" }), // Unix timestamp in milliseconds
+  capacity: integer("capacity"), // Max attendees, null = unlimited
+  
+  // Recurring event linkage
+  recurringSeriesId: integer("recurringSeriesId"), // Links to recurring_event_series if part of series
+  recurrenceException: boolean("recurrenceException").default(false).notNull(), // true if this occurrence was modified
+  requiresRsvp: boolean("requiresRsvp").default(true).notNull(),
+  isPublished: boolean("isPublished").default(false).notNull(),
   createdBy: integer("createdBy").notNull(),
+  imageUrl: text("imageUrl"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().notNull(),
+});
+
+/**
+ * Event RSVPs
+ */
+export const eventRsvps = pgTable("eventRsvps", {
+  id: serial("id").primaryKey(),
+  eventId: integer("eventId").notNull(),
+  memberId: integer("memberId").notNull(),
+  userId: integer("userId").notNull(),
+  status: statusEnum("status").default("attending").notNull(),
+  guestCount: integer("guestCount").default(0).notNull(), // Number of additional guests
+  notes: text("notes"),
+  rsvpedAt: bigint("rsvpedAt", { mode: "number" }).notNull(), // Unix timestamp in milliseconds
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().notNull(),
 });
@@ -361,3 +411,67 @@ export const goalProgressUpdates = pgTable("goalProgressUpdates", {
 }, (table) => ({
   goalDateIdx: index("idx_progress_goal_date").on(table.goalId, table.updateDate),
 }));
+
+// Type exports
+export type User = typeof users.$inferSelect;
+export type InsertUser = typeof users.$inferInsert;
+
+export type Member = typeof members.$inferSelect;
+export type InsertMember = typeof members.$inferInsert;
+
+export type CheckIn = typeof checkIns.$inferSelect;
+export type InsertCheckIn = typeof checkIns.$inferInsert;
+
+export type Contract = typeof contracts.$inferSelect;
+export type InsertContract = typeof contracts.$inferInsert;
+
+export type ContractSignature = typeof contractSignatures.$inferSelect;
+export type InsertContractSignature = typeof contractSignatures.$inferInsert;
+
+export type ContractAssignment = typeof contractAssignments.$inferSelect;
+export type InsertContractAssignment = typeof contractAssignments.$inferInsert;
+
+export type MemberDocument = typeof memberDocuments.$inferSelect;
+export type InsertMemberDocument = typeof memberDocuments.$inferInsert;
+
+export type Announcement = typeof announcements.$inferSelect;
+export type InsertAnnouncement = typeof announcements.$inferInsert;
+
+export type Message = typeof messages.$inferSelect;
+export type InsertMessage = typeof messages.$inferInsert;
+
+export type Appointment = typeof appointments.$inferSelect;
+export type InsertAppointment = typeof appointments.$inferInsert;
+
+export type LessonSlot = typeof lessonSlots.$inferSelect;
+export type InsertLessonSlot = typeof lessonSlots.$inferInsert;
+
+export type LessonBooking = typeof lessonBookings.$inferSelect;
+export type InsertLessonBooking = typeof lessonBookings.$inferInsert;
+
+export type ProgressNote = typeof progressNotes.$inferSelect;
+export type InsertProgressNote = typeof progressNotes.$inferInsert;
+
+export type Horse = typeof horses.$inferSelect;
+export type InsertHorse = typeof horses.$inferInsert;
+
+export type HorseAssignment = typeof horseAssignments.$inferSelect;
+export type InsertHorseAssignment = typeof horseAssignments.$inferInsert;
+
+export type RecurringEventSeries = typeof recurringEventSeries.$inferSelect;
+export type InsertRecurringEventSeries = typeof recurringEventSeries.$inferInsert;
+
+export type Event = typeof events.$inferSelect;
+export type InsertEvent = typeof events.$inferInsert;
+
+export type EventRsvp = typeof eventRsvps.$inferSelect;
+export type InsertEventRsvp = typeof eventRsvps.$inferInsert;
+
+export type EventRegistration = typeof eventRegistrations.$inferSelect;
+export type InsertEventRegistration = typeof eventRegistrations.$inferInsert;
+
+export type StudentGoal = typeof studentGoals.$inferSelect;
+export type InsertStudentGoal = typeof studentGoals.$inferInsert;
+
+export type GoalProgressUpdate = typeof goalProgressUpdates.$inferSelect;
+export type InsertGoalProgressUpdate = typeof goalProgressUpdates.$inferInsert;
