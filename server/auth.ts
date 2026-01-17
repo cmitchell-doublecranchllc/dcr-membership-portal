@@ -1,7 +1,7 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { users } from '../drizzle/schema';
-import { db } from './db';
+import { getDb } from './db';
 import { eq } from 'drizzle-orm';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
@@ -49,6 +49,9 @@ export function verifyToken(token: string): JWTPayload | null {
  * Authenticate user with email and password
  */
 export async function authenticateUser(email: string, password: string) {
+  const db = await getDb();
+  if (!db) return null;
+  
   const [user] = await db
     .select()
     .from(users)
