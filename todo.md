@@ -181,4 +181,33 @@
 - [x] Update analytics.ts to properly handle undefined env vars
 - [x] Add explicit checks to prevent Invalid URL errors
 - [x] Test that analytics gracefully skips when not configured
-- [ ] Push fix to GitHub
+- [x] Push fix to GitHub
+
+## Clean Up index.html
+- [x] Remove commented Google Fonts block
+- [x] Update to cleaner version without comment blocks
+- [x] Push changes to GitHub
+
+## Investigate Persistent Invalid URL Error on Render
+- [x] Check if Render has actually deployed the latest commit (cc927c3)
+- [x] Investigate Vite environment variable replacement during build
+- [x] Test build locally without analytics env vars set
+- [x] Consider alternative approach: completely remove analytics initialization
+- [ ] Verify fix works in production on Render
+
+## Fix OAuth URL Construction (Root Cause of Invalid URL Error)
+- [x] Update useAuth.ts to use lazy evaluation for getLoginUrl()
+- [x] Update const.ts to add guard for missing env vars
+- [x] Test build locally
+- [x] Push fix to GitHub
+
+## Build Custom Authentication System
+- [ ] Update users table schema to add password field
+- [ ] Install bcrypt for password hashing
+- [ ] Create backend login endpoint (email/password)
+- [ ] Create backend registration endpoint
+- [ ] Create /login page with login form
+- [ ] Create /register page with registration form
+- [ ] Update session management to use JWT
+- [ ] Test login and registration flows
+- [ ] Push to GitHub and deploy

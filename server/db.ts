@@ -173,21 +173,32 @@ export async function deleteUser(userId: number) {
   return { success: true };
 }
 
-export async function createUser(user: { email: string; name: string; accountStatus: string; role: string }) {
+export async function createUser(user: { email: string; name: string; accountStatus: string; role: string; password?: string; loginMethod?: string }) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   const result = await db.insert(users).values({
     email: user.email,
     name: user.name,
+    password: user.password,
     accountStatus: user.accountStatus as any,
     role: user.role as any,
-    openId: `signup_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-    loginMethod: "email",
-  });
-  const userId = result[0].insertId;
-  const newUser = await getUserById(userId);
-  if (!newUser) throw new Error("Failed to create user");
-  return newUser;
+    openId: user.loginMethod === 'local' ? `local_${Date.now()}_${Math.random().toString(36).substr(2, 9)}` : `signup_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+    loginMethod: user.loginMethod || "email",
+  }).returning();
+  return result[0];
+}
+
+export async function getUserByEmail(email: string) {
+  const db = await getDb();
+  if (!db) return null;
+  const result = await db.select().from(users).where(eq(users.email, email)).limit(1);
+  return result[0] || null;
+}
+
+export async function updateUser(userId: number, updates: { lastSignedIn?: Date; password?: string; name?: string }) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(users).set(updates).where(eq(users.id, userId));
 }
 
 // ============ Member Functions ============

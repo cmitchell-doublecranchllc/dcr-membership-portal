@@ -5,6 +5,7 @@ import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import { z } from "zod";
 import * as db from "./db";
 import { TRPCError } from "@trpc/server";
+import { COOKIE_NAME } from "@shared/const";
 import { sendEmail, getEventRsvpConfirmationEmail } from "./_core/email";
 import { format } from "date-fns";
 import * as recurringEvents from "./recurringEvents";
@@ -29,6 +30,76 @@ export const appRouter = router({
       ctx.res.clearCookie(COOKIE_NAME, { ...cookieOptions, maxAge: -1 });
       return { success: true } as const;
     }),
+    login: publicProcedure
+      .input(z.object({
+        email: z.string().email(),
+        password: z.string().min(6),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const { authenticateUser, generateToken } = await import('./auth');
+        
+        const user = await authenticateUser(input.email, input.password);
+        if (!user) {
+          throw new TRPCError({ code: 'UNAUTHORIZED', message: 'Invalid email or password' });
+        }
+
+        // Generate JWT token
+        const token = generateToken({
+          userId: user.id,
+          email: user.email,
+          role: user.role,
+        });
+
+        // Set session cookie
+        const cookieOptions = getSessionCookieOptions(ctx.req);
+        ctx.res.cookie(COOKIE_NAME, token, cookieOptions);
+
+        // Update last signed in
+        await db.updateUser(user.id, { lastSignedIn: new Date() });
+
+        return { success: true, user };
+      }),
+    register: publicProcedure
+      .input(z.object({
+        name: z.string().min(2),
+        email: z.string().email(),
+        password: z.string().min(6),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const { hashPassword, generateToken } = await import('./auth');
+        
+        // Check if user already exists
+        const existingUser = await db.getUserByEmail(input.email);
+        if (existingUser) {
+          throw new TRPCError({ code: 'CONFLICT', message: 'Email already registered' });
+        }
+
+        // Hash password
+        const hashedPassword = await hashPassword(input.password);
+
+        // Create user
+        const user = await db.createUser({
+          email: input.email,
+          name: input.name,
+          password: hashedPassword,
+          loginMethod: 'local',
+          accountStatus: 'approved',
+          role: 'user',
+        });
+
+        // Generate JWT token
+        const token = generateToken({
+          userId: user.id,
+          email: user.email,
+          role: user.role,
+        });
+
+        // Set session cookie
+        const cookieOptions = getSessionCookieOptions(ctx.req);
+        ctx.res.cookie(COOKIE_NAME, token, cookieOptions);
+
+        return { success: true, user: { id: user.id, email: user.email, name: user.name, role: user.role } };
+      }),
     signup: publicProcedure
       .input(z.object({
         studentName: z.string(),

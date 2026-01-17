@@ -21,12 +21,13 @@ export const recurrencePatternEnum = pgEnum("recurrencePattern", ["daily", "week
  */
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
-  openId: varchar("openId", { length: 64 }).notNull().unique(),
+  openId: varchar("openId", { length: 64 }).unique(), // Make optional for local auth
   name: text("name"),
-  email: varchar("email", { length: 320 }).unique(),
+  email: varchar("email", { length: 320 }).unique().notNull(), // Email required for login
+  password: text("password"), // Hashed password for local authentication
   loginMethod: varchar("loginMethod", { length: 64 }),
   role: roleEnum("role").default("user").notNull(),
-  accountStatus: accountStatusEnum("accountStatus").default("pending").notNull(),
+  accountStatus: accountStatusEnum("accountStatus").default("approved").notNull(), // Auto-approve for self-registration
   profilePhotoUrl: text("profilePhotoUrl"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().notNull(),

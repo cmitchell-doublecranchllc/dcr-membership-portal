@@ -29,6 +29,8 @@ import StaffPendingCheckIns from "./pages/StaffPendingCheckIns";
 import StaffUserManagement from "./pages/StaffUserManagement";
 import Signup from "./pages/Signup";
 import Documents from "./pages/Documents";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
 
 import MyGoals from "./pages/MyGoals";
 import MyProgress from "./pages/MyProgress";
@@ -41,6 +43,8 @@ function Router() {
   return (
     <Switch>
       <Route path={"/"} component={Home} />
+      <Route path="/login" component={Login} />
+      <Route path="/register" component={Register} />
       <Route path="/signup" component={Signup} />
       <Route path="/profile" component={Profile} />
       <Route path="/staff" component={StaffDashboard} />
