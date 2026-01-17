@@ -164,3 +164,9 @@
 - [ ] Fix enum declarations and table definitions
 - [ ] Test db:push locally
 - [ ] Push fix to GitHub
+
+## Remove Lesson Reminders Feature
+- [x] Find lesson reminder scheduler code
+- [x] Remove lesson reminder initialization
+- [x] Remove lesson reminder dependencies
+- [ ] Push changes to GitHub
