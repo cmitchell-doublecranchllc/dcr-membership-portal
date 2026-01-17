@@ -10,6 +10,12 @@ function getQueryParam(req: Request, key: string): string | undefined {
 }
 
 export function registerOAuthRoutes(app: Express) {
+  // Skip OAuth routes if not configured
+  if (!process.env.OAUTH_SERVER_URL || !process.env.VITE_APP_ID || !process.env.JWT_SECRET) {
+    console.log("[OAuth] OAuth not configured - skipping OAuth routes");
+    return;
+  }
+  
   app.get("/api/oauth/callback", async (req: Request, res: Response) => {
     const code = getQueryParam(req, "code");
     const state = getQueryParam(req, "state");

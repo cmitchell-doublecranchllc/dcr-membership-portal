@@ -169,4 +169,10 @@
 - [x] Find lesson reminder scheduler code
 - [x] Remove lesson reminder initialization
 - [x] Remove lesson reminder dependencies
+- [x] Push changes to GitHub
+
+## Make OAuth Optional
+- [x] Update OAuth initialization to check for required env vars
+- [x] Make OAuth routes conditional
+- [x] Handle missing OAuth config gracefully
 - [ ] Push changes to GitHub
