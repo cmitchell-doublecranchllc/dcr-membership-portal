@@ -175,4 +175,10 @@
 - [x] Update OAuth initialization to check for required env vars
 - [x] Make OAuth routes conditional
 - [x] Handle missing OAuth config gracefully
-- [ ] Push changes to GitHub
+- [x] Push changes to GitHub
+
+## Fix Analytics Environment Variable Handling
+- [x] Update analytics.ts to properly handle undefined env vars
+- [x] Add explicit checks to prevent Invalid URL errors
+- [x] Test that analytics gracefully skips when not configured
+- [ ] Push fix to GitHub
