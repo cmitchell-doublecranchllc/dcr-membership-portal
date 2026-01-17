@@ -202,12 +202,19 @@
 - [x] Push fix to GitHub
 
 ## Build Custom Authentication System
-- [ ] Update users table schema to add password field
-- [ ] Install bcrypt for password hashing
-- [ ] Create backend login endpoint (email/password)
-- [ ] Create backend registration endpoint
-- [ ] Create /login page with login form
-- [ ] Create /register page with registration form
-- [ ] Update session management to use JWT
-- [ ] Test login and registration flows
-- [ ] Push to GitHub and deploy
+- [x] Update users table schema to add password field
+- [x] Install bcrypt for password hashing
+- [x] Create backend login endpoint (email/password)
+- [x] Create backend registration endpoint
+- [x] Create /login page with login form
+- [x] Create /register page with registration form
+- [x] Update session management to use JWT
+- [ ] Test login and registration flows on deployed site
+- [x] Push to GitHub and deploy
+
+## Replace Wouter with React Router
+- [ ] Install react-router-dom
+- [ ] Replace App.tsx routing with user's React Router code
+- [ ] Update all Link components from wouter to react-router-dom
+- [ ] Test build
+- [ ] Push to GitHub

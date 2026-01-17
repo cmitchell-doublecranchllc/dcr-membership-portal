@@ -5,34 +5,26 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { useToast } from "@/hooks/use-toast";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const navigate = useNavigate();
-  const { toast } = useToast();
 
   const loginMutation = trpc.auth.login.useMutation({
     onSuccess: () => {
-      toast({
-        title: "Login successful",
-        description: "Welcome back!",
-      });
       // Redirect to home or dashboard
       window.location.href = "/";
     },
     onError: (error) => {
-      toast({
-        title: "Login failed",
-        description: error.message,
-        variant: "destructive",
-      });
+      setError(error.message);
     },
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
     loginMutation.mutate({ email, password });
   };
 
@@ -47,6 +39,11 @@ export default function Login() {
         </CardHeader>
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">
+            {error && (
+              <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded">
+                {error}
+              </div>
+            )}
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
@@ -83,7 +80,7 @@ export default function Login() {
             </Button>
             <div className="text-sm text-center text-gray-600">
               Don't have an account?{" "}
-              <Link href="/register" className="text-red-800 hover:underline font-medium">
+              <Link to="/register" className="text-red-800 hover:underline font-medium">
                 Sign up
               </Link>
             </div>

@@ -5,52 +5,36 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { useToast } from "@/hooks/use-toast";
 
 export default function Register() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [error, setError] = useState("");
   const navigate = useNavigate();
-  const { toast } = useToast();
 
   const registerMutation = trpc.auth.register.useMutation({
     onSuccess: () => {
-      toast({
-        title: "Registration successful",
-        description: "Welcome to Double C Ranch!",
-      });
       // Redirect to home or dashboard
       window.location.href = "/";
     },
     onError: (error) => {
-      toast({
-        title: "Registration failed",
-        description: error.message,
-        variant: "destructive",
-      });
+      setError(error.message);
     },
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
     
     if (password !== confirmPassword) {
-      toast({
-        title: "Passwords don't match",
-        description: "Please make sure your passwords match",
-        variant: "destructive",
-      });
+      setError("Passwords don't match");
       return;
     }
 
     if (password.length < 6) {
-      toast({
-        title: "Password too short",
-        description: "Password must be at least 6 characters",
-        variant: "destructive",
-      });
+      setError("Password must be at least 6 characters");
       return;
     }
 
@@ -68,6 +52,11 @@ export default function Register() {
         </CardHeader>
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">
+            {error && (
+              <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded">
+                {error}
+              </div>
+            )}
             <div className="space-y-2">
               <Label htmlFor="name">Full Name</Label>
               <Input
@@ -131,7 +120,7 @@ export default function Register() {
             </Button>
             <div className="text-sm text-center text-gray-600">
               Already have an account?{" "}
-              <Link href="/login" className="text-red-800 hover:underline font-medium">
+              <Link to="/login" className="text-red-800 hover:underline font-medium">
                 Log in
               </Link>
             </div>

@@ -1,15 +1,14 @@
-import { Toaster } from "@/components/ui/sonner";
+import { Switch, Route } from "wouter";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import NotFound from "@/pages/NotFound";
-import { Route, Switch } from "wouter";
-import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
+import ErrorBoundary from "./components/ErrorBoundary";
 import Home from "./pages/Home";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
 import Profile from "./pages/Profile";
 import StaffDashboard from "./pages/StaffDashboard";
 import Contracts from "./pages/Contracts";
 import AdminContracts from "./pages/AdminContracts";
-
 import Messages from "./pages/Messages";
 import Announcements from "./pages/Announcements";
 import Events from "./pages/Events";
@@ -17,7 +16,6 @@ import EventDetails from "./pages/EventDetails";
 import AdminEvents from "./pages/AdminEvents";
 import AdminRecurringEvents from "./pages/AdminRecurringEvents";
 import StaffLessons from "./pages/StaffLessons";
-
 import StaffAttendance from "./pages/StaffAttendance";
 import StaffProgressNotes from "./pages/StaffProgressNotes";
 import MyProgressNotes from "./pages/MyProgressNotes";
@@ -29,20 +27,14 @@ import StaffPendingCheckIns from "./pages/StaffPendingCheckIns";
 import StaffUserManagement from "./pages/StaffUserManagement";
 import Signup from "./pages/Signup";
 import Documents from "./pages/Documents";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-
 import MyGoals from "./pages/MyGoals";
 import MyProgress from "./pages/MyProgress";
-
-
-
+import NotFound from "./pages/NotFound";
 
 function Router() {
-  // make sure to consider if you need authentication for certain routes
   return (
     <Switch>
-      <Route path={"/"} component={Home} />
+      <Route path="/" component={Home} />
       <Route path="/login" component={Login} />
       <Route path="/register" component={Register} />
       <Route path="/signup" component={Signup} />
@@ -51,7 +43,6 @@ function Router() {
       <Route path="/contracts" component={Contracts} />
       <Route path="/documents" component={Documents} />
       <Route path="/admin/contracts" component={AdminContracts} />
-
       <Route path="/messages" component={Messages} />
       <Route path="/announcements" component={Announcements} />
       <Route path="/events" component={Events} />
@@ -66,35 +57,21 @@ function Router() {
       <Route path="/staff/pending-members" component={StaffPendingMembers} />
       <Route path="/staff/pending-checkins" component={StaffPendingCheckIns} />
       <Route path="/staff/users" component={StaffUserManagement} />
-
-
-
       <Route path="/my-progress-notes" component={MyProgressNotes} />
       <Route path="/my-progress" component={MyProgress} />
       <Route path="/my-goals" component={MyGoals} />
-
       <Route path="/pending-approval" component={PendingApproval} />
-      <Route path={"/404"} component={NotFound} />
-      {/* Final fallback route */}
+      <Route path="/404" component={NotFound} />
       <Route component={NotFound} />
     </Switch>
   );
 }
 
-// NOTE: About Theme
-// - First choose a default theme according to your design style (dark or light bg), than change color palette in index.css
-//   to keep consistent foreground/background color across components
-// - If you want to make theme switchable, pass `switchable` ThemeProvider and use `useTheme` hook
-
 function App() {
   return (
     <ErrorBoundary>
-      <ThemeProvider
-        defaultTheme="light"
-        // switchable
-      >
+      <ThemeProvider defaultTheme="light">
         <TooltipProvider>
-          <Toaster />
           <Router />
         </TooltipProvider>
       </ThemeProvider>
